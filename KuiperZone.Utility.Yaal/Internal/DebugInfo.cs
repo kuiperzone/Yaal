@@ -18,12 +18,14 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Internal;
 
 /// <summary>
 /// </summary>
 public sealed class DebugInfo
 {
+    private static readonly string ConstructorEntry = typeof(DebugInfo).FullName + "..ctor";
+
     /// <summary>
     /// Contructor which will locate the caller in the stack. The "entryMethod" should be the
     /// full name of the first function (entry) in the logging functionality. If null,
@@ -32,7 +34,7 @@ public sealed class DebugInfo
     /// </summary>
     public DebugInfo(string? entryMethod = null)
     {
-        entryMethod ??= typeof(DebugInfo).FullName + "..ctor";
+        entryMethod ??= ConstructorEntry;
         Function = LocateCaller(entryMethod, out int temp);
         LineNumber = temp;
     }

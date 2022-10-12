@@ -26,12 +26,23 @@ namespace KuiperZone.Utility.Yaal;
 public interface IReadOnlyLogOptions
 {
     /// <summary>
-    /// Gets the application name. It will be set on construction to a default value, but may be set explicitly.
+    /// Gets the application name. It will be set on construction to a default value.
+    /// If not empty, all characters are to be within the printable ASCII range, and must not
+    /// contain: '=', SP, ']', '"'
     /// </summary>
     string AppName { get; }
 
     /// <summary>
-    /// Gets the local host name. The value is populated by default, but may be set explicitly.
+    /// Gets the application PID. It will be set on construction to a default value.
+    /// If not empty, all characters are to be within the printable ASCII range, and must not
+    /// contain: '=', SP, ']', '"'
+    /// </summary>
+    string AppPid { get; }
+
+    /// <summary>
+    /// Gets the local host name. It will be set on construction to a default value.
+    /// If not empty, all characters are to be within the printable ASCII range, and must not
+    /// contain: '=', SP, ']', '"'
     /// </summary>
     string LocalHost { get; }
 
@@ -42,6 +53,12 @@ public interface IReadOnlyLogOptions
     FormatKind Format { get; }
 
     /// <summary>
+    /// Gets whether times are written as UTC. Ignored for <see cref="FormatKind.Bsd"/>, as
+    /// this format uses only local times. The default is false (local).
+    /// </summary>
+    bool IsTimeUtc { get; }
+
+    /// <summary>
     /// Gets the RFC 5424 syslog facility value. The default is <see cref="FacilityId.User"/> and
     /// should not normally be changed. It is ignored for other logging kinds.
     /// </summary>
@@ -50,15 +67,17 @@ public interface IReadOnlyLogOptions
     /// <summary>
     /// Gets the maximum message text length in chars, excluding structured and other data.
     /// If the text exceeds this, it will be truncated. A value of 0 or less implies no limit.
+    /// The default value is 2048.
     /// </summary>
     int MaxTextLength { get; }
 
     /// <summary>
-    /// Gets the RFC 5424 SD-ID to be used for debug <see cref="FormatKind.Rfc5424"/> structured data.
+    /// Gets the RFC 5424 SD-ID to be used for debugging <see cref="FormatKind.Rfc5424"/> structured data.
     /// The format is "name@enterprise_number", unless using an IANA ID. Example: "DGB@24601". The value
-    /// must not equal that used in elements of messages themselves, otherwise it will be ignored. It will
-    /// also be ignored if it is empty or the ID is invalid. The default is "DGB@00000000", but should
-    /// typically be updated.
+    /// must not equal any that may be used in structure message elements, otherwise it will be ignored.
+    /// It will also be ignored if it is empty or the ID is invalid. The default is "DGB@00000000", but
+    /// should typically be updated. If not empty, all characters are to be within the printable ASCII
+    /// range, and must not contain: '=', SP, ']', '"'
     /// </summary>
-	string DebugSdId { get; }
+	string DebugId { get; }
 }

@@ -18,7 +18,10 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Diagnostics;
+using System.Globalization;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace KuiperZone.Utility.Yaal;
@@ -28,21 +31,16 @@ namespace KuiperZone.Utility.Yaal;
 /// </summary>
 public class LogOptions : IReadOnlyLogOptions
 {
+    private string _appName;
+    private string _appPid;
+    private string _localHost;
+    private string _debugId = "DGB@00000000";
+
     public LogOptions()
     {
-        AppName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name ?? "";
-
-        if (AppName.Length == 0)
-        {
-            AppName = "Unknown";
-        }
-
-        LocalHost = Dns.GetHostName();
-
-        if (LocalHost.Length == 0)
-        {
-            LocalHost = "Unknown";
-        }
+        _appName = ValueOrEmpty(Assembly.GetEntryAssembly()?.GetName().Name);
+        _appPid = ValueOrEmpty(Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture));
+        _localHost = ValueOrEmpty(Dns.GetHostName());
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -54,20 +52,51 @@ public class LogOptions : IReadOnlyLogOptions
         }
     }
 
+    public LogOptions(FormatKind format)
+        : this()
+    {
+        Format = format;
+    }
+
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.AppName"/> and provides a setter.
     /// </summary>
-    public string AppName { get; set; }
+    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    public string AppName
+    {
+        get { return _appName; }
+        set { _appName = AssertValue(value); }
+    }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlyLogOptions.AppPid"/> and provides a setter.
+    /// </summary>
+    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    public string AppPid
+    {
+        get { return _appPid; }
+        set { _appPid = AssertValue(value); }
+    }
 
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.LocalHost"/> and provides a setter.
     /// </summary>
-    public string LocalHost { get; set; }
+    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    public string LocalHost
+    {
+        get { return _localHost; }
+        set { _localHost = AssertValue(value); }
+    }
 
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.Format"/> and provides a setter.
     /// </summary>
     public FormatKind Format { get; set; }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlyLogOptions.IsTimeUtc"/> and provides a setter.
+    /// </summary>
+    public bool IsTimeUtc { get; set; }
 
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.Facility"/> and provides a setter.
@@ -77,10 +106,34 @@ public class LogOptions : IReadOnlyLogOptions
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.MaxTextLength"/> and provides a setter.
     /// </summary>
-    public int MaxTextLength { get; set; }
+    public int MaxTextLength { get; set; } = 2048;
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLogOptions.DebugSdId"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.DebugId"/> and provides a setter.
     /// </summary>
-	public string DebugSdId { get; set; } = "DGB@00000000";
+    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+	public string DebugId
+    {
+        get { return _debugId; }
+        set { _debugId = AssertValue(value); }
+    }
+
+    private static string ValueOrEmpty(string? s)
+    {
+        return StructuredData.IsValidKey(s) ? s : "";
+    }
+
+    private static string AssertValue(string s)
+    {
+        s = s.Trim();
+
+        // Allow empty
+        if (s.Length > 0)
+        {
+            StructuredData.AssertKey(s);
+        }
+
+        return s;
+    }
+
 }
