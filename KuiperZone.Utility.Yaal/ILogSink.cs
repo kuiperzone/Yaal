@@ -27,7 +27,7 @@ namespace KuiperZone.Utility.Yaal;
 public interface ILogSink : IDisposable
 {
     /// <summary>
-    /// Writes the string message.
+    /// Writes the message string. On failure, the call may throw any exception.
     /// </summary>
     void WriteMessage(string message);
 }

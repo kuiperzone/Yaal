@@ -20,6 +20,7 @@
 
 using System.Globalization;
 using System.Text;
+using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -127,7 +128,7 @@ public class LogMessage
     /// <summary>
     ///
     /// </summary>
-    public string ToString(IReadOnlyLogOptions options, SdDebug? debug = null)
+    public string ToString(IReadOnlyLogOptions options, DebugInfo? debug = null)
     {
         var buffer = new StringBuilder(1024);
 
@@ -147,17 +148,6 @@ public class LogMessage
         return buffer.ToString();
     }
 
-    private static string ValueOrNil(string? value)
-    {
-	    if (!StructuredData.IsValidKey(value))
-	    {
-            return "-";
-
-	    }
-
-        return value;
-    }
-
     private static int Clamp(SeverityLevel value)
     {
         if (value >= SeverityLevel.Debug)
@@ -168,25 +158,12 @@ public class LogMessage
         return (int)(value > SeverityLevel.Emergency ? value : SeverityLevel.Emergency);
     }
 
-    private static string GetAppThread(string pid)
+    private static string ValueOrNil(string? value)
     {
-        var buffer = new StringBuilder(pid);
-        var tname = Thread.CurrentThread.Name;
-
-        if (string.IsNullOrEmpty(tname))
-        {
-            tname = Thread.CurrentThread.ManagedThreadId.ToString(CultureInfo.InvariantCulture);
-        }
-
-        if (pid.Length != 0)
-        {
-            buffer.Append('-');
-        }
-
-        return buffer.ToString();
+        return string.IsNullOrEmpty(value) ? "-" : value;
     }
 
-    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options, SdDebug? debug)
+    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options, DebugInfo? debug)
     {
         // Clamp within valid range (see DEBUG_L1 etc.)
         buffer.Append('<');
@@ -197,39 +174,42 @@ public class LogMessage
         buffer.Append(ToTimestamp(options));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.LocalHost));
+        buffer.Append(ValueOrNil(options.HostName));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(options.AppName));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.AppPid));
+        buffer.Append(ValueOrNil(options.ProcId));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(MsgId));
 
+        buffer.Append(' ');
+        bool hasSd = false;
+
         if (_data?.IsEmpty == false)
         {
-            buffer.Append(' ');
-            _data.AppendTo(buffer);
+            hasSd = true;
+            _data.AppendTo(buffer, options);
         }
 
-        if (debug != null && _data?.ContainsKey(debug.Id) != true)
+        if (debug?.Function != null && _data?.ContainsKey(options.DebugId) != true)
         {
-            // Space if null or empty is true
-            if (_data?.IsEmpty != false)
-            {
-                buffer.Append(' ');
-            }
+            hasSd = true;
+            debug.AppendTo(buffer, Severity, options);
+        }
 
-            ExtendDebug(options, debug);
-            debug.AppendTo(buffer);
+        if (!hasSd)
+        {
+            // NIL SD
+            buffer.Append('-');
         }
 
         AppendMessage(buffer, options);
     }
 
-    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options, SdDebug? debug)
+    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options, DebugInfo? debug)
     {
         // Clamp within valid range (see DEBUG_L1 etc.)
         buffer.Append('<');
@@ -239,17 +219,28 @@ public class LogMessage
         buffer.Append(ToTimestamp(options));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.LocalHost));
+        buffer.Append(ValueOrNil(options.HostName));
 
         AppendMessage(buffer, options);
-        AppendSimpleDebug(buffer, options, debug);
+
+        if (debug?.Function != null)
+        {
+            // No standard for BSD debug data, so just
+            // tag on SD output after message text.
+            buffer.Append(' ');
+            debug.AppendTo(buffer, Severity, options);
+        }
     }
 
-    private void AppendText(StringBuilder buffer, IReadOnlyLogOptions options, SdDebug? debug)
+    private void AppendText(StringBuilder buffer, IReadOnlyLogOptions options, DebugInfo? debug)
     {
-        AppendSimpleDebug(buffer, options, debug);
+        if (debug?.Function != null)
+        {
+            // Debug leads with: ConsoleApp1.Program.Main(String[] args) #47 : MESSAGE
+            buffer.Append(debug.ToString());
+            buffer.Append(" :");
+        }
 
-        buffer.Append(" :");
         AppendMessage(buffer, options);
     }
 
@@ -262,45 +253,6 @@ public class LogMessage
             case FormatKind.Rfc5424: return t.ToString(TimeFormat5424, CultureInfo.InvariantCulture);
             case FormatKind.Bsd: return t.ToString(TimeFormatBsd, CultureInfo.InvariantCulture);
             default: return t.ToString(TimeFormatText, CultureInfo.InvariantCulture);
-        }
-    }
-
-    private void ExtendDebug(IReadOnlyLogOptions options, SdDebug? debug)
-    {
-        if (debug != null)
-        {
-            debug.Add("SEVERITY", Severity.ToString().ToUpperInvariant());
-            debug.Add("THREAD", GetAppThread(options.AppPid));
-        }
-    }
-
-    private void AppendSimpleDebug(StringBuilder buffer, IReadOnlyLogOptions options, SdDebug? debug)
-    {
-        if (debug != null)
-        {
-            if (buffer.Length != 0)
-            {
-                buffer.Append(' ');
-            }
-
-            buffer.Append('[');
-            buffer.Append(Severity.ToString().ToUpperInvariant());
-            buffer.Append(", ");
-            buffer.Append(GetAppThread(options.AppPid));
-
-            if (debug.Function != null)
-            {
-                buffer.Append(", ");
-                buffer.Append(debug.Function);
-
-                if (debug.LineNumber != null)
-                {
-                    buffer.Append(", #");
-                    buffer.Append(debug.LineNumber);
-                }
-            }
-
-            buffer.Append(']');
         }
     }
 
@@ -317,11 +269,11 @@ public class LogMessage
 
             if (max > 0 && Text.Length > max)
             {
-                buffer.Append(StructuredData.Escape(Text.Substring(0, max), false));
+                buffer.Append(LogUtil.Escape(Text.Substring(0, max)));
             }
             else
             {
-                buffer.Append(StructuredData.Escape(Text, false));
+                buffer.Append(LogUtil.Escape(Text));
             }
         }
     }

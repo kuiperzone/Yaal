@@ -37,14 +37,14 @@ public interface IReadOnlyLogOptions
     /// If not empty, all characters are to be within the printable ASCII range, and must not
     /// contain: '=', SP, ']', '"'
     /// </summary>
-    string AppPid { get; }
+    string ProcId { get; }
 
     /// <summary>
     /// Gets the local host name. It will be set on construction to a default value.
     /// If not empty, all characters are to be within the printable ASCII range, and must not
     /// contain: '=', SP, ']', '"'
     /// </summary>
-    string LocalHost { get; }
+    string HostName { get; }
 
     /// <summary>
     /// Gets the output format. The default is <see cref="FormatKind.Text"/> on Windows, otherwise

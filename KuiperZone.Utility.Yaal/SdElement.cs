@@ -19,6 +19,7 @@
 // -----------------------------------------------------------------------------
 
 using System.Text;
+using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -35,7 +36,7 @@ public class SdElement : SdDictionary<string>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
     public SdElement(string id)
 	{
-        StructuredData.AssertKey(Id);
+        LogUtil.AssertId(Id);
         Id = id;
     }
 
@@ -58,11 +59,11 @@ public class SdElement : SdDictionary<string>
     /// <summary>
     /// Overrides.
     /// </summary>
-    public override void AppendTo(StringBuilder buffer, bool escapeExt)
+    public override void AppendTo(StringBuilder buffer, IReadOnlyLogOptions options)
     {
         buffer.Append('[');
         buffer.Append(Id);
-        base.AppendTo(buffer, escapeExt);
+        base.AppendTo(buffer, options);
         buffer.Append(']');
     }
 

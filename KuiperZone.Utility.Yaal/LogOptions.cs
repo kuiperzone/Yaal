@@ -23,6 +23,7 @@ using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -31,16 +32,39 @@ namespace KuiperZone.Utility.Yaal;
 /// </summary>
 public class LogOptions : IReadOnlyLogOptions
 {
-    private string _appName;
-    private string _appPid;
-    private string _localHost;
+    private string _appName = "";
+    private string _procId = "";
+    private string _hostName = "";
     private string _debugId = "DGB@00000000";
 
+    /// <summary>
+    /// Gets the <see cref="LogOptions.AppName"/> max length in characters.
+    /// </summary>
+    public const int AppNameMaxLength = 48;
+
+    /// <summary>
+    /// Gets the <see cref="LogOptions.ProcId"/> max length in characters.
+    /// </summary>
+    public const int ProcIdMaxLength = 128;
+
+    /// <summary>
+    /// Gets the <see cref="LogOptions.HostName"/> max length in characters.
+    /// </summary>
+    public const int HostNameMaxLength = 255;
+
+    /// <summary>
+    /// Gets the <see cref="LogOptions.DebugId"/> max length in characters.
+    /// </summary>
+    public const int DebugMaxLength = 32;
+
+    /// <summary>
+    /// Default constructor.
+    /// </summary>
     public LogOptions()
     {
-        _appName = ValueOrEmpty(Assembly.GetEntryAssembly()?.GetName().Name);
-        _appPid = ValueOrEmpty(Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture));
-        _localHost = ValueOrEmpty(Dns.GetHostName());
+        AppName = Assembly.GetEntryAssembly()?.GetName().Name ?? "";
+        ProcId = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
+        HostName = Dns.GetHostName();
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -52,6 +76,9 @@ public class LogOptions : IReadOnlyLogOptions
         }
     }
 
+    /// <summary>
+    /// Constructor with initial <see cref="FormatKind"/> value.
+    /// </summary>
     public LogOptions(FormatKind format)
         : this()
     {
@@ -65,27 +92,25 @@ public class LogOptions : IReadOnlyLogOptions
     public string AppName
     {
         get { return _appName; }
-        set { _appName = AssertValue(value); }
+        set { _appName = LogUtil.EnsureId(value, AppNameMaxLength); }
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLogOptions.AppPid"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.ProcId"/> and provides a setter.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
-    public string AppPid
+    public string ProcId
     {
-        get { return _appPid; }
-        set { _appPid = AssertValue(value); }
+        get { return _procId; }
+        set { _procId = LogUtil.EnsureId(value, ProcIdMaxLength); }
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLogOptions.LocalHost"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.HostName"/> and provides a setter.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
-    public string LocalHost
+    public string HostName
     {
-        get { return _localHost; }
-        set { _localHost = AssertValue(value); }
+        get { return _hostName; }
+        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength); }
     }
 
     /// <summary>
@@ -111,29 +136,9 @@ public class LogOptions : IReadOnlyLogOptions
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.DebugId"/> and provides a setter.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
 	public string DebugId
     {
         get { return _debugId; }
-        set { _debugId = AssertValue(value); }
+        set { _debugId = LogUtil.EnsureId(value, HostNameMaxLength); }
     }
-
-    private static string ValueOrEmpty(string? s)
-    {
-        return StructuredData.IsValidKey(s) ? s : "";
-    }
-
-    private static string AssertValue(string s)
-    {
-        s = s.Trim();
-
-        // Allow empty
-        if (s.Length > 0)
-        {
-            StructuredData.AssertKey(s);
-        }
-
-        return s;
-    }
-
 }

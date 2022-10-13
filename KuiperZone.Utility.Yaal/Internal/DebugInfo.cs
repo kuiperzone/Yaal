@@ -18,6 +18,9 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Globalization;
+using System.Text;
+
 namespace KuiperZone.Utility.Yaal.Internal;
 
 /// <summary>
@@ -70,6 +73,40 @@ public sealed class DebugInfo
         }
 
         return Function;
+    }
+
+    /// <summary>
+    /// Appends SD-ELEMENT to buffer.
+    /// </summary>
+    public void AppendTo(StringBuilder buffer, SeverityLevel severity, IReadOnlyLogOptions options)
+    {
+        if (!string.IsNullOrEmpty(options.DebugId) && !string.IsNullOrEmpty(Function))
+        {
+            var e = new SdElement(options.DebugId);
+            e.Add("SEVERITY", severity.ToString().ToUpperInvariant());
+            e.Add("FUNCTION", Function);
+
+            if (LineNumber > 0)
+            {
+                e.Add("LINE", LineNumber.ToString(CultureInfo.InvariantCulture));
+            }
+
+            e.Add("THREAD", GetThreadName());
+            e.AppendTo(buffer, options);
+        }
+    }
+
+    private static string GetThreadName()
+    {
+        // Combination of pid and thread-name
+        var temp = Thread.CurrentThread.Name;
+
+        if (string.IsNullOrEmpty(temp))
+        {
+            temp = Thread.CurrentThread.ManagedThreadId.ToString(CultureInfo.InvariantCulture);
+        }
+
+        return "0000-" + temp;
     }
 
     private static string? LocateCaller(string entryMethod, out int num)

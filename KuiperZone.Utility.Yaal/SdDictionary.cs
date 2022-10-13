@@ -21,6 +21,7 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -38,6 +39,11 @@ public class SdDictionary<T> : IDictionary<string, T>,
     private readonly SortedDictionary<string, T> _dictionary = new(StringComparer.Ordinal);
 
     /// <summary>
+    /// Gets the maximum allowed length of SD-NAME.
+    /// </summary>
+    public const int NameMaxLength = 32;
+
+    /// <summary>
     /// Default constructor.
     /// </summary>
     public SdDictionary()
@@ -47,7 +53,7 @@ public class SdDictionary<T> : IDictionary<string, T>,
     /// <summary>
     /// Constructor with initial key=value.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    /// <exception cref="ArgumentException">Invalid RFC 5424 ID</exception>
     public SdDictionary(string key, T value)
 	{
         Add(key, value);
@@ -56,14 +62,14 @@ public class SdDictionary<T> : IDictionary<string, T>,
     /// <summary>
     /// Implements <see cref="IDictionary{K,V}"/> indexer.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    /// <exception cref="ArgumentException">Invalid RFC 5424 ID</exception>
     public T this[string key]
     {
         get { return _dictionary[key]; }
 
         set
         {
-            StructuredData.AssertKey(key);
+            LogUtil.AssertId(key, NameMaxLength);
             _dictionary[key] = value;
         }
     }
@@ -124,20 +130,20 @@ public class SdDictionary<T> : IDictionary<string, T>,
     /// <summary>
     /// Implements <see cref="IDictionary{K,V}.Add"/>.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    /// <exception cref="ArgumentException">Invalid RFC 5424 ID</exception>
     public void Add(string key, T value)
     {
-        StructuredData.AssertKey(key);
+        LogUtil.AssertId(key, NameMaxLength);
         _dictionary.Add(key, value);
     }
 
     /// <summary>
     /// Implements <see cref="ICollection{T}.Add(T)"/>.
     /// </summary>
-    /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
+    /// <exception cref="ArgumentException">Invalid RFC 5424 ID</exception>
     public void Add(KeyValuePair<string, T> item)
     {
-        StructuredData.AssertKey(item.Key);
+        LogUtil.AssertId(item.Key, NameMaxLength);
         ((IDictionary<string, T>)_dictionary).Add(item);
     }
 
@@ -214,18 +220,10 @@ public class SdDictionary<T> : IDictionary<string, T>,
     }
 
     /// <summary>
-    /// Calls AppendTo(buffer, false).
-    /// </summary>
-    public void AppendTo(StringBuilder buffer)
-    {
-        AppendTo(buffer, false);
-    }
-
-    /// <summary>
     /// Efficiently appends RFC 5424 formatted data to the StringBuilder.
     /// The resulting string data may be escaped according RFC 5424.
     /// </summary>
-    public virtual void AppendTo(StringBuilder buffer, bool escapeExt)
+    public virtual void AppendTo(StringBuilder buffer, IReadOnlyLogOptions options)
     {
         foreach (var item in _dictionary)
         {
@@ -237,7 +235,7 @@ public class SdDictionary<T> : IDictionary<string, T>,
             buffer.Append(item.Key);
             buffer.Append('=');
             buffer.Append('"');
-            buffer.Append(StructuredData.Escape(item.Value?.ToString(), escapeExt, "\\]\""));
+            buffer.Append(LogUtil.Escape(item.Value?.ToString(), "\\]\""));
             buffer.Append('"');
         }
     }
@@ -248,7 +246,7 @@ public class SdDictionary<T> : IDictionary<string, T>,
     public override string ToString()
     {
         var buffer = new StringBuilder(1024);
-        AppendTo(buffer);
+        AppendTo(buffer, new LogOptions());
         return buffer.ToString();
     }
 }
