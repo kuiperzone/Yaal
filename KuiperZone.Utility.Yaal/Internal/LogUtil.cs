@@ -39,7 +39,7 @@ public static class LogUtil
             return false;
         }
 
-        foreach(var c in id)
+        foreach (var c in id)
         {
             if (c <= ' ' || c > '~' || c == '=' || c == '"' || c == ']')
             {

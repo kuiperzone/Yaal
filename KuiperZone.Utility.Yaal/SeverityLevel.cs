@@ -22,6 +22,7 @@ namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
 /// Log message severity codes. Note that numeric values align with RFC 5424 sys-log.
+/// Also note that higher numerical value have lower priority.
 /// </summary>
 public enum SeverityLevel
 {
@@ -66,20 +67,20 @@ public enum SeverityLevel
 	Debug = 7,
 
 	/// <summary>
-	/// Additional debug level of lower priority than DEBUG. For RFC 5424 and BSD formats, it is
-	/// equivalent to DEBUG but provides for granularity in filtering out low level debug statements.
+	/// Additional debug level of lower priority than <see cref="Debug"/>. For RFC 5424 and BSD formats, it is
+    /// equivalent to <see cref="Debug"/> but provides for granularity in filtering out low level debug statements.
     /// </summary>
 	DebugL1,
 
 	/// <summary>
-	/// Additional debug level of lower priority than DebugL1. For RFC 5424 and BSD formats, it is
-	/// equivalent to DEBUG but provides for granularity in filtering out low level debug statements.
+	/// Additional debug level of lower priority than <see cref="DebugL1"/>. For RFC 5424 and BSD formats, it is
+    /// equivalent to <see cref="Debug"/> but provides for granularity in filtering out low level debug statements.
     /// </summary>
 	DebugL2,
 
 	/// <summary>
-	/// Additional debug level of lower priority than DebugL2. For RFC 5424 and BSD formats, it is
-	/// equivalent to DEBUG but provides for granularity in filtering out low level debug statements.
+	/// Additional debug level of lower priority than <see cref="DebugL2"/>. For RFC 5424 and BSD formats, it is
+    /// equivalent to <see cref="Debug"/> but provides for granularity in filtering out low level debug statements.
     /// </summary>
 	DebugL3,
 
@@ -88,4 +89,30 @@ public enum SeverityLevel
     /// </summary>
 	Disabled, // Must be last
 };
+
+/// <summary>
+/// Extension methods.
+/// </summary>
+public static class SeverityLevelExtension
+{
+	/// <summary>
+    /// Returns true if a has a higher or equal priority than b.
+    /// </summary>
+    public static bool IsGreaterOrEqualPriorityThan(this SeverityLevel a, SeverityLevel b)
+    {
+        return b != SeverityLevel.Disabled && b >= a;
+    }
+
+	/// <summary>
+    /// Returns an RFC 5424 (and BSD) priority value given a <see cref="FacilityId"/> value.
+    /// The result is an integer for the severity clamped within the legal RFC 5424 range and
+    /// OR-ed with facility.
+    /// </summary>
+    public static int ToPriority(this SeverityLevel severity, FacilityId facility)
+    {
+        const int Min = (int)SeverityLevel.Emergency;
+		const int Max = (int)SeverityLevel.Debug;
+        return Math.Clamp((int)severity, Min, Max) | (int)facility;
+    }
+}
 

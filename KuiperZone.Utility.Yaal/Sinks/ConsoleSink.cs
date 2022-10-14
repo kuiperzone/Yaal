@@ -18,28 +18,39 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only properties. The interface inherits IDisposable so as to
-/// facilitate file or IO closure where needed.
+/// Implements <see cref="ILogSink"/>. Messages are written directly to <see cref="Console"/>.
 /// </summary>
-public interface ILogSink : IDisposable
+public sealed class ConsoleSink : ILogSink, IDisposable
 {
     /// <summary>
-    /// Gets a <see cref="SeverityLevel"/> value. The value should be readonly and set on
-    /// construction. Where the value is not null, only messages with a priority equal or
-    /// higher will be written. Where the value is null, all messages are written. This allows
-    /// messages to be filtered on a per sink basis. For example, a Console sink may only write
-    /// message with <see cref="SeverityLevel.Informational"/> severity or higher, regardless
-    /// of the severity threshold of its host logger. The initial default value should
-    /// typically null.
+    /// Constructor.
+    /// </summary>
+    public ConsoleSink(SeverityLevel? threshold = null)
+    {
+        Threshold = threshold;
+    }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Threshold"/>.
     /// </summary>
     public SeverityLevel? Threshold { get; }
 
     /// <summary>
-    /// Writes the message string.
+    /// Implements <see cref="ILogSink.WriteMessage(string)"/>.
     /// </summary>
-    void WriteMessage(string message);
+    public void WriteMessage(string message)
+    {
+        Console.WriteLine(message);
+    }
+
+    /// <summary>
+    /// Implements dispose. Does nothing.
+    /// </summary>
+    public void Dispose()
+    {
+    }
+
 }

@@ -18,7 +18,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal.Sink;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Implements <see cref="ILogSink"/> for a memory string buffer. Message written to
@@ -32,11 +32,14 @@ public sealed class BufferSink : ILogSink, IDisposable
     private readonly List<string> _history = new();
 
     /// <summary>
-    /// Constructor.
+    /// Constructor with optional <see cref="Capacity"/>.
+    /// The <see cref="Threshold"/> value will be null (ignored).
     /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">capacity</exception>
     public BufferSink(int capacity = 100)
+        : this(SeverityLevel.DebugL3)
     {
-        if (capacity < 1)
+        if (capacity < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(capacity));
         }
@@ -45,13 +48,34 @@ public sealed class BufferSink : ILogSink, IDisposable
     }
 
     /// <summary>
+    ///Constructor with <see cref="Threshold"/> value and optional <see cref="Capacity"/>.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">capacity</exception>
+    public BufferSink(SeverityLevel threshold, int capacity = 100)
+    {
+        Threshold = threshold;
+
+        if (capacity < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(capacity));
+        }
+
+        Capacity = capacity;
+    }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Threshold"/>.
+    /// </summary>
+    public SeverityLevel? Threshold { get; }
+
+    /// <summary>
     /// Gets the capacity. When this limit is reached, older messages are lost.
-    /// The result is a new instance on each call.
+    /// The default is 100.
     /// </summary>
     public int Capacity { get; }
 
     /// <summary>
-    /// Gets up to count recent log messages.
+    /// Gets up to count recent log messages. The result is a new instance on each call.
     /// </summary>
     public string[] GetRecent(int count = int.MaxValue)
     {
@@ -73,6 +97,9 @@ public sealed class BufferSink : ILogSink, IDisposable
 
     }
 
+    /// <summary>
+    /// Returns true if the string is contained with recent log messages.
+    /// </summary>
     public bool Contains(string? s, StringComparison comp = StringComparison.Ordinal)
     {
         if (!string.IsNullOrEmpty(s))

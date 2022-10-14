@@ -22,7 +22,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using KuiperZone.Utility.Yaal.Internal;
 
-namespace KuiperZone.Utility.Yaal.Sink;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Implements <see cref="ILogSink"/> for syslog on Linux. The class simply calls the "logger"
@@ -37,13 +37,20 @@ public sealed class LocalSyslogSink : ILogSink, IDisposable
     /// Constructor. Throws if "logger" not supported on the system.
     /// </summary>
     /// <exception cref="InvalidOperationException">Not supported on this system</exception>
-    public LocalSyslogSink()
+    public LocalSyslogSink(SeverityLevel? threshold = null)
     {
         if (!IsSupported)
         {
             throw new InvalidOperationException($"{nameof(LocalSyslogSink)} not supported on this system");
         }
+
+        Threshold = threshold;
     }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Threshold"/>.
+    /// </summary>
+    public SeverityLevel? Threshold { get; }
 
     /// <summary>
     /// Gets whether syslog is supported on the platform.

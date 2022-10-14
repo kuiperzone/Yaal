@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace KuiperZone.Utility.Yaal.Sink.Test;
+namespace KuiperZone.Utility.Yaal.Sinks.Test;
 
 public class LocalSyslogSinkTest
 {

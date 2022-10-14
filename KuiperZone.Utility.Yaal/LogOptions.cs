@@ -18,17 +18,13 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System.Diagnostics;
-using System.Globalization;
-using System.Net;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Interface for readonly logging options.
+/// Implementation of <see cref="IReadOnlyLogOptions"/> with setters.
 /// </summary>
 public class LogOptions : IReadOnlyLogOptions
 {
@@ -62,9 +58,9 @@ public class LogOptions : IReadOnlyLogOptions
     /// </summary>
     public LogOptions()
     {
-        AppName = Assembly.GetEntryAssembly()?.GetName().Name ?? "";
-        ProcId = Process.GetCurrentProcess().Id.ToString(CultureInfo.InvariantCulture);
-        HostName = Dns.GetHostName();
+        HostName = AppInfo.HostName;
+        AppName = AppInfo.AssemblyName;
+        ProcId = AppInfo.ProcId;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -86,6 +82,15 @@ public class LogOptions : IReadOnlyLogOptions
     }
 
     /// <summary>
+    /// Implements <see cref="IReadOnlyLogOptions.HostName"/> and provides a setter.
+    /// </summary>
+    public string HostName
+    {
+        get { return _hostName; }
+        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength); }
+    }
+
+    /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.AppName"/> and provides a setter.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
@@ -102,15 +107,6 @@ public class LogOptions : IReadOnlyLogOptions
     {
         get { return _procId; }
         set { _procId = LogUtil.EnsureId(value, ProcIdMaxLength); }
-    }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlyLogOptions.HostName"/> and provides a setter.
-    /// </summary>
-    public string HostName
-    {
-        get { return _hostName; }
-        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength); }
     }
 
     /// <summary>
