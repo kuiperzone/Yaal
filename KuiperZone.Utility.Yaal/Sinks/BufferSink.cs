@@ -26,7 +26,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// holds on to a reference to sink instance and can query whether certain code paths
 /// have correctly executed based on their logging output. An instance is thread-safe.
 /// </summary>
-public sealed class BufferSink : ILogSink, IDisposable
+public sealed class BufferSink : ILogSink
 {
     private readonly object _syncObj = new();
     private readonly List<string> _history = new();
@@ -45,6 +45,7 @@ public sealed class BufferSink : ILogSink, IDisposable
         }
 
         Capacity = capacity;
+        Threshold = SeverityLevel.DebugL3;
     }
 
     /// <summary>
@@ -53,26 +54,29 @@ public sealed class BufferSink : ILogSink, IDisposable
     /// <exception cref="ArgumentOutOfRangeException">capacity</exception>
     public BufferSink(SeverityLevel threshold, int capacity = 100)
     {
-        Threshold = threshold;
-
         if (capacity < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(capacity));
         }
 
         Capacity = capacity;
+        Threshold = threshold;
     }
-
-    /// <summary>
-    /// Implements <see cref="ILogSink.Threshold"/>.
-    /// </summary>
-    public SeverityLevel? Threshold { get; }
 
     /// <summary>
     /// Gets the capacity. When this limit is reached, older messages are lost.
     /// The default is 100.
     /// </summary>
     public int Capacity { get; }
+
+    /// <summary>
+    /// Gets the <see cref="SeverityLevel"/> value supplied on construction, providing
+    /// additional filter on this sink type. For example, it may be desirable to have
+    /// this sink write messages only with <see cref="SeverityLevel.Informational"/>
+    /// severity or higher, regardless of the severity threshold of the host logger.
+    /// </summary>
+    public SeverityLevel Threshold { get; }
+
 
     /// <summary>
     /// Gets up to count recent log messages. The result is a new instance on each call.
@@ -94,7 +98,6 @@ public sealed class BufferSink : ILogSink, IDisposable
 
             return Array.Empty<string>();
         }
-
     }
 
     /// <summary>
@@ -117,9 +120,9 @@ public sealed class BufferSink : ILogSink, IDisposable
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.WriteMessage(string)"/>.
+    /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void WriteMessage(string message)
+    public void Write(SeverityLevel severity, string message)
     {
         lock(_syncObj)
         {
@@ -130,13 +133,6 @@ public sealed class BufferSink : ILogSink, IDisposable
 
             _history.Add(message);
         }
-    }
-
-    /// <summary>
-    /// Implements dispose. Does nothing.
-    /// </summary>
-    public void Dispose()
-    {
     }
 
 }

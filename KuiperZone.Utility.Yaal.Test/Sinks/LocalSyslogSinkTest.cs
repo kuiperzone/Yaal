@@ -36,16 +36,16 @@ public class LocalSyslogSinkTest
     [Fact]
     public void IsSupported_ResultAccordingToPlatform()
     {
-        Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), !LocalSyslogSink.IsSupported);
+        Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), !SyslogSink.IsSupported);
     }
 
     [Fact]
     public void WriteMessage_WritesOK()
     {
-        if (LocalSyslogSink.IsSupported)
+        if (SyslogSink.IsSupported)
         {
-            var sink = new LocalSyslogSink();
-            sink.WriteMessage("Unit test1 \\\"");
+            var sink = new SyslogSink();
+            sink.Write(SeverityLevel.Informational, "Unit test1 \\\"");
             Assert.False(sink.IsFailed);
         }
     }

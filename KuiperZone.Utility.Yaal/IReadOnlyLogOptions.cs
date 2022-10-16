@@ -44,7 +44,7 @@ public interface IReadOnlyLogOptions
     /// If not empty, all characters are to be within the printable ASCII range, and must not
     /// contain: '=', SP, ']', '"'
     /// </summary>
-    string ProcId { get; }
+    string AppPid { get; }
 
     /// <summary>
     /// Gets the output format. The default is <see cref="FormatKind.Text"/> on Windows, otherwise

@@ -18,16 +18,28 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+using System.Diagnostics;
+
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only public properties.
+/// Implements <see cref="ILogSink"/>. Messages are written directly to <see cref="Debug"/>.
 /// </summary>
-public interface ILogSink
+public sealed class DebugSink : ILogSink
 {
     /// <summary>
-    /// Writes the message text of the given severity.
+    /// Constructor.
     /// </summary>
-    void Write(SeverityLevel severity, string message);
+    public DebugSink()
+    {
+    }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Write"/>.
+    /// </summary>
+    public void Write(SeverityLevel severity, string message)
+    {
+        Debug.Write(message);
+    }
+
 }

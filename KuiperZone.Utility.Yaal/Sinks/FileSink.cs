@@ -18,24 +18,32 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using KuiperZone.Utility.Yaal.Internal;
+
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Implements <see cref="ILogSink"/> for a file logger.
 /// </summary>
-public sealed class FileSink : ILogSink, IDisposable
+public sealed class FileSink : ILogSink
 {
-    /// <summary>
-    /// Extension for old files.
-    /// </summary>
-    public const string OldExt = ".old";
+    private object _syncObj = new();
+    private readonly bool _isThreadLocal;
+
+    [ThreadStatic]
+    private FileWriter? _threadWriter;
+    private FileWriter? _globalWriter;
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    public FileSink(SeverityLevel? threshold = null)
+    public FileSink(IReadOnlyFileSinkOptions options, SeverityLevel? threshold = null)
     {
         Threshold = threshold;
+        Options = new FileSinkOptions(options);
+        _isThreadLocal = Options.IsThreadLocal();
+
+        DirectoryName = FileWriter.Assert(Options);
     }
 
     /// <summary>
@@ -44,17 +52,34 @@ public sealed class FileSink : ILogSink, IDisposable
     public SeverityLevel? Threshold { get; }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.WriteMessage(string)"/>.
+    /// Gets a clone of the options instance supplied on construction.
     /// </summary>
-    public void WriteMessage(string message)
-    {
-    }
+    public IReadOnlyFileSinkOptions Options { get; }
 
     /// <summary>
-    /// Implements dispose. Does nothing.
+    /// Gets the directory containing the log files.
     /// </summary>
-    public void Dispose()
+    public string DirectoryName { get; }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Write"/>.
+    /// </summary>
+    public void Write(SeverityLevel severity, string message)
     {
+        if (_isThreadLocal)
+        {
+            // Thread static reference
+            _threadWriter ??= new FileWriter(Options);
+            _threadWriter.Write(message);
+        }
+        else
+        {
+            lock (_syncObj)
+            {
+                _globalWriter ??= new FileWriter(Options);
+                _globalWriter.Write(message);
+            }
+        }
     }
 
 }

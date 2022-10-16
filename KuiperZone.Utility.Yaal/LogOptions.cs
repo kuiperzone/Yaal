@@ -39,7 +39,7 @@ public class LogOptions : IReadOnlyLogOptions
     public const int AppNameMaxLength = 48;
 
     /// <summary>
-    /// Gets the <see cref="LogOptions.ProcId"/> max length in characters.
+    /// Gets the <see cref="LogOptions.AppPid"/> max length in characters.
     /// </summary>
     public const int ProcIdMaxLength = 128;
 
@@ -59,8 +59,8 @@ public class LogOptions : IReadOnlyLogOptions
     public LogOptions()
     {
         HostName = AppInfo.HostName;
-        AppName = AppInfo.AssemblyName;
-        ProcId = AppInfo.ProcId;
+        AppName = GetAssembly48(AppInfo.AssemblyName);
+        AppPid = AppInfo.Pid;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -79,6 +79,21 @@ public class LogOptions : IReadOnlyLogOptions
         : this()
     {
         Format = format;
+    }
+
+    /// <summary>
+    /// Copy constructor.
+    /// </summary>
+    public LogOptions(LogOptions other)
+    {
+        HostName = other.HostName;
+        AppName = other.AppName;
+        AppPid = other.AppPid;
+        Format = other.Format;
+        IsTimeUtc = other.IsTimeUtc;
+        Facility = other.Facility;
+        MaxTextLength = other.MaxTextLength;
+        DebugId = other.DebugId;
     }
 
     /// <summary>
@@ -101,9 +116,9 @@ public class LogOptions : IReadOnlyLogOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLogOptions.ProcId"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.AppPid"/> and provides a setter.
     /// </summary>
-    public string ProcId
+    public string AppPid
     {
         get { return _procId; }
         set { _procId = LogUtil.EnsureId(value, ProcIdMaxLength); }
@@ -136,5 +151,20 @@ public class LogOptions : IReadOnlyLogOptions
     {
         get { return _debugId; }
         set { _debugId = LogUtil.EnsureId(value, HostNameMaxLength); }
+    }
+
+    private static string GetAssembly48(string assembly)
+    {
+        if (assembly.Length > AppNameMaxLength)
+        {
+            int pos = assembly.LastIndexOf('.');
+
+            if (pos > 0)
+            {
+                return assembly.Substring(pos + 1);
+            }
+        }
+
+        return assembly;
     }
 }

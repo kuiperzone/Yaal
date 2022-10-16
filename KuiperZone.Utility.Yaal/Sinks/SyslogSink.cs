@@ -25,10 +25,10 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="ILogSink"/> for syslog on Linux. The class simply calls the "logger"
+/// Implements <see cref="ILogSink"/> for syslog on Linux. The class calls the "logger"
 /// command line utility to log a message. It is not supported on Windows.
 /// </summary>
-public sealed class LocalSyslogSink : ILogSink, IDisposable
+public sealed class SyslogSink : ILogSink
 {
     private static readonly bool _isSupported = GetSupported();
     private volatile bool v_isFailed;
@@ -37,11 +37,11 @@ public sealed class LocalSyslogSink : ILogSink, IDisposable
     /// Constructor. Throws if "logger" not supported on the system.
     /// </summary>
     /// <exception cref="InvalidOperationException">Not supported on this system</exception>
-    public LocalSyslogSink(SeverityLevel? threshold = null)
+    public SyslogSink(SeverityLevel? threshold = null)
     {
         if (!IsSupported)
         {
-            throw new InvalidOperationException($"{nameof(LocalSyslogSink)} not supported on this system");
+            throw new InvalidOperationException($"{nameof(SyslogSink)} not supported on this system");
         }
 
         Threshold = threshold;
@@ -69,9 +69,9 @@ public sealed class LocalSyslogSink : ILogSink, IDisposable
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.WriteMessage(string)"/>.
+    /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void WriteMessage(string message)
+    public void Write(SeverityLevel severity, string message)
     {
         if (message.Length != 0 && !v_isFailed)
         {
@@ -88,13 +88,6 @@ public sealed class LocalSyslogSink : ILogSink, IDisposable
                 throw;
             }
         }
-    }
-
-    /// <summary>
-    /// Implements dispose. Does nothing.
-    /// </summary>
-    public void Dispose()
-    {
     }
 
     private static bool GetSupported()

@@ -36,7 +36,7 @@ public static class AppInfo
     static AppInfo()
     {
         HostName = GetHostName();
-        ProcId = GetProcId();
+        Pid = GetProcId();
 
         try
         {
@@ -85,7 +85,7 @@ public static class AppInfo
     /// <summary>
     /// Gets an application process-id.
     /// </summary>
-    public static string ProcId { get; }
+    public static string Pid { get; }
 
     /// <summary>
     /// Gets the entry assembly name.

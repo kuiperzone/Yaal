@@ -70,17 +70,12 @@ public class LogMessage
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public LogMessage(SeverityLevel severity, string? msgId, string? text)
+    public LogMessage(string? msgId, SeverityLevel severity, string? text)
     {
-        Severity = severity;
         MsgId = msgId;
+        Severity = severity;
         Text = text;
     }
-
-    /// <summary>
-    /// Gets or sets the severity level.
-    /// </summary>
-    public SeverityLevel Severity { get; set; } = SeverityLevel.Informational;
 
     /// <summary>
     /// Gets or sets the time. The initial value is always set from the system clock.
@@ -93,9 +88,19 @@ public class LogMessage
     public string? MsgId { get; set; }
 
     /// <summary>
+    /// Gets or sets the severity level.
+    /// </summary>
+    public SeverityLevel Severity { get; set; } = SeverityLevel.Informational;
+
+    /// <summary>
     /// Gets or sets the message text.
     /// </summary>
     public string? Text { get; set; }
+
+    /// <summary>
+    /// Gets or sets attached debug information.
+    /// </summary>
+    public DebugInfo? Debug { get; set; }
 
     /// <summary>
     /// Gets or sets the message text.
@@ -118,30 +123,22 @@ public class LogMessage
     }
 
     /// <summary>
-    /// Returns a formatted string according to kind.
-    /// </summary>
-    public string ToString(FormatKind format)
-    {
-        return ToString(new LogOptions(format));
-    }
-
-    /// <summary>
     ///
     /// </summary>
-    public string ToString(IReadOnlyLogOptions options, DebugInfo? debug = null)
+    public string ToString(IReadOnlyLogOptions options)
     {
         var buffer = new StringBuilder(1024);
 
         switch (options.Format)
         {
             case FormatKind.Rfc5424:
-                AppendRfc5424(buffer, options, debug);
+                AppendRfc5424(buffer, options);
                 break;
             case FormatKind.Bsd:
-                AppendBsd(buffer, options, debug);
+                AppendBsd(buffer, options);
                 break;
             default:
-                AppendText(buffer, options, debug);
+                AppendText(buffer, options);
                 break;
         }
 
@@ -163,11 +160,11 @@ public class LogMessage
         return string.IsNullOrEmpty(value) ? "-" : value;
     }
 
-    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options, DebugInfo? debug)
+    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options)
     {
         // Clamp within valid range (see DEBUG_L1 etc.)
         buffer.Append('<');
-        buffer.Append((Clamp(Severity) | (int)options.Facility).ToString(CultureInfo.InvariantCulture));
+        buffer.Append(Severity.ToPriority(options.Facility).ToString(CultureInfo.InvariantCulture));
         buffer.Append('>');
 
         buffer.Append("1 ");
@@ -180,7 +177,7 @@ public class LogMessage
         buffer.Append(ValueOrNil(options.AppName));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.ProcId));
+        buffer.Append(ValueOrNil(options.AppPid));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(MsgId));
@@ -194,10 +191,23 @@ public class LogMessage
             _data.AppendTo(buffer, options);
         }
 
-        if (debug?.Function != null && _data?.ContainsKey(options.DebugId) != true)
+        if (Debug?.Function != null &&
+            !string.IsNullOrEmpty(options.DebugId) &&
+            _data?.ContainsKey(options.DebugId) != true)
         {
             hasSd = true;
-            debug.AppendTo(buffer, Severity, options);
+
+            var e = new SdElement(options.DebugId);
+            e.Add("SEVERITY", Severity.ToString().ToUpperInvariant());
+            e.Add("FUNCTION", Debug.Function);
+
+            if (Debug.LineNumber > 0)
+            {
+                e.Add("LINE", Debug.LineNumber.ToString(CultureInfo.InvariantCulture));
+            }
+
+            e.Add("THREAD", AppInfo.Pid + "-" + AppInfo.ThreadName);
+            e.AppendTo(buffer, options);
         }
 
         if (!hasSd)
@@ -209,11 +219,11 @@ public class LogMessage
         AppendMessage(buffer, options);
     }
 
-    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options, DebugInfo? debug)
+    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options)
     {
         // Clamp within valid range (see DEBUG_L1 etc.)
         buffer.Append('<');
-        buffer.Append((Clamp(Severity) | (int)options.Facility).ToString(CultureInfo.InvariantCulture));
+        buffer.Append(Severity.ToPriority(options.Facility).ToString(CultureInfo.InvariantCulture));
         buffer.Append('>');
 
         buffer.Append(ToTimestamp(options));
@@ -221,23 +231,38 @@ public class LogMessage
         buffer.Append(' ');
         buffer.Append(ValueOrNil(options.HostName));
 
+        if (!string.IsNullOrEmpty(options.AppName))
+        {
+            buffer.Append(' ');
+            buffer.Append(ValueOrNil(options.AppName));
+
+            if (!string.IsNullOrEmpty(options.AppPid))
+            {
+                buffer.Append('[');
+                buffer.Append(options.AppPid);
+                buffer.Append(']');
+            }
+
+            buffer.Append(':');
+        }
+
         AppendMessage(buffer, options);
 
-        if (debug?.Function != null)
+        if (Debug?.Function != null)
         {
             // No standard for BSD debug data, so just
             // tag on SD output after message text.
             buffer.Append(' ');
-            debug.AppendTo(buffer, Severity, options);
+            buffer.Append(Debug.ToString());
         }
     }
 
-    private void AppendText(StringBuilder buffer, IReadOnlyLogOptions options, DebugInfo? debug)
+    private void AppendText(StringBuilder buffer, IReadOnlyLogOptions options)
     {
-        if (debug?.Function != null)
+        if (Debug?.Function != null)
         {
             // Debug leads with: ConsoleApp1.Program.Main(String[] args) #47 : MESSAGE
-            buffer.Append(debug.ToString());
+            buffer.Append(Debug.ToString());
             buffer.Append(" :");
         }
 
