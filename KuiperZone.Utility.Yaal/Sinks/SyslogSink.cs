@@ -20,6 +20,7 @@
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal.Sinks;
@@ -34,23 +35,30 @@ public sealed class SyslogSink : ILogSink
     private volatile bool v_isFailed;
 
     /// <summary>
-    /// Constructor. Throws if "logger" not supported on the system.
+    /// Constructor with option values. Serves as default constructor.
+    /// Throws if "logger" not supported on this platform.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Not supported on this system</exception>
-    public SyslogSink(SeverityLevel? threshold = null)
+    /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
+    public SyslogSink(FormatKind format = FormatKind.Rfc5424, SeverityLevel threshold = SeverityLevel.Lowest)
+        : this(new SinkOptions(format, threshold))
     {
-        if (!IsSupported)
-        {
-            throw new InvalidOperationException($"{nameof(SyslogSink)} not supported on this system");
-        }
-
-        Threshold = threshold;
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Threshold"/>.
+    /// Constructor with options instance.
+    /// Throws if "logger" not supported on the system.
     /// </summary>
-    public SeverityLevel? Threshold { get; }
+    /// <exception cref="InvalidOperationException">Not supported on this system</exception>
+    public SyslogSink(IReadOnlySinkOptions options)
+    {
+        if (!IsSupported)
+        {
+            throw new PlatformNotSupportedException($"{nameof(SyslogSink)} not supported on this system");
+        }
+
+        // Take a copy
+        Options = new SinkOptions(options);
+    }
 
     /// <summary>
     /// Gets whether syslog is supported on the platform.
@@ -69,15 +77,33 @@ public sealed class SyslogSink : ILogSink
     }
 
     /// <summary>
+    /// Implements <see cref="ILogSink.Options"/>.
+    /// </summary>
+    public IReadOnlySinkOptions Options { get; }
+
+    /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(SeverityLevel severity, string message)
+    public void Write(LogMessage message, IReadOnlyLogOptions options)
     {
-        if (message.Length != 0 && !v_isFailed)
+        if (!v_isFailed)
         {
+            // It seems that we need to provide priority as an option
+            var buffer = new StringBuilder("-p ", 1024);
+            buffer.Append(message.Severity.ToPriorityPair(options.Facility));
+            buffer.Append(' ');
+
+            buffer.Append('"');
+            var text = message.ToString(Options.Format, options, false);
+            buffer.Append(LogUtil.Escape(text, "\\\""));
+            buffer.Append('"');
+
+            Console.WriteLine(buffer.ToString());
+
             try
             {
-                if (!ExecLog("\"" + LogUtil.Escape(message, "\\\"") + "\""))
+                if (!ExecLog(buffer.ToString()))
+                // if (!ExecLog("\"" + LogUtil.Escape(message, "\\\"") + "\""))
                 {
                     v_isFailed = true;
                 }

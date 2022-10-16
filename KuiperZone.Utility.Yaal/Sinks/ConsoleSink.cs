@@ -26,30 +26,33 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 public sealed class ConsoleSink : ILogSink
 {
     /// <summary>
-    /// Constructor.
+    /// Constructor with option values. Serves as default constructor.
     /// </summary>
-    public ConsoleSink(SeverityLevel threshold = SeverityLevel.DebugL3)
+    public ConsoleSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        Threshold = threshold;
+        Options = new SinkOptions(format, threshold);
     }
 
     /// <summary>
-    /// Gets the <see cref="SeverityLevel"/> value supplied on construction, providing
-    /// additional filter on this sink type. For example, it may be desirable to have
-    /// this sink write messages only with <see cref="SeverityLevel.Informational"/>
-    /// severity or higher, regardless of the severity threshold of the host logger.
+    /// Constructor with options instance.
     /// </summary>
-    public SeverityLevel Threshold { get; }
+    public ConsoleSink(IReadOnlySinkOptions options)
+    {
+        // Take a copy
+        Options = new SinkOptions(options);
+    }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Options"/>.
+    /// </summary>
+    public IReadOnlySinkOptions Options { get; }
 
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(SeverityLevel severity, string message)
+    public void Write(LogMessage message, IReadOnlyLogOptions options)
     {
-        if (severity.IsHigherOrEqualThan(Threshold))
-        {
-            Console.WriteLine(message);
-        }
+        Console.WriteLine(message.ToString(Options.Format, options));
     }
 
 }

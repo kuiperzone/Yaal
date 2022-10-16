@@ -98,8 +98,7 @@ public static class AppInfo
     public static Version Version { get; }
 
     /// <summary>
-    /// Gets the application ProductName, falling back to the entry assembly name if it is not
-    /// defined.
+    /// Gets the application ProductName, falling back to the entry assembly name if not defined.
     /// </summary>
     public static string ProductName { get; }
 
@@ -127,41 +126,6 @@ public static class AppInfo
     /// Gets whether the entry assembly has JIT optimization enabled.
     /// </summary>
     public static bool IsOptimized { get; }
-
-    /// <summary>
-    /// Gets an ID number for the calling thread.
-    /// </summary>
-    public static string ThreadId
-    {
-        get { return Thread.CurrentThread.ManagedThreadId.ToString(); }
-    }
-
-    /// <summary>
-    /// Get a name for the calling thread. If it has no name, one is formed from the thread-id.
-    /// </summary>
-    public static string ThreadName
-    {
-        get
-        {
-            const int MaxThreadLength = 60;
-
-            var name = Thread.CurrentThread.Name;
-
-            if (string.IsNullOrEmpty(name))
-            {
-                // Use integer ID instead
-                name = "Thread" + ThreadId;
-            }
-            else
-            if (name.Length > MaxThreadLength)
-            {
-                // Not too long
-                name = name.Substring(0, MaxThreadLength).Trim();
-            }
-
-            return name;
-        }
-    }
 
     private static string GetProcId()
     {

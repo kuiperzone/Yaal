@@ -19,7 +19,6 @@
 // -----------------------------------------------------------------------------
 
 using System.Globalization;
-using System.Text;
 
 namespace KuiperZone.Utility.Yaal.Internal;
 
@@ -114,13 +113,14 @@ public sealed class DebugInfo
 
             for (int n = 0; n < stack.Length - 1; ++n)
             {
+                Console.WriteLine(stack[n]);
                 int start = stack[n].IndexOf(entryMethod);
 
                 if (start > -1)
                 {
                     // Located, but keep going until no more
                     // found as may encounter overloaded names.
-                    caller = stack[n].Substring(start).Trim();
+                    caller = stack[n+1].Substring(start).Trim();
                 }
                 else
                 if (caller != null)

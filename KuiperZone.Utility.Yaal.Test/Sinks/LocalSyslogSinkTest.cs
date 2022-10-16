@@ -18,6 +18,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Abstractions;
@@ -42,10 +43,22 @@ public class LocalSyslogSinkTest
     [Fact]
     public void WriteMessage_WritesOK()
     {
+        Debug.WriteLine("Hello xyz");
+        Trace.WriteLine("Hello xyz2", "category");
+
+        var ev = new EventLogSink();
+        var m = new LogMessage("\"Hello\", he said");
+        ev.Write(m, new LogOptions());
+
         if (SyslogSink.IsSupported)
         {
             var sink = new SyslogSink();
-            sink.Write(SeverityLevel.Informational, "Unit test1 \\\"");
+
+            m.Debug = new();
+            sink.Write(m, new LogOptions());
+
+//            var pid = Process.GetCurrentProcess().Id.ToString();
+  //          sink.Write(SeverityLevel.Informational, $"--rfc5424 --id={pid} \"Hello World\"");
             Assert.False(sink.IsFailed);
         }
     }

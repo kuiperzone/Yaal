@@ -18,21 +18,39 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only public properties.
+/// Implements <see cref="IReadOnlySinkOptions"/> and provides setters.
 /// </summary>
-public interface ILogSink
+public class SinkOptions : IReadOnlySinkOptions
 {
     /// <summary>
-    /// Gets read-only options assigned during construction.
+    /// Constructor.
     /// </summary>
-    IReadOnlySinkOptions Options { get; }
+    public SinkOptions(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    {
+        Format = format;
+        Threshold = threshold;
+    }
 
     /// <summary>
-    /// Writes the message.
+    /// Copy constructor.
     /// </summary>
-    void Write(LogMessage message, IReadOnlyLogOptions options);
+    public SinkOptions(IReadOnlySinkOptions other)
+    {
+        Format = other.Format;
+        Threshold = other.Threshold;
+    }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlySinkOptions.Format"/> and provides a setter.
+    /// </summary>
+    public FormatKind Format { get; set; }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlySinkOptions.Threshold"/> and provides a setter.
+    /// </summary>
+    public SeverityLevel Threshold { get; set; }
+
 }

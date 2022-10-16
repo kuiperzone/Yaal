@@ -36,7 +36,7 @@ public class SdElement : SdDictionary<string>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
     public SdElement(string id)
 	{
-        LogUtil.AssertId(Id);
+        LogUtil.AssertId(id);
         Id = id;
     }
 

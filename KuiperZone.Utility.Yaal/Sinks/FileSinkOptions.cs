@@ -24,19 +24,30 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// Construction options for the <see cref="FileSink"/> class. Implements
 /// <see cref="IReadOnlyFileSinkOptions"/> and provides setters.
 /// </summary>
-public class FileSinkOptions : IReadOnlyFileSinkOptions
+public sealed class FileSinkOptions : SinkOptions, IReadOnlyFileSinkOptions
 {
     /// <summary>
-    /// Default constructor.
+    /// Default constructor with options.
     /// </summary>
-    public FileSinkOptions()
+    public FileSinkOptions(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
     {
+    }
+
+    /// <summary>
+    /// Constructor with <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/> value.
+    /// </summary>
+    public FileSinkOptions(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+        DirectoryPattern = directory;
     }
 
     /// <summary>
     /// Copy constructor.
     /// </summary>
     public FileSinkOptions(IReadOnlyFileSinkOptions other)
+        : base(other)
     {
         DirectoryPattern = other.DirectoryPattern;
         FilePattern = other.FilePattern;
@@ -69,13 +80,5 @@ public class FileSinkOptions : IReadOnlyFileSinkOptions
     /// Implements <see cref="IReadOnlyFileSinkOptions.StaleLife"/> and provides a setter.
     /// </summary>
     public TimeSpan StaleLife { get; set; }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlyFileSinkOptions.IsThreadLocal"/>.
-    /// </summary>
-    public bool IsThreadLocal()
-    {
-        return FilePattern.Contains(IReadOnlyFileSinkOptions.ThreadTag);
-    }
 
 }

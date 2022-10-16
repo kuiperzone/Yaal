@@ -115,27 +115,29 @@ public class LogMessage
     }
 
     /// <summary>
-    /// Overrides and equivalent to: ToString(<see cref="FormatKind.Rfc5424"/>).
+    /// Overrides and equivalent to: ToString(<see cref="FormatKind.Text"/>).
     /// </summary>
     public override string ToString()
     {
-        return ToString(new LogOptions());
+        return ToString(FormatKind.Text);
     }
 
     /// <summary>
-    ///
+    /// Returns a string output according to format and options. The "includePriority" applies
+    /// to RFC 5424 and BSD and, if false, the leading priority code is omitted.
     /// </summary>
-    public string ToString(IReadOnlyLogOptions options)
+    public string ToString(FormatKind format, IReadOnlyLogOptions? options = null, bool includePriority = true)
     {
+        options ??= new LogOptions();
         var buffer = new StringBuilder(1024);
 
-        switch (options.Format)
+        switch (format)
         {
             case FormatKind.Rfc5424:
-                AppendRfc5424(buffer, options);
+                AppendRfc5424(buffer, options, includePriority);
                 break;
             case FormatKind.Bsd:
-                AppendBsd(buffer, options);
+                AppendBsd(buffer, options, includePriority);
                 break;
             default:
                 AppendText(buffer, options);
@@ -160,15 +162,18 @@ public class LogMessage
         return string.IsNullOrEmpty(value) ? "-" : value;
     }
 
-    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options)
+    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options, bool includePriority)
     {
-        // Clamp within valid range (see DEBUG_L1 etc.)
-        buffer.Append('<');
-        buffer.Append(Severity.ToPriority(options.Facility).ToString(CultureInfo.InvariantCulture));
-        buffer.Append('>');
+        if (includePriority)
+        {
+            // Will clamp with legal severity range
+            buffer.Append('<');
+            buffer.Append(Severity.ToPriorityCode(options.Facility));
+            buffer.Append('>');
+        }
 
         buffer.Append("1 ");
-        buffer.Append(ToTimestamp(options));
+        buffer.Append(ToTimestamp(FormatKind.Rfc5424, options));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(options.HostName));
@@ -206,7 +211,7 @@ public class LogMessage
                 e.Add("LINE", Debug.LineNumber.ToString(CultureInfo.InvariantCulture));
             }
 
-            e.Add("THREAD", AppInfo.Pid + "-" + AppInfo.ThreadName);
+            e.Add("THREAD", AppInfo.Pid + "-" + LogUtil.ThreadName);
             e.AppendTo(buffer, options);
         }
 
@@ -219,14 +224,17 @@ public class LogMessage
         AppendMessage(buffer, options);
     }
 
-    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options)
+    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options, bool includePriority)
     {
-        // Clamp within valid range (see DEBUG_L1 etc.)
-        buffer.Append('<');
-        buffer.Append(Severity.ToPriority(options.Facility).ToString(CultureInfo.InvariantCulture));
-        buffer.Append('>');
+        if (includePriority)
+        {
+            // Will clamp with legal severity range
+            buffer.Append('<');
+            buffer.Append(Severity.ToPriorityCode(options.Facility));
+            buffer.Append('>');
+        }
 
-        buffer.Append(ToTimestamp(options));
+        buffer.Append(ToTimestamp(FormatKind.Bsd, options));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(options.HostName));
@@ -269,11 +277,11 @@ public class LogMessage
         AppendMessage(buffer, options);
     }
 
-    private string ToTimestamp(IReadOnlyLogOptions options)
+    private string ToTimestamp(FormatKind format, IReadOnlyLogOptions options)
     {
         var t = options.IsTimeUtc ? Time.ToUniversalTime() : Time.ToLocalTime();
 
-        switch (options.Format)
+        switch (format)
         {
             case FormatKind.Rfc5424: return t.ToString(TimeFormat5424, CultureInfo.InvariantCulture);
             case FormatKind.Bsd: return t.ToString(TimeFormatBsd, CultureInfo.InvariantCulture);

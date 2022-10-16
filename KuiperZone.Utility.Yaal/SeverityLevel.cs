@@ -18,6 +18,8 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Globalization;
+
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
@@ -79,13 +81,13 @@ public enum SeverityLevel
 	DebugL2,
 
 	/// <summary>
-	/// Additional debug level of lower priority than <see cref="DebugL2"/>. For RFC 5424 and BSD formats, it is
-    /// equivalent to <see cref="Debug"/> but provides for granularity in filtering out low level debug statements.
+	/// Lowest priority level for setting threshold which allow all message priorities, other than <see cref="Disabled"/>.
+    /// If used in a message, it is equivalent to <see cref="Debug"/>.
     /// </summary>
-	DebugL3,
+    Lowest,
 
 	/// <summary>
-    /// A special value used to disable logging.
+    /// A special value used to disable logging. Use only to disable logging by setting <see cref="Logger.Threshold"/>.
     /// </summary>
 	Disabled, // Must be last
 };
@@ -104,15 +106,44 @@ public static class SeverityLevelExtension
     }
 
 	/// <summary>
-    /// Returns an RFC 5424 (and BSD) priority value given a <see cref="FacilityId"/> value.
-    /// The result is an integer for the severity clamped within the legal RFC 5424 range and
-    /// OR-ed with facility.
+    /// Returns keyword. See: https://man7.org/linux/man-pages/man1/logger.1.html
     /// </summary>
-    public static int ToPriority(this SeverityLevel severity, FacilityId facility)
+    public static string ToKeyword(this SeverityLevel severity)
+    {
+        // https://man7.org/linux/man-pages/man1/logger.1.html
+        // https://devconnected.com/linux-logging-complete-guide/
+        switch (severity)
+        {
+            case SeverityLevel.Emergency: return "emerg";
+            case SeverityLevel.Alert: return "alert";
+            case SeverityLevel.Critical: return "crit";
+            case SeverityLevel.Error: return "err";
+            case SeverityLevel.Warning: return "warning";
+            case SeverityLevel.Notice: return "notice";
+            case SeverityLevel.Informational: return "info";
+            default: return "debug";
+        }
+    }
+
+	/// <summary>
+    /// Returns an RFC 5424 (and BSD) priority code given a <see cref="FacilityId"/> value.
+    /// The result is an integer (as a string) for the severity clamped within the legal
+    /// RFC 5424 range and OR-ed with facility * 8.
+    /// </summary>
+    public static string ToPriorityCode(this SeverityLevel severity, FacilityId facility)
     {
         const int Min = (int)SeverityLevel.Emergency;
 		const int Max = (int)SeverityLevel.Debug;
-        return Math.Clamp((int)severity, Min, Max) | (int)facility;
+        return (Math.Clamp((int)severity, Min, Max) | (int)facility << 3).ToString(CultureInfo.InvariantCulture);
     }
+
+	/// <summary>
+    /// Returns an RFC 5424 keyword pair, i.e. "info.user".
+    /// </summary>
+    public static string ToPriorityPair(this SeverityLevel severity, FacilityId facility)
+    {
+        return facility.ToKeyword() + "." + severity.ToKeyword();
+    }
+
 }
 

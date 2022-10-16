@@ -29,6 +29,41 @@ namespace KuiperZone.Utility.Yaal.Internal;
 public static class LogUtil
 {
     /// <summary>
+    /// Gets an ID number for the calling thread.
+    /// </summary>
+    public static string ThreadId
+    {
+        get { return Thread.CurrentThread.ManagedThreadId.ToString(); }
+    }
+
+    /// <summary>
+    /// Get a name for the calling thread. If it has no name, one is formed from the thread-id.
+    /// </summary>
+    public static string ThreadName
+    {
+        get
+        {
+            const int MaxThreadLength = 60;
+
+            var name = Thread.CurrentThread.Name;
+
+            if (string.IsNullOrEmpty(name))
+            {
+                // Use integer ID instead
+                name = "Thread" + ThreadId;
+            }
+            else
+            if (name.Length > MaxThreadLength)
+            {
+                // Not too long
+                name = name.Substring(0, MaxThreadLength).Trim();
+            }
+
+            return name;
+        }
+    }
+
+    /// <summary>
 	/// Static routine which returns true if id a valid SD-NAME or SD-ID. I.e. it is not empty, and
 	/// all characters are within the printable ASCII range, and they do not contain: '=', SP, ']', '"'.
     /// </summary>
@@ -79,37 +114,9 @@ public static class LogUtil
     }
 
     /// <summary>
-    /// Ensures the ID string is valid. It returns either a valid trimmed result or empty string.
-    /// If the string is too long, it is truncated to maxLength if "truncate" is true.
-    /// </summary>
-    public static string EnsureId(string? id, int maxLength, bool truncate = true)
-    {
-        id = id?.Trim();
-
-        if (string.IsNullOrEmpty(id))
-        {
-            // Allow empty
-            return "";
-        }
-
-        if (truncate && id.Length > maxLength)
-        {
-            id = id.Substring(0, maxLength);
-        }
-
-        if (LogUtil.IsValidId(id, maxLength))
-        {
-            return id;
-        }
-
-        return "";
-    }
-
-
-    /// <summary>
     /// Overload. Equivalent to: Escape(obj?.ToString(), false, chars).
     /// </summary>
-    public static string Escape(object? obj, string? chars = null)
+    public static string EscapeRemoval(object? obj, string? chars = null)
     {
         return Escape(obj?.ToString(), false, chars);
     }

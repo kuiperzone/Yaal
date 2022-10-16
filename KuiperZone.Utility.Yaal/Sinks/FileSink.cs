@@ -31,30 +31,49 @@ public sealed class FileSink : ILogSink
     private readonly bool _isThreadLocal;
 
     [ThreadStatic]
-    private FileWriter? _threadWriter;
-    private FileWriter? _globalWriter;
+    private FileSinkWriter? _threadWriter;
+    private FileSinkWriter? _globalWriter;
 
     /// <summary>
-    /// Constructor.
+    /// Constructor with option values. Serves as default constructor.
     /// </summary>
-    public FileSink(IReadOnlyFileSinkOptions options, SeverityLevel? threshold = null)
+    public FileSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : this(new FileSinkOptions(format, threshold))
     {
-        Threshold = threshold;
-        Options = new FileSinkOptions(options);
-        _isThreadLocal = Options.IsThreadLocal();
-
-        DirectoryName = FileWriter.Assert(Options);
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Threshold"/>.
+    /// Constructor variant with <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/> value.
     /// </summary>
-    public SeverityLevel? Threshold { get; }
+    public FileSink(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : this(new FileSinkOptions(directory, format, threshold))
+    {
+    }
+
+    /// <summary>
+    /// Constructor with options instance.
+    /// </summary>
+    public FileSink(IReadOnlyFileSinkOptions options)
+    {
+        // Take a copy
+        Options = new FileSinkOptions(options);
+        DirectoryName = FileSinkWriter.Assert(Options);
+
+        _isThreadLocal = Options.FilePattern.Contains(IReadOnlyFileSinkOptions.ThreadTag);
+    }
 
     /// <summary>
     /// Gets a clone of the options instance supplied on construction.
     /// </summary>
     public IReadOnlyFileSinkOptions Options { get; }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Options"/>.
+    /// </summary>
+    IReadOnlySinkOptions ILogSink.Options
+    {
+        get { return Options; }
+    }
 
     /// <summary>
     /// Gets the directory containing the log files.
@@ -64,20 +83,22 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(SeverityLevel severity, string message)
+    public void Write(LogMessage message, IReadOnlyLogOptions options)
     {
+        var text = message.ToString(Options.Format, options);
+
         if (_isThreadLocal)
         {
             // Thread static reference
-            _threadWriter ??= new FileWriter(Options);
-            _threadWriter.Write(message);
+            _threadWriter ??= new FileSinkWriter(Options);
+            _threadWriter.Write(text);
         }
         else
         {
             lock (_syncObj)
             {
-                _globalWriter ??= new FileWriter(Options);
-                _globalWriter.Write(message);
+                _globalWriter ??= new FileSinkWriter(Options);
+                _globalWriter.Write(text);
             }
         }
     }

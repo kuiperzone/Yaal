@@ -18,7 +18,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System.Runtime.InteropServices;
 using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
@@ -41,7 +40,7 @@ public class LogOptions : IReadOnlyLogOptions
     /// <summary>
     /// Gets the <see cref="LogOptions.AppPid"/> max length in characters.
     /// </summary>
-    public const int ProcIdMaxLength = 128;
+    public const int PidMaxLength = 128;
 
     /// <summary>
     /// Gets the <see cref="LogOptions.HostName"/> max length in characters.
@@ -59,26 +58,10 @@ public class LogOptions : IReadOnlyLogOptions
     public LogOptions()
     {
         HostName = AppInfo.HostName;
-        AppName = GetAssembly48(AppInfo.AssemblyName);
         AppPid = AppInfo.Pid;
 
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            Format = FormatKind.Text;
-        }
-        else
-        {
-            Format = FormatKind.Rfc5424;
-        }
-    }
-
-    /// <summary>
-    /// Constructor with initial <see cref="FormatKind"/> value.
-    /// </summary>
-    public LogOptions(FormatKind format)
-        : this()
-    {
-        Format = format;
+        // Truncate at last "." if too long
+        AppName = EnsureId(AppInfo.AssemblyName, AppNameMaxLength, true);
     }
 
     /// <summary>
@@ -89,7 +72,6 @@ public class LogOptions : IReadOnlyLogOptions
         HostName = other.HostName;
         AppName = other.AppName;
         AppPid = other.AppPid;
-        Format = other.Format;
         IsTimeUtc = other.IsTimeUtc;
         Facility = other.Facility;
         MaxTextLength = other.MaxTextLength;
@@ -102,7 +84,7 @@ public class LogOptions : IReadOnlyLogOptions
     public string HostName
     {
         get { return _hostName; }
-        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength); }
+        set { _hostName = EnsureId(value, HostNameMaxLength); }
     }
 
     /// <summary>
@@ -112,7 +94,7 @@ public class LogOptions : IReadOnlyLogOptions
     public string AppName
     {
         get { return _appName; }
-        set { _appName = LogUtil.EnsureId(value, AppNameMaxLength); }
+        set { _appName = EnsureId(value, AppNameMaxLength); }
     }
 
     /// <summary>
@@ -121,13 +103,8 @@ public class LogOptions : IReadOnlyLogOptions
     public string AppPid
     {
         get { return _procId; }
-        set { _procId = LogUtil.EnsureId(value, ProcIdMaxLength); }
+        set { _procId = EnsureId(value, PidMaxLength); }
     }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlyLogOptions.Format"/> and provides a setter.
-    /// </summary>
-    public FormatKind Format { get; set; }
 
     /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.IsTimeUtc"/> and provides a setter.
@@ -150,21 +127,41 @@ public class LogOptions : IReadOnlyLogOptions
 	public string DebugId
     {
         get { return _debugId; }
-        set { _debugId = LogUtil.EnsureId(value, HostNameMaxLength); }
+        set { _debugId = EnsureId(value, HostNameMaxLength); }
     }
 
-    private static string GetAssembly48(string assembly)
+    private static string EnsureId(string id, int maxLength, bool assembly = false)
     {
-        if (assembly.Length > AppNameMaxLength)
-        {
-            int pos = assembly.LastIndexOf('.');
+        id = id.Trim();
 
-            if (pos > 0)
+        if (string.IsNullOrEmpty(id))
+        {
+            return "";
+        }
+
+        if (id.Length > maxLength)
+        {
+            if (assembly)
             {
-                return assembly.Substring(pos + 1);
+                int pos = id.LastIndexOf('.');
+
+                if (pos > 0)
+                {
+                    id = id.Substring(pos + 1);
+                }
+            }
+
+            if (id.Length > maxLength)
+            {
+                id = id.Substring(AppNameMaxLength);
             }
         }
 
-        return assembly;
-    }
+        if (LogUtil.IsValidId(id, maxLength))
+        {
+            return id;
+        }
+
+        return "";
+   }
 }

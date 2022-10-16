@@ -18,21 +18,42 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only public properties.
+/// Construction options for the <see cref="BufferSink"/> class. Implements
+/// <see cref="IReadOnlyBufferSinkOptions"/> and provides setters.
 /// </summary>
-public interface ILogSink
+public sealed class BufferSinkOptions : SinkOptions, IReadOnlyBufferSinkOptions
 {
     /// <summary>
-    /// Gets read-only options assigned during construction.
+    /// Default constructor with options.
     /// </summary>
-    IReadOnlySinkOptions Options { get; }
+    public BufferSinkOptions(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+    }
 
     /// <summary>
-    /// Writes the message.
+    /// Default constructor with options.
     /// </summary>
-    void Write(LogMessage message, IReadOnlyLogOptions options);
+    public BufferSinkOptions(int capacity, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+        Capacity = capacity;
+    }
+
+    /// <summary>
+    /// Copy constructor.
+    /// </summary>
+    public BufferSinkOptions(IReadOnlyBufferSinkOptions other)
+        : base(other)
+    {
+    }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlyBufferSinkOptions.Capacity"/> and provides a setter.
+    /// </summary>
+    public int Capacity { get; set; } = 1000;
+
 }

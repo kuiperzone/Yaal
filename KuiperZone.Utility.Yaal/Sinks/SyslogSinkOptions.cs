@@ -18,28 +18,47 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="ILogSink"/>. Messages are written directly to <see cref="Debug"/>.
+/// Construction options for the <see cref="SyslogSink"/> class. Implements
+/// <see cref="IReadOnlySyslogSinkOptions"/> and provides setters.
 /// </summary>
-public sealed class DebugSink : ILogSink
+public sealed class SyslogSinkOptions : SinkOptions, IReadOnlySyslogSinkOptions
 {
     /// <summary>
-    /// Constructor.
+    /// Default constructor with options.
     /// </summary>
-    public DebugSink()
+    public SyslogSinkOptions(SeverityLevel severity = SeverityLevel.Lowest)
+        : base(DefaultFormat())
     {
+
+    }
+
+    public SyslogSinkOptions()
+        : base(DefaultFormat())
+    {
+
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Write"/>.
+    /// Copy constructor.
     /// </summary>
-    public void Write(SeverityLevel severity, string message)
+    public SyslogSinkOptions(IReadOnlyFileSinkOptions other)
+        : base(other)
     {
-        Debug.Write(message);
+    }
+
+    private static FormatKind DefaultFormat()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return FormatKind.Text;
+        }
+
+        return FormatKind.Rfc5424;
     }
 
 }

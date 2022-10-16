@@ -32,51 +32,43 @@ public sealed class BufferSink : ILogSink
     private readonly List<string> _history = new();
 
     /// <summary>
-    /// Constructor with optional <see cref="Capacity"/>.
-    /// The <see cref="Threshold"/> value will be null (ignored).
+    /// Constructor with option values. Serves as default constructor.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">capacity</exception>
-    public BufferSink(int capacity = 100)
-        : this(SeverityLevel.DebugL3)
+    public BufferSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : this(new BufferSinkOptions(format, threshold))
     {
-        if (capacity < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(capacity));
-        }
-
-        Capacity = capacity;
-        Threshold = SeverityLevel.DebugL3;
+        Options = new BufferSinkOptions(format, threshold);
     }
 
     /// <summary>
-    ///Constructor with <see cref="Threshold"/> value and optional <see cref="Capacity"/>.
+    /// Constructor variant with <see cref="IReadOnlyBufferSinkOptions.Capacity"/> value.
     /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">capacity</exception>
-    public BufferSink(SeverityLevel threshold, int capacity = 100)
+    public BufferSink(int capacity, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        if (capacity < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(capacity));
-        }
-
-        Capacity = capacity;
-        Threshold = threshold;
+        Options = new BufferSinkOptions(capacity, format, threshold);
     }
 
     /// <summary>
-    /// Gets the capacity. When this limit is reached, older messages are lost.
-    /// The default is 100.
+    /// Constructor with options instance.
     /// </summary>
-    public int Capacity { get; }
+    public BufferSink(IReadOnlyBufferSinkOptions options)
+    {
+        // Take a copy
+        Options = new BufferSinkOptions(options);
+    }
 
     /// <summary>
-    /// Gets the <see cref="SeverityLevel"/> value supplied on construction, providing
-    /// additional filter on this sink type. For example, it may be desirable to have
-    /// this sink write messages only with <see cref="SeverityLevel.Informational"/>
-    /// severity or higher, regardless of the severity threshold of the host logger.
+    /// Gets a clone of the options instance supplied on construction.
     /// </summary>
-    public SeverityLevel Threshold { get; }
+    public IReadOnlyBufferSinkOptions Options { get; }
 
+    /// <summary>
+    /// Implements <see cref="ILogSink.Options"/>.
+    /// </summary>
+    IReadOnlySinkOptions ILogSink.Options
+    {
+        get { return Options; }
+    }
 
     /// <summary>
     /// Gets up to count recent log messages. The result is a new instance on each call.
@@ -122,16 +114,16 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(SeverityLevel severity, string message)
+    public void Write(LogMessage message, IReadOnlyLogOptions options)
     {
         lock(_syncObj)
         {
-            if (_history.Count == Capacity)
+            if (_history.Count == Options.Capacity && _history.Count > 0)
             {
                 _history.RemoveAt(0);
             }
 
-            _history.Add(message);
+            _history.Add(message.ToString(Options.Format, options));
         }
     }
 

@@ -28,7 +28,7 @@ namespace KuiperZone.Utility.Yaal.Internal;
 /// <summary>
 /// Internal class used by <see cref="FileSink"/>.
 /// </summary>
-public sealed class FileWriter : IDisposable
+public sealed class FileSinkWriter : IDisposable
 {
     private StreamWriter? _stream;
     private int _pageCounter;
@@ -49,7 +49,7 @@ public sealed class FileWriter : IDisposable
     /// <exception cref="ArgumentException">Invalid path</exception>
     /// <exception cref="DirectoryNotFoundException">Directory not found</exception>
     /// <exception cref="IOException">File IO error</exception>
-    public FileWriter(IReadOnlyFileSinkOptions options)
+    public FileSinkWriter(IReadOnlyFileSinkOptions options)
     {
         Options = options;
         _stream = NewFile();
@@ -114,7 +114,7 @@ public sealed class FileWriter : IDisposable
 
         const int ZeroPad = 3;
         pattern = pattern.Replace(IReadOnlyFileSinkOptions.ProcIdTag, AppInfo.Pid.PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.ThreadTag, AppInfo.ThreadName, StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileSinkOptions.ThreadTag, LogUtil.ThreadName, StringComparison.OrdinalIgnoreCase);
         pattern = pattern.Replace(IReadOnlyFileSinkOptions.PageTag, page.ToString(CultureInfo.InvariantCulture).PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
 
         pattern = SubstituteDateTime(pattern);
@@ -142,7 +142,7 @@ public sealed class FileWriter : IDisposable
         {
             _stream.Dispose();
             _stream = null;
-            LineCount += 1;
+            LineCount = 0;
         }
     }
 

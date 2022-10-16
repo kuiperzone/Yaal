@@ -47,12 +47,6 @@ public interface IReadOnlyLogOptions
     string AppPid { get; }
 
     /// <summary>
-    /// Gets the output format. The default is <see cref="FormatKind.Text"/> on Windows, otherwise
-    /// <see cref="FormatKind.Rfc5424"/>.
-    /// </summary>
-    FormatKind Format { get; }
-
-    /// <summary>
     /// Gets whether times are written as UTC. Ignored for <see cref="FormatKind.Bsd"/>, as
     /// this format uses only local times. The default is false (local).
     /// </summary>

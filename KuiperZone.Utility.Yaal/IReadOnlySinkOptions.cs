@@ -21,18 +21,21 @@
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only public properties.
+/// Interface for readonly logging options.
 /// </summary>
-public interface ILogSink
+public interface IReadOnlySinkOptions
 {
     /// <summary>
-    /// Gets read-only options assigned during construction.
+    /// Gets the output format. The default is to depend on the sink kind.
     /// </summary>
-    IReadOnlySinkOptions Options { get; }
+    FormatKind Format { get; }
 
     /// <summary>
-    /// Writes the message.
+    /// Gets the threshold severity for the sink. Setting this value will prevent the sink form
+    /// logging any message with a lower priority, irrespective of the threshold value of the
+    /// host logger. Although this allows control on a per sink basis, this threshold cannot be
+    /// changed in-flight. Typically, therefore, the default should generally be
+    /// <see cref="SeverityLevel.Lowest"/>.
     /// </summary>
-    void Write(LogMessage message, IReadOnlyLogOptions options);
+    SeverityLevel Threshold { get; }
 }

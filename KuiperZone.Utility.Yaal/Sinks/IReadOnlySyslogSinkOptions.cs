@@ -18,21 +18,12 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only public properties.
+/// Readonly interface for the <see cref="SyslogSink"/> class.
 /// </summary>
-public interface ILogSink
+public interface IReadOnlySyslogSinkOptions : IReadOnlySinkOptions
 {
-    /// <summary>
-    /// Gets read-only options assigned during construction.
-    /// </summary>
-    IReadOnlySinkOptions Options { get; }
 
-    /// <summary>
-    /// Writes the message.
-    /// </summary>
-    void Write(LogMessage message, IReadOnlyLogOptions options);
 }

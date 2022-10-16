@@ -21,9 +21,9 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Readonly interface for the <see cref="FileSink"/> options.
+/// Readonly interface for the <see cref="FileSink"/> class.
 /// </summary>
-public interface IReadOnlyFileSinkOptions
+public interface IReadOnlyFileSinkOptions : IReadOnlySinkOptions
 {
     /// <summary>
     /// Placeholder for the application name.
@@ -101,11 +101,5 @@ public interface IReadOnlyFileSinkOptions
     /// house cleaning of stale files. The default is <see cref="TimeSpan.Zero"/> (disabled).
     /// </summary>
     TimeSpan StaleLife { get; }
-
-    /// <summary>
-    /// Returns true if <see cref="FilePatternTag"/> contains <see cref="ThreadTag"/>.
-    /// </summary>
-    bool IsThreadLocal();
-
 
 }
