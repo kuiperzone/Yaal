@@ -21,13 +21,36 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Readonly interface for the <see cref="BufferSink"/> class.
+/// Implements <see cref="IReadOnlySinkConfig"/> and provides setters.
 /// </summary>
-public interface IReadOnlyBufferSinkOptions : IReadOnlySinkOptions
+public class SinkConfig : IReadOnlySinkConfig
 {
     /// <summary>
-    /// Gets the maximum entry count. When reached, old entries are removed.
-    /// A value of 0 or less is invalid.
+    /// Constructor.
     /// </summary>
-    int Capacity { get; }
+    public SinkConfig(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    {
+        Format = format;
+        Threshold = threshold;
+    }
+
+    /// <summary>
+    /// Copy constructor.
+    /// </summary>
+    public SinkConfig(IReadOnlySinkConfig other)
+    {
+        Format = other.Format;
+        Threshold = other.Threshold;
+    }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlySinkConfig.Format"/> and provides a setter.
+    /// </summary>
+    public FormatKind Format { get; set; }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlySinkConfig.Threshold"/> and provides a setter.
+    /// </summary>
+    public SeverityLevel Threshold { get; set; }
+
 }

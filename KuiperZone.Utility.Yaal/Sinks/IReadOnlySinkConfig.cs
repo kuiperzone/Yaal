@@ -21,39 +21,20 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Construction options for the <see cref="BufferSink"/> class. Implements
-/// <see cref="IReadOnlyBufferSinkOptions"/> and provides setters.
+/// Interface for readonly logging configuration.
 /// </summary>
-public sealed class BufferSinkOptions : SinkOptions, IReadOnlyBufferSinkOptions
+public interface IReadOnlySinkConfig
 {
     /// <summary>
-    /// Default constructor with options.
+    /// Gets the output format. The default is to depend on the sink kind.
     /// </summary>
-    public BufferSinkOptions(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
-        : base(format, threshold)
-    {
-    }
+    FormatKind Format { get; }
 
     /// <summary>
-    /// Default constructor with options.
+    /// Gets the threshold severity for the sink. Setting this value will prevent the sink form
+    /// logging any message with a lower priority, irrespective of the threshold value of the
+    /// host logger. Although this allows control on a per sink basis, this threshold cannot be
+    /// changed in-flight. Typically, therefore, the default should be <see cref="SeverityLevel.Lowest"/>.
     /// </summary>
-    public BufferSinkOptions(int capacity, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
-        : base(format, threshold)
-    {
-        Capacity = capacity;
-    }
-
-    /// <summary>
-    /// Copy constructor.
-    /// </summary>
-    public BufferSinkOptions(IReadOnlyBufferSinkOptions other)
-        : base(other)
-    {
-    }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlyBufferSinkOptions.Capacity"/> and provides a setter.
-    /// </summary>
-    public int Capacity { get; set; } = 1000;
-
+    SeverityLevel Threshold { get; }
 }

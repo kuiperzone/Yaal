@@ -30,29 +30,29 @@ public sealed class ConsoleSink : ILogSink
     /// </summary>
     public ConsoleSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        Options = new SinkOptions(format, threshold);
+        Config = new SinkConfig(format, threshold);
     }
 
     /// <summary>
-    /// Constructor with options instance.
+    /// Constructor with configuration instance.
     /// </summary>
-    public ConsoleSink(IReadOnlySinkOptions options)
+    public ConsoleSink(IReadOnlySinkConfig config)
     {
         // Take a copy
-        Options = new SinkOptions(options);
+        Config = new SinkConfig(config);
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Options"/>.
+    /// Implements <see cref="ILogSink.Config"/>.
     /// </summary>
-    public IReadOnlySinkOptions Options { get; }
+    public IReadOnlySinkConfig Config { get; }
 
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
     {
-        Console.WriteLine(message.ToString(Options.Format, options));
+        Console.WriteLine(message.ToString(Config.Format, config));
     }
 
 }

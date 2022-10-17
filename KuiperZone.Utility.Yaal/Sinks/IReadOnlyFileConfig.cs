@@ -23,7 +23,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// <summary>
 /// Readonly interface for the <see cref="FileSink"/> class.
 /// </summary>
-public interface IReadOnlyFileSinkOptions : IReadOnlySinkOptions
+public interface IReadOnlyFileConfig : IReadOnlySinkConfig
 {
     /// <summary>
     /// Placeholder for the application name.

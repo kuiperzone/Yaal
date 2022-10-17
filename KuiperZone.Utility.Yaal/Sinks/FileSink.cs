@@ -35,44 +35,44 @@ public sealed class FileSink : ILogSink
     /// Constructor with option values. Serves as default constructor.
     /// </summary>
     public FileSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
-        : this(new FileSinkOptions(format, threshold))
+        : this(new FileConfig(format, threshold))
     {
     }
 
     /// <summary>
-    /// Constructor variant with <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/> value.
+    /// Constructor variant with <see cref="IReadOnlyFileConfig.DirectoryPattern"/> value.
     /// </summary>
     public FileSink(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
-        : this(new FileSinkOptions(directory, format, threshold))
+        : this(new FileConfig(directory, format, threshold))
     {
     }
 
     /// <summary>
-    /// Constructor with options instance.
+    /// Constructor with configuration instance.
     /// </summary>
-    public FileSink(IReadOnlyFileSinkOptions options)
+    public FileSink(IReadOnlyFileConfig config)
     {
         // Take a copy
-        Options = new FileSinkOptions(options);
-        DirectoryName = FileSinkWriter.Assert(Options);
+        Config = new FileConfig(config);
+        DirectoryName = FileSinkWriter.Assert(Config);
 
-        if (Options.FilePattern.Contains(IReadOnlyFileSinkOptions.ThreadTag))
+        if (Config.FilePattern.Contains(IReadOnlyFileConfig.ThreadTag))
         {
-            _local = new(() => {return new FileSinkWriter(Options);}, true);
+            _local = new(() => {return new FileSinkWriter(Config);}, true);
         }
     }
 
     /// <summary>
-    /// Gets a clone of the options instance supplied on construction.
+    /// Gets a clone of the configuration instance supplied on construction.
     /// </summary>
-    public IReadOnlyFileSinkOptions Options { get; }
+    public IReadOnlyFileConfig Config { get; }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Options"/>.
+    /// Implements <see cref="ILogSink.Config"/>.
     /// </summary>
-    IReadOnlySinkOptions ILogSink.Options
+    IReadOnlySinkConfig ILogSink.Config
     {
-        get { return Options; }
+        get { return Config; }
     }
 
     /// <summary>
@@ -83,9 +83,9 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
     {
-        var text = message.ToString(Options.Format, options);
+        var text = message.ToString(Config.Format, config);
 
         if (_local != null)
         {
@@ -95,7 +95,7 @@ public sealed class FileSink : ILogSink
         {
             lock (_syncObj)
             {
-                _global ??= new FileSinkWriter(Options);
+                _global ??= new FileSinkWriter(Config);
                 _global.Write(text);
             }
         }

@@ -124,24 +124,24 @@ public class LogMessage
     }
 
     /// <summary>
-    /// Returns a string output according to format and options. The "includePriority" applies
+    /// Returns a string output according to format and config. The "includePriority" applies
     /// to RFC 5424 and BSD and, if false, the leading priority code is omitted.
     /// </summary>
-    public string ToString(FormatKind format, IReadOnlyLoggerOptions? options = null, bool includePriority = true)
+    public string ToString(FormatKind format, IReadOnlyLoggerConfig? config = null, bool includePriority = true)
     {
-        options ??= new LoggerOptions();
+        config ??= new LoggerConfig();
         var buffer = new StringBuilder(1024);
 
         switch (format)
         {
             case FormatKind.Rfc5424:
-                AppendRfc5424(buffer, options, includePriority);
+                AppendRfc5424(buffer, config, includePriority);
                 break;
             case FormatKind.Bsd:
-                AppendBsd(buffer, options, includePriority);
+                AppendBsd(buffer, config, includePriority);
                 break;
             default:
-                AppendText(buffer, options);
+                AppendText(buffer, config);
                 break;
         }
 
@@ -197,27 +197,27 @@ public class LogMessage
         }
     }
 
-    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLoggerOptions options, bool includePriority)
+    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLoggerConfig config, bool includePriority)
     {
         if (includePriority)
         {
             // Will clamp with legal severity range
             buffer.Append('<');
-            buffer.Append(Severity.ToPriorityCode(options.Facility));
+            buffer.Append(Severity.ToPriorityCode(config.Facility));
             buffer.Append('>');
         }
 
         buffer.Append("1 ");
-        buffer.Append(ToTimestamp(FormatKind.Rfc5424, options));
+        buffer.Append(ToTimestamp(FormatKind.Rfc5424, config));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.HostName));
+        buffer.Append(ValueOrNil(config.HostName));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.AppName));
+        buffer.Append(ValueOrNil(config.AppName));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.AppPid));
+        buffer.Append(ValueOrNil(config.AppPid));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(MsgId));
@@ -228,16 +228,16 @@ public class LogMessage
         if (_data?.IsEmpty == false)
         {
             hasSd = true;
-            _data.AppendTo(buffer, options);
+            _data.AppendTo(buffer, config);
         }
 
         if (Debug?.Function != null &&
-            !string.IsNullOrEmpty(options.DebugId) &&
-            _data?.ContainsKey(options.DebugId) != true)
+            !string.IsNullOrEmpty(config.DebugId) &&
+            _data?.ContainsKey(config.DebugId) != true)
         {
             hasSd = true;
 
-            var e = new SdElement(options.DebugId);
+            var e = new SdElement(config.DebugId);
             e.Add("SEVERITY", Severity.ToString().ToUpperInvariant());
             e.Add("FUNCTION", Debug.Function);
 
@@ -247,7 +247,7 @@ public class LogMessage
             }
 
             e.Add("THREAD", AppInfo.Pid + "-" + LogUtil.ThreadName);
-            e.AppendTo(buffer, options);
+            e.AppendTo(buffer, config);
         }
 
         if (!hasSd)
@@ -256,40 +256,40 @@ public class LogMessage
             buffer.Append('-');
         }
 
-        AppendMessage(buffer, options);
+        AppendMessage(buffer, config);
     }
 
-    private void AppendBsd(StringBuilder buffer, IReadOnlyLoggerOptions options, bool includePriority)
+    private void AppendBsd(StringBuilder buffer, IReadOnlyLoggerConfig config, bool includePriority)
     {
         if (includePriority)
         {
             // Will clamp with legal severity range
             buffer.Append('<');
-            buffer.Append(Severity.ToPriorityCode(options.Facility));
+            buffer.Append(Severity.ToPriorityCode(config.Facility));
             buffer.Append('>');
         }
 
-        buffer.Append(ToTimestamp(FormatKind.Bsd, options));
+        buffer.Append(ToTimestamp(FormatKind.Bsd, config));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(options.HostName));
+        buffer.Append(ValueOrNil(config.HostName));
 
-        if (!string.IsNullOrEmpty(options.AppName))
+        if (!string.IsNullOrEmpty(config.AppName))
         {
             buffer.Append(' ');
-            buffer.Append(ValueOrNil(options.AppName));
+            buffer.Append(ValueOrNil(config.AppName));
 
-            if (!string.IsNullOrEmpty(options.AppPid))
+            if (!string.IsNullOrEmpty(config.AppPid))
             {
                 buffer.Append('[');
-                buffer.Append(options.AppPid);
+                buffer.Append(config.AppPid);
                 buffer.Append(']');
             }
 
             buffer.Append(':');
         }
 
-        AppendMessage(buffer, options);
+        AppendMessage(buffer, config);
 
         if (Debug?.Function != null)
         {
@@ -300,7 +300,7 @@ public class LogMessage
         }
     }
 
-    private void AppendText(StringBuilder buffer, IReadOnlyLoggerOptions options)
+    private void AppendText(StringBuilder buffer, IReadOnlyLoggerConfig config)
     {
         if (Debug?.Function != null)
         {
@@ -309,12 +309,12 @@ public class LogMessage
             buffer.Append(" :");
         }
 
-        AppendMessage(buffer, options);
+        AppendMessage(buffer, config);
     }
 
-    private string ToTimestamp(FormatKind format, IReadOnlyLoggerOptions options)
+    private string ToTimestamp(FormatKind format, IReadOnlyLoggerConfig config)
     {
-        var t = options.IsTimeUtc ? Time.ToUniversalTime() : Time.ToLocalTime();
+        var t = config.IsTimeUtc ? Time.ToUniversalTime() : Time.ToLocalTime();
 
         switch (format)
         {
@@ -324,11 +324,11 @@ public class LogMessage
         }
     }
 
-    private void AppendMessage(StringBuilder buffer, IReadOnlyLoggerOptions options)
+    private void AppendMessage(StringBuilder buffer, IReadOnlyLoggerConfig config)
     {
         if (!string.IsNullOrEmpty(Text))
         {
-            int max = options.MaxTextLength;
+            int max = config.MaxTextLength;
 
             if (buffer.Length != 0)
             {

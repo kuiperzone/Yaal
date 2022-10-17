@@ -33,7 +33,7 @@ internal class LoggerHelper
 
     public LoggerHelper(SeverityLevel threshold, IEnumerable<ILogSink>? sinks = null)
     {
-        Options = new LoggerOptions();
+        Config = new LoggerConfig();
         Threshold = threshold;
 
         var temp = new List<ILogSink>();
@@ -57,10 +57,10 @@ internal class LoggerHelper
         Sinks = temp;
     }
 
-    private LoggerHelper(IReadOnlyLoggerOptions options, SeverityLevel severity,
+    private LoggerHelper(IReadOnlyLoggerConfig config, SeverityLevel severity,
         string excludes, IReadOnlyCollection<ILogSink> sinks, Exception? lastError)
     {
-        Options = options;
+        Config = config;
         Threshold = severity;
         Exclusions = excludes;
         Sinks = sinks;
@@ -69,7 +69,7 @@ internal class LoggerHelper
         _exclusions = CreateIds(excludes);
     }
 
-    public readonly IReadOnlyLoggerOptions Options;
+    public readonly IReadOnlyLoggerConfig Config;
 
     public readonly SeverityLevel Threshold;
 
@@ -112,35 +112,35 @@ internal class LoggerHelper
         v_error = null;
     }
 
-    public LoggerHelper NewOptions(IReadOnlyLoggerOptions options)
+    public LoggerHelper NewConfig(IReadOnlyLoggerConfig config)
     {
-        return new LoggerHelper(options, Threshold, Exclusions, Sinks, Error);
+        return new LoggerHelper(config, Threshold, Exclusions, Sinks, Error);
     }
 
     public LoggerHelper NewThreshold(SeverityLevel severity)
     {
-        return new LoggerHelper(Options, severity, Exclusions, Sinks, Error);
+        return new LoggerHelper(Config, severity, Exclusions, Sinks, Error);
     }
 
     public LoggerHelper NewExclusions(string excludes)
     {
-        return new LoggerHelper(Options, Threshold, excludes, Sinks, Error);
+        return new LoggerHelper(Config, Threshold, excludes, Sinks, Error);
     }
 
     public LoggerHelper NewSinks(IReadOnlyCollection<ILogSink> sinks)
     {
-        return new LoggerHelper(Options, Threshold, Exclusions, sinks, Error);
+        return new LoggerHelper(Config, Threshold, Exclusions, sinks, Error);
     }
 
     public void Write(LogMessage message)
     {
         foreach (var item in Sinks)
         {
-            if (message.Severity.IsHigherOrEqualPriority(item.Options.Threshold))
+            if (message.Severity.IsHigherOrEqualPriority(item.Config.Threshold))
             {
                 try
                 {
-                    item.Write(message, Options);
+                    item.Write(message, Config);
                 }
                 catch (Exception e)
                 {

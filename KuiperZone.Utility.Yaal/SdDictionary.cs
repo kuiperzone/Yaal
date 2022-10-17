@@ -223,7 +223,7 @@ public class SdDictionary<T> : IDictionary<string, T>,
     /// Efficiently appends RFC 5424 formatted data to the StringBuilder.
     /// The resulting string data may be escaped according RFC 5424.
     /// </summary>
-    public virtual void AppendTo(StringBuilder buffer, IReadOnlyLoggerOptions options)
+    public virtual void AppendTo(StringBuilder buffer, IReadOnlyLoggerConfig config)
     {
         foreach (var item in _dictionary)
         {
@@ -246,7 +246,7 @@ public class SdDictionary<T> : IDictionary<string, T>,
     public override string ToString()
     {
         var buffer = new StringBuilder(1024);
-        AppendTo(buffer, new LoggerOptions());
+        AppendTo(buffer, new LoggerConfig());
         return buffer.ToString();
     }
 }

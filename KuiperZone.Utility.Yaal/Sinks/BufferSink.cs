@@ -34,39 +34,39 @@ public sealed class BufferSink : ILogSink
     /// Constructor with option values. Serves as default constructor.
     /// </summary>
     public BufferSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
-        : this(new BufferSinkOptions(format, threshold))
+        : this(new BufferConfig(format, threshold))
     {
-        Options = new BufferSinkOptions(format, threshold);
+        Config = new BufferConfig(format, threshold);
     }
 
     /// <summary>
-    /// Constructor variant with <see cref="IReadOnlyBufferSinkOptions.Capacity"/> value.
+    /// Constructor variant with <see cref="IReadOnlyBufferConfig.Capacity"/> value.
     /// </summary>
     public BufferSink(int capacity, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        Options = new BufferSinkOptions(capacity, format, threshold);
+        Config = new BufferConfig(capacity, format, threshold);
     }
 
     /// <summary>
-    /// Constructor with options instance.
+    /// Constructor with config instance.
     /// </summary>
-    public BufferSink(IReadOnlyBufferSinkOptions options)
+    public BufferSink(IReadOnlyBufferConfig config)
     {
         // Take a copy
-        Options = new BufferSinkOptions(options);
+        Config = new BufferConfig(config);
     }
 
     /// <summary>
-    /// Gets a clone of the options instance supplied on construction.
+    /// Gets a clone of the configuration instance supplied on construction.
     /// </summary>
-    public IReadOnlyBufferSinkOptions Options { get; }
+    public IReadOnlyBufferConfig Config { get; }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Options"/>.
+    /// Implements <see cref="ILogSink.Config"/>.
     /// </summary>
-    IReadOnlySinkOptions ILogSink.Options
+    IReadOnlySinkConfig ILogSink.Config
     {
-        get { return Options; }
+        get { return Config; }
     }
 
     /// <summary>
@@ -113,16 +113,16 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
     {
         lock(_syncObj)
         {
-            if (_history.Count == Options.Capacity && _history.Count > 0)
+            if (_history.Count == Config.Capacity && _history.Count > 0)
             {
                 _history.RemoveAt(0);
             }
 
-            _history.Add(message.ToString(Options.Format, options));
+            _history.Add(message.ToString(Config.Format, config));
         }
     }
 

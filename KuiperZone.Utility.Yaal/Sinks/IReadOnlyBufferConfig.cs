@@ -21,20 +21,13 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for readonly logging options.
+/// Readonly interface for the <see cref="BufferSink"/> class.
 /// </summary>
-public interface IReadOnlySinkOptions
+public interface IReadOnlyBufferConfig : IReadOnlySinkConfig
 {
     /// <summary>
-    /// Gets the output format. The default is to depend on the sink kind.
+    /// Gets the maximum entry count. When reached, old entries are removed.
+    /// A value of 0 or less is invalid.
     /// </summary>
-    FormatKind Format { get; }
-
-    /// <summary>
-    /// Gets the threshold severity for the sink. Setting this value will prevent the sink form
-    /// logging any message with a lower priority, irrespective of the threshold value of the
-    /// host logger. Although this allows control on a per sink basis, this threshold cannot be
-    /// changed in-flight. Typically, therefore, the default should be <see cref="SeverityLevel.Lowest"/>.
-    /// </summary>
-    SeverityLevel Threshold { get; }
+    int Capacity { get; }
 }

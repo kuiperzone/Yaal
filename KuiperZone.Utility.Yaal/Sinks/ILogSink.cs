@@ -29,10 +29,10 @@ public interface ILogSink
     /// <summary>
     /// Gets read-only options assigned during construction.
     /// </summary>
-    IReadOnlySinkOptions Options { get; }
+    IReadOnlySinkConfig Config { get; }
 
     /// <summary>
     /// Writes the message.
     /// </summary>
-    void Write(LogMessage message, IReadOnlyLoggerOptions options);
+    void Write(LogMessage message, IReadOnlyLoggerConfig config);
 }

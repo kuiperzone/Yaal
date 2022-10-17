@@ -21,23 +21,23 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Construction options for the <see cref="FileSink"/> class. Implements
-/// <see cref="IReadOnlyFileSinkOptions"/> and provides setters.
+/// Construction configuration for the <see cref="FileSink"/> class. Implements
+/// <see cref="IReadOnlyFileConfig"/> and provides setters.
 /// </summary>
-public sealed class FileSinkOptions : SinkOptions, IReadOnlyFileSinkOptions
+public sealed class FileConfig : SinkConfig, IReadOnlyFileConfig
 {
     /// <summary>
     /// Default constructor with options.
     /// </summary>
-    public FileSinkOptions(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileConfig(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
     }
 
     /// <summary>
-    /// Constructor with <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/> value.
+    /// Constructor with <see cref="IReadOnlyFileConfig.DirectoryPattern"/> value.
     /// </summary>
-    public FileSinkOptions(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileConfig(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
         DirectoryPattern = directory;
@@ -46,7 +46,7 @@ public sealed class FileSinkOptions : SinkOptions, IReadOnlyFileSinkOptions
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public FileSinkOptions(IReadOnlyFileSinkOptions other)
+    public FileConfig(IReadOnlyFileConfig other)
         : base(other)
     {
         DirectoryPattern = other.DirectoryPattern;
@@ -57,27 +57,27 @@ public sealed class FileSinkOptions : SinkOptions, IReadOnlyFileSinkOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyFileConfig.DirectoryPattern"/> and provides a setter.
     /// </summary>
     public string DirectoryPattern { get; set; } = "{DOCDIR}/Logs/{ASM}";
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyFileSinkOptions.FilePattern"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyFileConfig.FilePattern"/> and provides a setter.
     /// </summary>
     public string FilePattern { get; set; } = "{APP}-{PID}-{THD}-{[yyyyMMddTHHmmss]}.{PAG}.log";
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyFileSinkOptions.CreateDirectory"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyFileConfig.CreateDirectory"/> and provides a setter.
     /// </summary>
     public bool CreateDirectory { get; set; } = true;
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyFileSinkOptions.MaxLines"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyFileConfig.MaxLines"/> and provides a setter.
     /// </summary>
     public long MaxLines { get; set; } = 100000;
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyFileSinkOptions.StaleLife"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyFileConfig.StaleLife"/> and provides a setter.
     /// </summary>
     public TimeSpan StaleLife { get; set; }
 

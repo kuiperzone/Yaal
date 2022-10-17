@@ -21,36 +21,39 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="IReadOnlySinkOptions"/> and provides setters.
+/// Construction configuration for the <see cref="BufferSink"/> class. Implements
+/// <see cref="IReadOnlyBufferConfig"/> and provides setters.
 /// </summary>
-public class SinkOptions : IReadOnlySinkOptions
+public sealed class BufferConfig : SinkConfig, IReadOnlyBufferConfig
 {
     /// <summary>
-    /// Constructor.
+    /// Default constructor with options.
     /// </summary>
-    public SinkOptions(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public BufferConfig(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
     {
-        Format = format;
-        Threshold = threshold;
+    }
+
+    /// <summary>
+    /// Default constructor with options.
+    /// </summary>
+    public BufferConfig(int capacity, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+        Capacity = capacity;
     }
 
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public SinkOptions(IReadOnlySinkOptions other)
+    public BufferConfig(IReadOnlyBufferConfig other)
+        : base(other)
     {
-        Format = other.Format;
-        Threshold = other.Threshold;
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlySinkOptions.Format"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyBufferConfig.Capacity"/> and provides a setter.
     /// </summary>
-    public FormatKind Format { get; set; }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlySinkOptions.Threshold"/> and provides a setter.
-    /// </summary>
-    public SeverityLevel Threshold { get; set; }
+    public int Capacity { get; set; } = 1000;
 
 }

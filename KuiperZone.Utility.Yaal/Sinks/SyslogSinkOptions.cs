@@ -24,14 +24,14 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Construction options for the <see cref="SyslogSink"/> class. Implements
-/// <see cref="IReadOnlySyslogSinkOptions"/> and provides setters.
+/// <see cref="IReadOnlySyslogConfig"/> and provides setters.
 /// </summary>
-public sealed class SyslogSinkOptions : SinkOptions, IReadOnlySyslogSinkOptions
+public sealed class SyslogConfig : SinkConfig, IReadOnlySyslogConfig
 {
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public SyslogSinkOptions()
+    public SyslogConfig()
         : base(DefaultFormat())
     {
     }
@@ -39,7 +39,7 @@ public sealed class SyslogSinkOptions : SinkOptions, IReadOnlySyslogSinkOptions
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public SyslogSinkOptions(SeverityLevel severity)
+    public SyslogConfig(SeverityLevel severity)
         : base(DefaultFormat(), severity)
     {
     }
@@ -47,7 +47,7 @@ public sealed class SyslogSinkOptions : SinkOptions, IReadOnlySyslogSinkOptions
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public SyslogSinkOptions(FormatKind format, SeverityLevel severity = SeverityLevel.Lowest)
+    public SyslogConfig(FormatKind format, SeverityLevel severity = SeverityLevel.Lowest)
         : base(format, severity)
     {
     }
@@ -55,7 +55,7 @@ public sealed class SyslogSinkOptions : SinkOptions, IReadOnlySyslogSinkOptions
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public SyslogSinkOptions(IReadOnlySyslogSinkOptions other)
+    public SyslogConfig(IReadOnlySyslogConfig other)
         : base(other)
     {
     }

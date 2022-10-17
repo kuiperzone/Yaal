@@ -87,7 +87,7 @@ public enum SeverityLevel
 	DebugL3,
 
 	/// <summary>
-	/// Lowest priority level for setting <see cref="Logger.Threshold"/> and <see cref="IReadOnlySinkOptions.Threshold"/>.
+	/// Lowest priority level for setting <see cref="Logger.Threshold"/> and <see cref="IReadOnlySinkConfig.Threshold"/>.
     /// This level allows all message priorities except <see cref="Disabled"/>. Do not use with
     /// <see cref="LogMessage.Severity"/>.
     /// </summary>

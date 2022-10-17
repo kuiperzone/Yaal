@@ -44,21 +44,21 @@ public sealed class FileSinkWriter : IDisposable
     public const string OldExt = ".old";
 
     /// <summary>
-    /// Constructor with options.
+    /// Constructor with configuration.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid path</exception>
     /// <exception cref="DirectoryNotFoundException">Directory not found</exception>
     /// <exception cref="IOException">File IO error</exception>
-    public FileSinkWriter(IReadOnlyFileSinkOptions options)
+    public FileSinkWriter(IReadOnlyFileConfig config)
     {
-        Options = options;
+        Config = config;
         _stream = NewFile();
     }
 
     /// <summary>
-    /// Options.
+    /// Configuration.
     /// </summary>
-    public readonly IReadOnlyFileSinkOptions Options;
+    public readonly IReadOnlyFileConfig Config;
 
     /// <summary>
     /// Gets the line count.
@@ -66,19 +66,19 @@ public sealed class FileSinkWriter : IDisposable
     public long LineCount { get; private set; }
 
     /// <summary>
-    /// Assert options. Returns directory.
+    /// Assert config. Returns directory.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid DirectoryPattern</exception>
     /// <exception cref="ArgumentException">Invalid FilePattern</exception>
-    public static string Assert(IReadOnlyFileSinkOptions options)
+    public static string Assert(IReadOnlyFileConfig config)
     {
         // Call this to ensure name OK
-        GetFileName(options.FilePattern, 0);
-        return GetDirectoryName(options.DirectoryPattern);
+        GetFileName(config.FilePattern, 0);
+        return GetDirectoryName(config.DirectoryPattern);
     }
 
     /// <summary>
-    /// Gets the directory formed by the expansion of <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/>.
+    /// Gets the directory formed by the expansion of <see cref="IReadOnlyFileConfig.DirectoryPattern"/>.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid DirectoryPattern</exception>
     public static string GetDirectoryName(string pattern)
@@ -92,15 +92,15 @@ public sealed class FileSinkWriter : IDisposable
                 pattern = pattern.Replace('\\', '/');
             }
 
-            pattern = SubstituteDirectory(pattern, IReadOnlyFileSinkOptions.TempTag);
-            pattern = SubstituteDirectory(pattern, IReadOnlyFileSinkOptions.DocTag);
+            pattern = SubstituteDirectory(pattern, IReadOnlyFileConfig.TempTag);
+            pattern = SubstituteDirectory(pattern, IReadOnlyFileConfig.DocTag);
         }
 
         return pattern;
     }
 
     /// <summary>
-    /// Gets the filename formed by the expansion of <see cref="IReadOnlyFileSinkOptions.FilePattern"/>.
+    /// Gets the filename formed by the expansion of <see cref="IReadOnlyFileConfig.FilePattern"/>.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid FilePattern</exception>
     public static string GetFileName(string pattern, int page)
@@ -113,9 +113,9 @@ public sealed class FileSinkWriter : IDisposable
         }
 
         const int ZeroPad = 3;
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.ProcIdTag, AppInfo.Pid.PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.ThreadTag, LogUtil.ThreadName, StringComparison.OrdinalIgnoreCase);
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.PageTag, page.ToString(CultureInfo.InvariantCulture).PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileConfig.ProcIdTag, AppInfo.Pid.PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileConfig.ThreadTag, LogUtil.ThreadName, StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileConfig.PageTag, page.ToString(CultureInfo.InvariantCulture).PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
 
         pattern = SubstituteDateTime(pattern);
 
@@ -138,7 +138,7 @@ public sealed class FileSinkWriter : IDisposable
 
         LineCount += 1;
 
-        if (Options.MaxLines > 0 && LineCount >= Options.MaxLines)
+        if (Config.MaxLines > 0 && LineCount >= Config.MaxLines)
         {
             _stream.Dispose();
             _stream = null;
@@ -154,13 +154,13 @@ public sealed class FileSinkWriter : IDisposable
         _stream?.Dispose();
     }
 
-    private static string AssertDirectory(IReadOnlyFileSinkOptions options)
+    private static string AssertDirectory(IReadOnlyFileConfig config)
     {
-        var dir = GetDirectoryName(options.DirectoryPattern);
+        var dir = GetDirectoryName(config.DirectoryPattern);
 
         if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
         {
-            if (options.CreateDirectory)
+            if (config.CreateDirectory)
             {
                 Directory.CreateDirectory(dir);
             }
@@ -176,9 +176,9 @@ public sealed class FileSinkWriter : IDisposable
     private static string SubstituteCommon(string pattern)
     {
         pattern = pattern.Trim();
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.AppTag, AppInfo.AppName, StringComparison.OrdinalIgnoreCase);
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.AsmTag, AppInfo.AssemblyName, StringComparison.OrdinalIgnoreCase);
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.BuildTag, AppInfo.IsDebug ? "Dbg" : "Rel", StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileConfig.AppTag, AppInfo.AppName, StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileConfig.AsmTag, AppInfo.AssemblyName, StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileConfig.BuildTag, AppInfo.IsDebug ? "Dbg" : "Rel", StringComparison.OrdinalIgnoreCase);
 
         return pattern;
     }
@@ -234,7 +234,7 @@ public sealed class FileSinkWriter : IDisposable
 
             var value = Path.GetTempPath();
 
-            if (tag == IReadOnlyFileSinkOptions.DocTag)
+            if (tag == IReadOnlyFileConfig.DocTag)
             {
                 try
                 {
@@ -294,8 +294,8 @@ public sealed class FileSinkWriter : IDisposable
 
     private StreamWriter NewFile()
     {
-        var dir = AssertDirectory(Options);
-        var path = Path.Combine(dir, GetFileName(Options.FilePattern, ++_pageCounter));
+        var dir = AssertDirectory(Config);
+        var path = Path.Combine(dir, GetFileName(Config.FilePattern, ++_pageCounter));
 
         if (File.Exists(path))
         {
@@ -317,7 +317,7 @@ public sealed class FileSinkWriter : IDisposable
         }
 
         LineCount = 0;
-        RemoveStalefiles(dir, Options.StaleLife);
+        RemoveStalefiles(dir, Config.StaleLife);
 
         var file = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.Read);
         return new StreamWriter(file, new UTF8Encoding(false));

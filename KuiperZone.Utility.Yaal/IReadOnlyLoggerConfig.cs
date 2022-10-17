@@ -21,9 +21,9 @@
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Interface for readonly logging options.
+/// Interface for readonly logging configuration.
 /// </summary>
-public interface IReadOnlyLoggerOptions
+public interface IReadOnlyLoggerConfig
 {
     /// <summary>
     /// Gets the local host name. It will be set on construction to a default value.
@@ -78,5 +78,5 @@ public interface IReadOnlyLoggerOptions
     /// <summary>
     /// Clones the instance returning a mutable instance.
     /// </summary>
-    LoggerOptions Clone();
+    LoggerConfig Clone();
 }

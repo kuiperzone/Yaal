@@ -93,14 +93,14 @@ public sealed class Logger
     }
 
     /// <summary>
-    /// Gets or sets the logger options. These can be set using an instance of <see cref="LoggerOptions"/>.
+    /// Gets or sets the logger configuration. These can be set using an instance of <see cref="LoggerConfig"/>.
     /// Although they can be changed in-flight, it is recommended that they are specified at the start of
     /// the program execution and left unchanged.
     /// </summary>
-    public IReadOnlyLoggerOptions Options
+    public IReadOnlyLoggerConfig Config
     {
-        get { return v_helper.Options; }
-        set { v_helper = v_helper.NewOptions(value); }
+        get { return v_helper.Config; }
+        set { v_helper = v_helper.NewConfig(value); }
     }
 
     /// <summary>
