@@ -46,6 +46,10 @@ public static class AppInfo
             {
                 var eaName = ea.GetName();
                 AssemblyName = eaName.Name ?? "";
+
+                int pos = AssemblyName.LastIndexOf('.');
+                AppName = pos > 0 ? AssemblyName.Substring(pos + 1) : AssemblyName;
+
                 Version = eaName.Version ?? new Version();
 
                 foreach (var attrib in ea.GetCustomAttributes(false))
@@ -59,7 +63,7 @@ public static class AppInfo
                 }
 
                 var info = FileVersionInfo.GetVersionInfo(ea.Location);
-                ProductName = info.ProductName ?? AssemblyName;
+                ProductName = info.ProductName ?? AppName;
                 Company = info.CompanyName ?? "";
                 Copyright = info.LegalCopyright ?? "";
                 FileName = info.FileName;
@@ -70,6 +74,7 @@ public static class AppInfo
         }
 
         AssemblyName ??= "";
+        AppName ??= "";
         Version ??= new Version();
         ProductName ??= "";
         Company ??= "";
@@ -88,6 +93,11 @@ public static class AppInfo
     public static string Pid { get; }
 
     /// <summary>
+    /// Gets the application name, being the last element in <see cref="AssemblyName"/>.
+    /// </summary>
+    public static string AppName { get; }
+
+    /// <summary>
     /// Gets the entry assembly name.
     /// </summary>
     public static string AssemblyName { get; }
@@ -98,7 +108,7 @@ public static class AppInfo
     public static Version Version { get; }
 
     /// <summary>
-    /// Gets the application ProductName, falling back to the entry assembly name if not defined.
+    /// Gets the application ProductName, falling back to <see cref="AppName"/> if not defined.
     /// </summary>
     public static string ProductName { get; }
 

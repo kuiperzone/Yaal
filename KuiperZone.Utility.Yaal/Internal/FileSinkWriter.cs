@@ -176,7 +176,8 @@ public sealed class FileSinkWriter : IDisposable
     private static string SubstituteCommon(string pattern)
     {
         pattern = pattern.Trim();
-        pattern = pattern.Replace(IReadOnlyFileSinkOptions.AppTag, AppInfo.AssemblyName, StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileSinkOptions.AppTag, AppInfo.AppName, StringComparison.OrdinalIgnoreCase);
+        pattern = pattern.Replace(IReadOnlyFileSinkOptions.AsmTag, AppInfo.AssemblyName, StringComparison.OrdinalIgnoreCase);
         pattern = pattern.Replace(IReadOnlyFileSinkOptions.BuildTag, AppInfo.IsDebug ? "Dbg" : "Rel", StringComparison.OrdinalIgnoreCase);
 
         return pattern;
@@ -235,7 +236,14 @@ public sealed class FileSinkWriter : IDisposable
 
             if (tag == IReadOnlyFileSinkOptions.DocTag)
             {
-                value = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                try
+                {
+                    value = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                }
+                catch
+                {
+                    // Fall to temporary
+                }
             }
 
             return pattern.Replace(tag, value.TrimEnd('/', '\\'), StringComparison.OrdinalIgnoreCase);

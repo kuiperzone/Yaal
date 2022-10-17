@@ -74,4 +74,9 @@ public interface IReadOnlyLoggerOptions
     /// range, and must not contain: '=', SP, ']', '"'
     /// </summary>
 	string DebugId { get; }
+
+    /// <summary>
+    /// Clones the instance returning a mutable instance.
+    /// </summary>
+    LoggerOptions Clone();
 }

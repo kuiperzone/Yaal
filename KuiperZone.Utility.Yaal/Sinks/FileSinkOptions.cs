@@ -59,12 +59,12 @@ public sealed class FileSinkOptions : SinkOptions, IReadOnlyFileSinkOptions
     /// <summary>
     /// Implements <see cref="IReadOnlyFileSinkOptions.DirectoryPattern"/> and provides a setter.
     /// </summary>
-    public string DirectoryPattern { get; set; } = "{DOCDIR}/Logs/{APP}";
+    public string DirectoryPattern { get; set; } = "{DOCDIR}/Logs/{ASM}";
 
     /// <summary>
     /// Implements <see cref="IReadOnlyFileSinkOptions.FilePattern"/> and provides a setter.
     /// </summary>
-    public string FilePattern { get; set; } = "{PID}-{THD}-{[yyyyMMddTHHmmss]}.{PAG}.log";
+    public string FilePattern { get; set; } = "{APP}-{PID}-{THD}-{[yyyyMMddTHHmmss]}.{PAG}.log";
 
     /// <summary>
     /// Implements <see cref="IReadOnlyFileSinkOptions.CreateDirectory"/> and provides a setter.

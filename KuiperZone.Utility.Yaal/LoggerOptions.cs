@@ -61,7 +61,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
         AppPid = AppInfo.Pid;
 
         // Truncate at last "." if too long
-        AppName = EnsureId(AppInfo.AssemblyName, AppNameMaxLength, true);
+        AppName = EnsureId(AppInfo.AppName, AppNameMaxLength, true);
     }
 
     /// <summary>
@@ -128,6 +128,14 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     {
         get { return _debugId; }
         set { _debugId = EnsureId(value, HostNameMaxLength); }
+    }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlyLoggerOptions.Clone"/>.
+    /// </summary>
+    public LoggerOptions Clone()
+    {
+        return new LoggerOptions(this);
     }
 
     private static string EnsureId(string id, int maxLength, bool assembly = false)

@@ -31,6 +31,11 @@ public interface IReadOnlyFileSinkOptions : IReadOnlySinkOptions
     const string AppTag = "{APP}";
 
     /// <summary>
+    /// Placeholder for the application assembly name.
+    /// </summary>
+    const string AsmTag = "{ASM}";
+
+    /// <summary>
     /// Placeholder for the application PID.
     /// </summary>
     const string ProcIdTag = "{PID}";
@@ -54,33 +59,34 @@ public interface IReadOnlyFileSinkOptions : IReadOnlySinkOptions
 
     /// <summary>
     /// Placeholder for the user temp directory, excluding any trailing separator.
-    /// The placeholder should occur only at the start of the pattern.
+    /// The placeholder should occur only at the start of the pattern only.
     /// Example: "{TMPDIR}/Logs"
     /// </summary>
     const string TempTag = "{TMPDIR}";
 
     /// <summary>
-    /// Placeholder for the user Document directory, excluding any trailing separator.
-    /// If the Document directory does not exist, the temporary directory is used instead.
-    /// The placeholder should be specified only at the start of the pattern.
+    /// Placeholder for the user Document directory, excluding any trailing separator. This may be the
+    /// user's home directory under Linux. If the directory does not exist, it falls back to the temporary
+    /// directory. The placeholder should be specified only at the start of the pattern only.
     /// Example: "{DOCDIR}/Logs"
     /// </summary>
     const string DocTag = "{DOCDIR}";
 
     /// <summary>
     /// Gets the directory pattern. The pattern may contain one or more of the following placeholder
-    /// variables: <see cref="AppTag"/>, <see cref="BuildTag"/> and <see cref="TempTag"/>. If the value
-    /// is empty, the working directory is used. The default is empty.
+    /// variables: <see cref="AppTag"/>, <see cref="AsmTag"/>, <see cref="BuildTag"/>, <see cref="TempTag"/>
+    /// and <see cref="DocTag"/>. If the value is empty, the working directory is used. The default is empty.
+    /// Example: "{DOCDIR}/Logs/{APP}"
     /// </summary>
     string DirectoryPattern { get; }
 
     /// <summary>
     /// Gets the filename pattern, excluding any directory part. The pattern may contain one or more of
-    /// the following placeholder variables: <see cref="AppTag"/>, <see cref="ProcIdTag"/>, <see cref="ThreadTag"/>,
-    /// <see cref="PageTag"/>, <see cref="BuildTag"/>. Additionally, "{[DateFormat]}" may also be used, where the
-    /// text between brace pair "{[" and "]}" will be substituted with a system time according to the DateTime format.
-    /// IMPORTANT. If <see cref="FilePattern"/> contains <see cref="ThreadTag"/>, a separate file will be created
-    /// for each calling thread.
+    /// the following placeholder variables: <see cref="AsmTag"/>, <see cref="AppTag"/>, <see cref="ProcIdTag"/>,
+    /// <see cref="ThreadTag"/>, <see cref="PageTag"/>, <see cref="BuildTag"/>. Additionally, "{[DateFormat]}"
+    /// may also be used, where the text between brace pair "{[" and "]}" will be substituted with a system time
+    /// according to the DateTime format. IMPORTANT. If <see cref="FilePattern"/> contains <see cref="ThreadTag"/>,
+    /// a separate file will be created for each calling thread. Example:
     /// </summary>
     string FilePattern { get; }
 

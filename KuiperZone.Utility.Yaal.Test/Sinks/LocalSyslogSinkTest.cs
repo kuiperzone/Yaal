@@ -34,33 +34,4 @@ public class LocalSyslogSinkTest
         Helper = helper;
     }
 
-    [Fact]
-    public void IsSupported_ResultAccordingToPlatform()
-    {
-        Assert.Equal(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), !SyslogSink.IsSupported);
-    }
-
-    [Fact]
-    public void WriteMessage_WritesOK()
-    {
-        Debug.WriteLine("Hello xyz");
-        Trace.WriteLine("Hello xyz2", "category");
-
-        var ev = new EventLogSink();
-        var m = new LogMessage("\"Hello\", he said");
-        ev.Write(m, new LoggerOptions());
-
-        if (SyslogSink.IsSupported)
-        {
-            var sink = new SyslogSink();
-
-            m.Debug = new();
-            sink.Write(m, new LoggerOptions());
-
-//            var pid = Process.GetCurrentProcess().Id.ToString();
-  //          sink.Write(SeverityLevel.Informational, $"--rfc5424 --id={pid} \"Hello World\"");
-            Assert.False(sink.IsFailed);
-        }
-    }
-
 }

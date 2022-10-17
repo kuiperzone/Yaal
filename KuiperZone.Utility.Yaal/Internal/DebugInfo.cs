@@ -29,15 +29,15 @@ public sealed class DebugInfo
     private static readonly string ConstructorEntry = typeof(DebugInfo).FullName + "..ctor";
 
     /// <summary>
-    /// Contructor which will locate the caller in the stack. The "entryMethod" should be the
-    /// full name of the first function (entry) in the logging functionality. If null,
-    /// <see cref="DebugInfo.Function"/> will be
-    /// set to the method name which called this constructor.
+    /// Contructor which will locate the caller in the stack. The "method" should be
+    /// the full name of the method which called the logging functionality. If null,
+    /// <see cref="DebugInfo.Function"/> will be set to the method name which invoked
+    /// this constructor. See also: MethodBase.GetCurrentMethod()
     /// </summary>
-    public DebugInfo(string? entryMethod = null)
+    public DebugInfo(string? method = null)
     {
-        entryMethod ??= ConstructorEntry;
-        Function = LocateCaller(entryMethod, out int temp);
+        var name = method ?? ConstructorEntry;
+        Function = LocateCaller(name, out int temp);
         LineNumber = temp;
     }
 
@@ -113,7 +113,6 @@ public sealed class DebugInfo
 
             for (int n = 0; n < stack.Length - 1; ++n)
             {
-                Console.WriteLine(stack[n]);
                 int start = stack[n].IndexOf(entryMethod);
 
                 if (start > -1)

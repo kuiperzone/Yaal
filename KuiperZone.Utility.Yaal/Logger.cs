@@ -18,6 +18,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Reflection;
 using KuiperZone.Utility.Yaal.Internal;
 using KuiperZone.Utility.Yaal.Sinks;
 
@@ -30,6 +31,10 @@ namespace KuiperZone.Utility.Yaal;
 /// </summary>
 public sealed class Logger
 {
+    // Assumed to be faster than MethodBase.GetCurrentMethod()
+    private readonly static string DebugMethodName = typeof(Logger).FullName + "." + nameof(Debug);
+    private readonly static string DebugIfMethodName = typeof(Logger).FullName + "." + nameof(DebugIf);
+
     private volatile LoggerHelper v_helper;
 
     /// <summary>
@@ -305,7 +310,8 @@ public sealed class Logger
 
         if (temp.Allow(message))
         {
-            message.Debug ??= new(nameof(Debug));
+            MethodBase.GetCurrentMethod();
+            message.Debug ??= new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -326,7 +332,7 @@ public sealed class Logger
         if (temp.Allow(MsgSeverity))
         {
             var message = new LogMessage(MsgSeverity, text);
-            message.Debug = new(nameof(Debug));
+            message.Debug = new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -344,7 +350,7 @@ public sealed class Logger
         if (temp.Allow(severity))
         {
             var message = new LogMessage(severity, text);
-            message.Debug = new(nameof(Debug));
+            message.Debug = new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -363,7 +369,7 @@ public sealed class Logger
         if (temp.Allow(msgId, severity))
         {
             var message = new LogMessage(msgId, severity, text);
-            message.Debug = new(nameof(Debug));
+            message.Debug = new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -384,7 +390,7 @@ public sealed class Logger
         if (temp.Allow(MsgSeverity))
         {
             var message = new LogMessage(MsgSeverity, e.ToString());
-            message.Debug = new(nameof(Debug));
+            message.Debug = new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -402,7 +408,7 @@ public sealed class Logger
         if (temp.Allow(severity))
         {
             var message = new LogMessage(severity, e.ToString());
-            message.Debug = new(nameof(Debug));
+            message.Debug = new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -421,7 +427,7 @@ public sealed class Logger
         if (temp.Allow(msgId, severity))
         {
             var message = new LogMessage(msgId, severity, e.ToString());
-            message.Debug = new(nameof(Debug));
+            message.Debug = new(DebugMethodName);
             temp.Write(message);
         }
     }
@@ -437,7 +443,7 @@ public sealed class Logger
 
         if (condition && temp.Allow(message))
         {
-            message.Debug ??= new(nameof(DebugIf));
+            message.Debug ??= new(DebugIfMethodName);
             temp.Write(message);
         }
     }
@@ -456,7 +462,7 @@ public sealed class Logger
         if (condition && temp.Allow(MsgSeverity))
         {
             var message = new LogMessage(MsgSeverity, text);
-            message.Debug = new(nameof(DebugIf));
+            message.Debug = new(DebugIfMethodName);
             temp.Write(message);
         }
     }
@@ -473,7 +479,7 @@ public sealed class Logger
         if (condition && temp.Allow(severity))
         {
             var message = new LogMessage(severity, text);
-            message.Debug = new(nameof(DebugIf));
+            message.Debug = new(DebugIfMethodName);
             temp.Write(message);
         }
     }
@@ -490,7 +496,7 @@ public sealed class Logger
         if (condition && temp.Allow(msgId, severity))
         {
              var message = new LogMessage(msgId, severity, text);
-            message.Debug = new(nameof(DebugIf));
+            message.Debug = new(DebugIfMethodName);
             temp.Write(message);
        }
     }

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KuiperZone.Utility.Yaal", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KuiperZone.Utility.Yaal.Test", "KuiperZone.Utility.Yaal.Test\KuiperZone.Utility.Yaal.Test.csproj", "{40F824C5-1C61-4245-AFC6-2E3AA8B5288B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KuiperZone.Utility.Yaal.DemoApp", "KuiperZone.Utility.Yaal.DemoApp\KuiperZone.Utility.Yaal.DemoApp.csproj", "{87616109-7F65-436E-8FFB-F1094093006A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{40F824C5-1C61-4245-AFC6-2E3AA8B5288B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40F824C5-1C61-4245-AFC6-2E3AA8B5288B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40F824C5-1C61-4245-AFC6-2E3AA8B5288B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87616109-7F65-436E-8FFB-F1094093006A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87616109-7F65-436E-8FFB-F1094093006A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87616109-7F65-436E-8FFB-F1094093006A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87616109-7F65-436E-8FFB-F1094093006A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

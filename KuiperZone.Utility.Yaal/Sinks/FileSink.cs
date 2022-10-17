@@ -28,11 +28,8 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 public sealed class FileSink : ILogSink
 {
     private object _syncObj = new();
-    private readonly bool _isThreadLocal;
-
-    [ThreadStatic]
-    private FileSinkWriter? _threadWriter;
-    private FileSinkWriter? _globalWriter;
+    private readonly ThreadLocal<FileSinkWriter>? _local;
+    private FileSinkWriter? _global;
 
     /// <summary>
     /// Constructor with option values. Serves as default constructor.
@@ -59,7 +56,10 @@ public sealed class FileSink : ILogSink
         Options = new FileSinkOptions(options);
         DirectoryName = FileSinkWriter.Assert(Options);
 
-        _isThreadLocal = Options.FilePattern.Contains(IReadOnlyFileSinkOptions.ThreadTag);
+        if (Options.FilePattern.Contains(IReadOnlyFileSinkOptions.ThreadTag))
+        {
+            _local = new(() => {return new FileSinkWriter(Options);}, true);
+        }
     }
 
     /// <summary>
@@ -87,18 +87,16 @@ public sealed class FileSink : ILogSink
     {
         var text = message.ToString(Options.Format, options);
 
-        if (_isThreadLocal)
+        if (_local != null)
         {
-            // Thread static reference
-            _threadWriter ??= new FileSinkWriter(Options);
-            _threadWriter.Write(text);
+            _local.Value?.Write(text);
         }
         else
         {
             lock (_syncObj)
             {
-                _globalWriter ??= new FileSinkWriter(Options);
-                _globalWriter.Write(text);
+                _global ??= new FileSinkWriter(Options);
+                _global.Write(text);
             }
         }
     }
