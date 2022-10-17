@@ -23,7 +23,7 @@ namespace KuiperZone.Utility.Yaal;
 /// <summary>
 /// Interface for readonly logging options.
 /// </summary>
-public interface IReadOnlyLogOptions
+public interface IReadOnlyLoggerOptions
 {
     /// <summary>
     /// Gets the local host name. It will be set on construction to a default value.

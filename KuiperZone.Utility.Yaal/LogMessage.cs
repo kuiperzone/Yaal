@@ -127,9 +127,9 @@ public class LogMessage
     /// Returns a string output according to format and options. The "includePriority" applies
     /// to RFC 5424 and BSD and, if false, the leading priority code is omitted.
     /// </summary>
-    public string ToString(FormatKind format, IReadOnlyLogOptions? options = null, bool includePriority = true)
+    public string ToString(FormatKind format, IReadOnlyLoggerOptions? options = null, bool includePriority = true)
     {
-        options ??= new LogOptions();
+        options ??= new LoggerOptions();
         var buffer = new StringBuilder(1024);
 
         switch (format)
@@ -163,7 +163,41 @@ public class LogMessage
         return string.IsNullOrEmpty(value) ? "-" : value;
     }
 
-    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLogOptions options, bool includePriority)
+    private string FormatArgs(string format, params object?[]? args)
+    {
+        const string SubNull = "{null}";
+
+        if (args != null)
+        {
+            for (int n = 0; n < args.Length; ++n)
+            {
+                if (args[n] == null)
+                {
+                    args[n] = SubNull;
+                }
+            }
+
+            try
+            {
+                return string.Format(CultureInfo.InvariantCulture, format, args);
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        try
+        {
+            return string.Format(CultureInfo.InvariantCulture, format, SubNull);
+        }
+        catch (Exception e)
+        {
+            return e.Message;
+        }
+    }
+
+    private void AppendRfc5424(StringBuilder buffer, IReadOnlyLoggerOptions options, bool includePriority)
     {
         if (includePriority)
         {
@@ -225,7 +259,7 @@ public class LogMessage
         AppendMessage(buffer, options);
     }
 
-    private void AppendBsd(StringBuilder buffer, IReadOnlyLogOptions options, bool includePriority)
+    private void AppendBsd(StringBuilder buffer, IReadOnlyLoggerOptions options, bool includePriority)
     {
         if (includePriority)
         {
@@ -266,7 +300,7 @@ public class LogMessage
         }
     }
 
-    private void AppendText(StringBuilder buffer, IReadOnlyLogOptions options)
+    private void AppendText(StringBuilder buffer, IReadOnlyLoggerOptions options)
     {
         if (Debug?.Function != null)
         {
@@ -278,7 +312,7 @@ public class LogMessage
         AppendMessage(buffer, options);
     }
 
-    private string ToTimestamp(FormatKind format, IReadOnlyLogOptions options)
+    private string ToTimestamp(FormatKind format, IReadOnlyLoggerOptions options)
     {
         var t = options.IsTimeUtc ? Time.ToUniversalTime() : Time.ToLocalTime();
 
@@ -290,7 +324,7 @@ public class LogMessage
         }
     }
 
-    private void AppendMessage(StringBuilder buffer, IReadOnlyLogOptions options)
+    private void AppendMessage(StringBuilder buffer, IReadOnlyLoggerOptions options)
     {
         if (!string.IsNullOrEmpty(Text))
         {

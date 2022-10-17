@@ -26,7 +26,7 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="ILogSink"/> for syslog (logger) on Linux, and Event Log on Windows.
+/// Implements <see cref="ILogSink"/> for syslog (logger) on Linux, and EventLog on Windows.
 /// </summary>
 public sealed class SyslogSink : ILogSink
 {
@@ -86,7 +86,7 @@ public sealed class SyslogSink : ILogSink
     /// "logger" shell command is not available.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
-    public void Write(LogMessage message, IReadOnlyLogOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
     {
         if (!v_isFailed)
         {
@@ -163,7 +163,7 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteLinux(LogMessage message, IReadOnlyLogOptions options)
+    public void WriteLinux(LogMessage message, IReadOnlyLoggerOptions options)
     {
         // It seems that we need to provide priority as an option for syslog
         var text = message.ToString(Options.Format, options, false);
@@ -183,7 +183,7 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteWindows(LogMessage message, IReadOnlyLogOptions options)
+    public void WriteWindows(LogMessage message, IReadOnlyLoggerOptions options)
     {
         var text = message.ToString(Options.Format, options, true);
 

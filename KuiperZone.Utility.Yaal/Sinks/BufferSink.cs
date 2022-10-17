@@ -21,10 +21,9 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="ILogSink"/> for a memory string buffer. Message written to
-/// it will be held in an array. It is useful only in unit testing, where the caller
-/// holds on to a reference to sink instance and can query whether certain code paths
-/// have correctly executed based on their logging output. An instance is thread-safe.
+/// Implements <see cref="ILogSink"/> using FIFO memory buffer. This is useful in unit testing,
+/// where the caller holds a reference to the sink instance and can query whether certain code paths
+/// have correctly executed based on their logging output. An instance of this is thread-safe.
 /// </summary>
 public sealed class BufferSink : ILogSink
 {
@@ -114,7 +113,7 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLogOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
     {
         lock(_syncObj)
         {

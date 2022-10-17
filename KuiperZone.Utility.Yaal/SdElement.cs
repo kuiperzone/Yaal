@@ -59,7 +59,7 @@ public class SdElement : SdDictionary<string>
     /// <summary>
     /// Overrides.
     /// </summary>
-    public override void AppendTo(StringBuilder buffer, IReadOnlyLogOptions options)
+    public override void AppendTo(StringBuilder buffer, IReadOnlyLoggerOptions options)
     {
         buffer.Append('[');
         buffer.Append(Id);

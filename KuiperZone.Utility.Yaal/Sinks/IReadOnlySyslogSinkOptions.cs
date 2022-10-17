@@ -21,9 +21,10 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Readonly interface for the <see cref="SyslogSink"/> class.
+/// Readonly interface for the <see cref="SyslogSink"/> class. The default
+/// <see cref="IReadOnlySinkOptions.Format"/> is <see cref="FormatKind.Text"/>
+/// on Windows and <see cref="FormatKind.Rfc5424"/> otherwise.
 /// </summary>
 public interface IReadOnlySyslogSinkOptions : IReadOnlySinkOptions
 {
-
 }

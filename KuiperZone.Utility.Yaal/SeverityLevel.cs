@@ -108,7 +108,7 @@ public static class SeverityLevelExtension
 	/// <summary>
     /// Returns true if a has a higher or equal priority than b.
     /// </summary>
-    public static bool IsHigherOrEqualThan(this SeverityLevel a, SeverityLevel b)
+    public static bool IsHigherOrEqualPriority(this SeverityLevel a, SeverityLevel b)
     {
         // Reverse as higher priority have lower numerical value
         return b != SeverityLevel.Disabled && b >= a;

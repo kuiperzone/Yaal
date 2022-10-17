@@ -33,7 +33,7 @@ public sealed class StructuredData : SdDictionary<SdElement>
     /// <summary>
     /// Overrides.
     /// </summary>
-    public override void AppendTo(StringBuilder buffer, IReadOnlyLogOptions options)
+    public override void AppendTo(StringBuilder buffer, IReadOnlyLoggerOptions options)
     {
         if (IsEmpty)
         {

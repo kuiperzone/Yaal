@@ -34,5 +34,5 @@ public interface ILogSink
     /// <summary>
     /// Writes the message.
     /// </summary>
-    void Write(LogMessage message, IReadOnlyLogOptions options);
+    void Write(LogMessage message, IReadOnlyLoggerOptions options);
 }

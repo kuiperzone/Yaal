@@ -50,7 +50,7 @@ public sealed class ConsoleSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLogOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
     {
         Console.WriteLine(message.ToString(Options.Format, options));
     }

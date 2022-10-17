@@ -83,7 +83,7 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLogOptions options)
+    public void Write(LogMessage message, IReadOnlyLoggerOptions options)
     {
         var text = message.ToString(Options.Format, options);
 

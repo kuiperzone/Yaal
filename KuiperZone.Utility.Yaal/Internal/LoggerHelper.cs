@@ -28,12 +28,12 @@ namespace KuiperZone.Utility.Yaal.Internal;
 /// </summary>
 internal class LoggerHelper
 {
-    private readonly IReadOnlyCollection<string> _excludeIds = Array.Empty<string>();
+    private readonly IReadOnlyCollection<string> _exclusions = Array.Empty<string>();
     private volatile Exception? v_error;
 
     public LoggerHelper(SeverityLevel threshold, IEnumerable<ILogSink>? sinks = null)
     {
-        Options = new LogOptions();
+        Options = new LoggerOptions();
         Threshold = threshold;
 
         var temp = new List<ILogSink>();
@@ -57,23 +57,23 @@ internal class LoggerHelper
         Sinks = temp;
     }
 
-    private LoggerHelper(IReadOnlyLogOptions options, SeverityLevel severity,
+    private LoggerHelper(IReadOnlyLoggerOptions options, SeverityLevel severity,
         string excludes, IReadOnlyCollection<ILogSink> sinks, Exception? lastError)
     {
         Options = options;
         Threshold = severity;
-        Excludes = excludes;
+        Exclusions = excludes;
         Sinks = sinks;
 
         v_error = lastError;
-        _excludeIds = CreateIds(excludes);
+        _exclusions = CreateIds(excludes);
     }
 
-    public readonly IReadOnlyLogOptions Options;
+    public readonly IReadOnlyLoggerOptions Options;
 
     public readonly SeverityLevel Threshold;
 
-    public readonly string Excludes = "";
+    public readonly string Exclusions = "";
 
     public readonly IReadOnlyCollection<ILogSink> Sinks;
 
@@ -89,19 +89,19 @@ internal class LoggerHelper
 
     public bool Allow(SeverityLevel severity)
     {
-        return severity.IsHigherOrEqualThan(Threshold);
+        return severity.IsHigherOrEqualPriority(Threshold);
     }
 
     public bool Allow(string? msgId, SeverityLevel severity)
     {
-        if (severity.IsHigherOrEqualThan(Threshold))
+        if (severity.IsHigherOrEqualPriority(Threshold))
         {
-            if (string.IsNullOrEmpty(msgId) || _excludeIds.Count == 0)
+            if (string.IsNullOrEmpty(msgId) || _exclusions.Count == 0)
             {
                 return true;
             }
 
-            return !_excludeIds.Contains(msgId.ToLowerInvariant());
+            return !_exclusions.Contains(msgId.ToLowerInvariant());
         }
 
         return false;
@@ -112,31 +112,31 @@ internal class LoggerHelper
         v_error = null;
     }
 
-    public LoggerHelper NewOptions(IReadOnlyLogOptions options)
+    public LoggerHelper NewOptions(IReadOnlyLoggerOptions options)
     {
-        return new LoggerHelper(options, Threshold, Excludes, Sinks, Error);
+        return new LoggerHelper(options, Threshold, Exclusions, Sinks, Error);
     }
 
     public LoggerHelper NewThreshold(SeverityLevel severity)
     {
-        return new LoggerHelper(Options, severity, Excludes, Sinks, Error);
+        return new LoggerHelper(Options, severity, Exclusions, Sinks, Error);
     }
 
-    public LoggerHelper NewExcludes(string excludes)
+    public LoggerHelper NewExclusions(string excludes)
     {
         return new LoggerHelper(Options, Threshold, excludes, Sinks, Error);
     }
 
     public LoggerHelper NewSinks(IReadOnlyCollection<ILogSink> sinks)
     {
-        return new LoggerHelper(Options, Threshold, Excludes, sinks, Error);
+        return new LoggerHelper(Options, Threshold, Exclusions, sinks, Error);
     }
 
     public void Write(LogMessage message)
     {
         foreach (var item in Sinks)
         {
-            if (message.Severity.IsHigherOrEqualThan(item.Options.Threshold))
+            if (message.Severity.IsHigherOrEqualPriority(item.Options.Threshold))
             {
                 try
                 {

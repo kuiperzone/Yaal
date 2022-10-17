@@ -24,7 +24,9 @@ using KuiperZone.Utility.Yaal.Sinks;
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// A logger class which logs
+/// A logger class which writes messages to one or more logging sinks. By default, it will write to syslog
+/// in RFC 5424 format on Linux, and EventLog on Windows. An instance is thread-safe, and the class
+/// provides a global singleton.
 /// </summary>
 public sealed class Logger
 {
@@ -86,11 +88,11 @@ public sealed class Logger
     }
 
     /// <summary>
-    /// Gets or sets the logger options. These can be set using an instance of <see cref="LogOptions"/>.
+    /// Gets or sets the logger options. These can be set using an instance of <see cref="LoggerOptions"/>.
     /// Although they can be changed in-flight, it is recommended that they are specified at the start of
     /// the program execution and left unchanged.
     /// </summary>
-    public IReadOnlyLogOptions Options
+    public IReadOnlyLoggerOptions Options
     {
         get { return v_helper.Options; }
         set { v_helper = v_helper.NewOptions(value); }
@@ -106,6 +108,17 @@ public sealed class Logger
     {
         get { return v_helper.Threshold; }
         set { v_helper = v_helper.NewThreshold(value); }
+    }
+
+    /// <summary>
+    /// Gets or sets a comma separated string contained message IDs to exclude (case insensitive).
+    /// A message with a <see cref="LogMessage.MsgId"/> value contained within this string will be ignored.
+    /// Example: "TCPIN,TCPOUT,LoopA".
+    /// </summary>
+    public string Exclusions
+    {
+        get { return v_helper.Exclusions; }
+        set { v_helper = v_helper.NewExclusions(value); }
     }
 
     /// <summary>

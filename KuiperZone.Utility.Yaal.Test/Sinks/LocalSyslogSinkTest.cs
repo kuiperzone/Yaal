@@ -48,14 +48,14 @@ public class LocalSyslogSinkTest
 
         var ev = new EventLogSink();
         var m = new LogMessage("\"Hello\", he said");
-        ev.Write(m, new LogOptions());
+        ev.Write(m, new LoggerOptions());
 
         if (SyslogSink.IsSupported)
         {
             var sink = new SyslogSink();
 
             m.Debug = new();
-            sink.Write(m, new LogOptions());
+            sink.Write(m, new LoggerOptions());
 
 //            var pid = Process.GetCurrentProcess().Id.ToString();
   //          sink.Write(SeverityLevel.Informational, $"--rfc5424 --id={pid} \"Hello World\"");
