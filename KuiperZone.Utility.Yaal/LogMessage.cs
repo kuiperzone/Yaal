@@ -99,6 +99,7 @@ public class LogMessage
 
     /// <summary>
     /// Gets or sets attached debug information.
+    /// This is for internal use only.
     /// </summary>
     public DebugInfo? Debug { get; set; }
 

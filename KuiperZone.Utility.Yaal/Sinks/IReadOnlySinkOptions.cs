@@ -18,7 +18,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Interface for readonly logging options.
@@ -34,8 +34,7 @@ public interface IReadOnlySinkOptions
     /// Gets the threshold severity for the sink. Setting this value will prevent the sink form
     /// logging any message with a lower priority, irrespective of the threshold value of the
     /// host logger. Although this allows control on a per sink basis, this threshold cannot be
-    /// changed in-flight. Typically, therefore, the default should generally be
-    /// <see cref="SeverityLevel.Lowest"/>.
+    /// changed in-flight. Typically, therefore, the default should be <see cref="SeverityLevel.Lowest"/>.
     /// </summary>
     SeverityLevel Threshold { get; }
 }

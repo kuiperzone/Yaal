@@ -29,24 +29,33 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 public sealed class SyslogSinkOptions : SinkOptions, IReadOnlySyslogSinkOptions
 {
     /// <summary>
-    /// Default constructor with options.
+    /// Default constructor.
     /// </summary>
-    public SyslogSinkOptions(SeverityLevel severity = SeverityLevel.Lowest)
-        : base(DefaultFormat())
-    {
-
-    }
-
     public SyslogSinkOptions()
         : base(DefaultFormat())
     {
+    }
 
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public SyslogSinkOptions(SeverityLevel severity)
+        : base(DefaultFormat(), severity)
+    {
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public SyslogSinkOptions(FormatKind format, SeverityLevel severity = SeverityLevel.Lowest)
+        : base(format, severity)
+    {
     }
 
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public SyslogSinkOptions(IReadOnlyFileSinkOptions other)
+    public SyslogSinkOptions(IReadOnlySyslogSinkOptions other)
         : base(other)
     {
     }

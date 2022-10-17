@@ -81,13 +81,21 @@ public enum SeverityLevel
 	DebugL2,
 
 	/// <summary>
-	/// Lowest priority level for setting threshold which allow all message priorities, other than <see cref="Disabled"/>.
-    /// If used in a message, it is equivalent to <see cref="Debug"/>.
+	/// Additional debug level of lower priority than <see cref="DebugL2"/>. For RFC 5424 and BSD formats, it is
+    /// equivalent to <see cref="Debug"/> but provides for granularity in filtering out low level debug statements.
+    /// </summary>
+	DebugL3,
+
+	/// <summary>
+	/// Lowest priority level for setting <see cref="Logger.Threshold"/> and <see cref="IReadOnlySinkOptions.Threshold"/>.
+    /// This level allows all message priorities except <see cref="Disabled"/>. Do not use with
+    /// <see cref="LogMessage.Severity"/>.
     /// </summary>
     Lowest,
 
 	/// <summary>
-    /// A special value used to disable logging. Use only to disable logging by setting <see cref="Logger.Threshold"/>.
+    /// A special value used to temporarily disable logging. Use only with <see cref="Logger.Threshold"/> to
+    /// disable logging in-flight. Do not use with <see cref="LogMessage.Severity"/>.
     /// </summary>
 	Disabled, // Must be last
 };
@@ -102,6 +110,7 @@ public static class SeverityLevelExtension
     /// </summary>
     public static bool IsHigherOrEqualThan(this SeverityLevel a, SeverityLevel b)
     {
+        // Reverse as higher priority have lower numerical value
         return b != SeverityLevel.Disabled && b >= a;
     }
 

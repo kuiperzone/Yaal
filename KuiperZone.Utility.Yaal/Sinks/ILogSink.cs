@@ -18,7 +18,7 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal;
+namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Interface for a loging sink. Implmentations should be thread instance safe and, once

@@ -18,275 +18,469 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System.Runtime.InteropServices;
 using KuiperZone.Utility.Yaal.Internal;
 using KuiperZone.Utility.Yaal.Sinks;
 
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
+/// A logger class which logs
 /// </summary>
 public sealed class Logger
 {
-    private readonly object _syncObj = new();
-    public volatile IReadOnlyLogOptions v_options = new LogOptions();
-    private volatile IReadOnlyCollection<ILogSink> v_sinks = CreateSinks();
-    private volatile SeverityLevel v_threshold = SeverityLevel.Informational;
+    private volatile LoggerHelper v_helper;
 
+    /// <summary>
+    /// Default constructor. The <see cref="Threshold"/> property will be initialised to
+    /// <see cref="SeverityLevel.Debug"/>, and <see cref="Sinks"/> will contain a single
+    /// instance of <see cref="SyslogSink"/>.
+    /// </summary>
     public Logger()
     {
-
+        v_helper = new(SeverityLevel.Debug, null);
     }
 
     /// <summary>
-    /// Gets a global singleton.
+    /// Constructor with initial value for <see cref="Threshold"/>. <see cref="Sinks"/>
+    /// will contain a single instance of <see cref="SyslogSink"/>.
+    /// </summary>
+    public Logger(SeverityLevel threshold = SeverityLevel.Debug)
+    {
+        v_helper = new(threshold, null);
+    }
+
+    /// <summary>
+    /// Constructor with one or more instances of <see cref="ILogSink"/>. <see cref="Threshold"/>
+    /// will be initialised to <see cref="SeverityLevel.Debug"/>.
+    /// </summary>
+    public Logger(params ILogSink[] sinks)
+    {
+        v_helper = new(SeverityLevel.Debug, sinks);
+    }
+
+    /// <summary>
+    /// Constructor with initial value for <see cref="Threshold"/> and one or more
+    /// instances of <see cref="ILogSink"/>.
+    /// </summary>
+    public Logger(SeverityLevel threshold, params ILogSink[] sinks)
+    {
+        v_helper = new(threshold, sinks);
+    }
+
+    /// <summary>
+    /// Gets a global singleton. By default, its <see cref="Sinks"/> property will contain
+    /// a single instance of <see cref="SyslogSink"/>.
     /// </summary>
     public static readonly Logger Global = new();
 
+    /// <summary>
+    /// Gets or sets a collection of sinks. Although these can be changed in-flight, it is recommended
+    /// that they are specified at the start of the program execution and left unchanged. Assigning an
+    /// empty container will be disable logging, although setting <see cref="Threshold"/> to
+    /// <see cref="SeverityLevel.Disabled"/> should be preferred.
+    /// </summary>
     public IReadOnlyCollection<ILogSink> Sinks
     {
-        get { return v_sinks; }
-        set { v_sinks = new List<ILogSink>(value); }
+        get { return v_helper.Sinks; }
+        set { v_helper = v_helper.NewSinks(value); }
     }
 
+    /// <summary>
+    /// Gets or sets the logger options. These can be set using an instance of <see cref="LogOptions"/>.
+    /// Although they can be changed in-flight, it is recommended that they are specified at the start of
+    /// the program execution and left unchanged.
+    /// </summary>
     public IReadOnlyLogOptions Options
     {
-        get { return v_options; }
-        set { v_options = value; }
+        get { return v_helper.Options; }
+        set { v_helper = v_helper.NewOptions(value); }
     }
 
+    /// <summary>
+    /// Gets or sets the logger severity threshold. If set to <see cref="SeverityLevel.Critical"/>, for
+    /// example, only messages with this severity or higher will be logged. Those with lower priorities,
+    /// such as <see cref="SeverityLevel.Informational"/> will be ignored. Setting <see cref="Threshold"/>
+    /// to <see cref="SeverityLevel.Disabled"/> will suspend all logging.
+    /// </summary>
     public SeverityLevel Threshold
     {
-        get { return v_threshold; }
-        set { v_threshold = value; }
+        get { return v_helper.Threshold; }
+        set { v_helper = v_helper.NewThreshold(value); }
     }
 
-    public void AddSink(params ILogSink[] sinks)
+    /// <summary>
+    /// Adds a new logging sink to the <see cref="Sinks"/> collection.
+    /// </summary>
+    /// <param name="sink"></param>
+    public void AddSink(ILogSink sink)
     {
-        var temp = new List<ILogSink>(v_sinks);
-        temp.AddRange(sinks);
-        v_sinks = temp;
+        var temp = new List<ILogSink>(v_helper.Sinks);
+        temp.Add(sink);
+        v_helper = v_helper.NewSinks(temp);
     }
 
+    /// <summary>
+    /// Writes the message to <see cref="Sinks"/> provided <see cref="LogMessage.Severity"/>
+    /// equals or exceeds <see cref="Threshold"/> in priority.
+    /// </summary>
     public void Write(LogMessage message)
     {
-        if (message.Severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(message))
         {
-            WriteInternal(message);
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the message text to <see cref="Sinks"/> with <see cref="SeverityLevel.Informational"/>
+    /// severity provided this equals or exceeds <see cref="Threshold"/> in priority.
+    /// </summary>
     public void Write(string? text)
     {
-        if (SeverityLevel.Informational.IsHigherOrEqualThan(v_threshold))
+        const SeverityLevel MsgSeverity = SeverityLevel.Informational;
+
+        var temp = v_helper;
+
+        if (temp.Allow(MsgSeverity))
         {
-            WriteInternal(new LogMessage(SeverityLevel.Informational, text));
+            temp.Write(new LogMessage(MsgSeverity, text));
         }
     }
 
+    /// <summary>
+    /// Writes the message text to <see cref="Sinks"/> provided the given severity
+    /// equals or exceeds <see cref="Threshold"/> in priority.
+    /// </summary>
     public void Write(SeverityLevel severity, string? text)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(severity))
         {
-            WriteInternal(new LogMessage(severity, text));
+            temp.Write(new LogMessage(severity, text));
         }
     }
 
+    /// <summary>
+    /// Writes the message text to <see cref="Sinks"/> provided the given severity
+    /// equals or exceeds <see cref="Threshold"/> in priority. The message will have
+    /// the supplied ID.
+    /// </summary>
     public void Write(string? msgId, SeverityLevel severity, string? text)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(msgId, severity))
         {
-            WriteInternal(new LogMessage(msgId, severity, text));
+            temp.Write(new LogMessage(msgId, severity, text));
         }
     }
 
+    /// <summary>
+    /// Writes the exception message to <see cref="Sinks"/> with <see cref="SeverityLevel.Error"/>
+    /// severity provided this equals or exceeds <see cref="Threshold"/> in priority.
+    /// </summary>
     public void Write(Exception e)
     {
-        if (SeverityLevel.Error.IsHigherOrEqualThan(v_threshold))
+        const SeverityLevel MsgSeverity = SeverityLevel.Error;
+
+        var temp = v_helper;
+
+        if (temp.Allow(MsgSeverity))
         {
-            WriteInternal(new LogMessage(SeverityLevel.Error, e.Message));
+            // Exception.Message only
+            temp.Write(new LogMessage(MsgSeverity, e.Message));
         }
     }
 
+    /// <summary>
+    /// Writes the exception message to <see cref="Sinks"/> with the given severity
+    /// provided this equals or exceeds <see cref="Threshold"/> in priority.
+    /// </summary>
     public void Write(SeverityLevel severity, Exception e)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(severity))
         {
-            WriteInternal(new LogMessage(severity, e.Message));
+            // Exception.Message only
+            temp.Write(new LogMessage(severity, e.Message));
         }
     }
 
+    /// <summary>
+    /// Writes the exception message to <see cref="Sinks"/> with the given severity
+    /// provided this equals or exceeds <see cref="Threshold"/> in priority. The
+    /// message will have the supplied ID.
+    /// </summary>
     public void Write(string? msgId, SeverityLevel severity, Exception e)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(msgId, severity))
         {
-            WriteInternal(new LogMessage(msgId, severity, e.Message));
+            // Exception.Message only
+            temp.Write(new LogMessage(msgId, severity, e.Message));
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Write(LogMessage)"/>.
+    /// </summary>
     public void WriteIf(bool condition, LogMessage message)
     {
-        if (condition && message.Severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (condition && temp.Allow(message))
         {
-            WriteInternal(message);
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Write(string?)"/>.
+    /// </summary>
     public void WriteIf(bool condition, string? text)
     {
-        if (condition && SeverityLevel.Informational.IsHigherOrEqualThan(v_threshold))
+        const SeverityLevel MsgSeverity = SeverityLevel.Informational;
+
+        var temp = v_helper;
+
+        if (condition && temp.Allow(MsgSeverity))
         {
-            WriteInternal(new LogMessage(SeverityLevel.Informational, text));
+            temp.Write(new LogMessage(MsgSeverity, text));
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Write(SeverityLevel, string?)"/>.
+    /// </summary>
     public void WriteIf(bool condition, SeverityLevel severity, string? text)
     {
-        if (condition && severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (condition && temp.Allow(severity))
         {
-            WriteInternal(new LogMessage(severity, text));
+            temp.Write(new LogMessage(severity, text));
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Write(string?, SeverityLevel, string?)"/>.
+    /// </summary>
     public void WriteIf(bool condition, string? msgId, SeverityLevel severity, string? text)
     {
-        if (condition && severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (condition && temp.Allow(msgId, severity))
         {
-            WriteInternal(new LogMessage(msgId, severity, text));
+            temp.Write(new LogMessage(msgId, severity, text));
         }
     }
 
+    /// <summary>
+    /// Writes the message to <see cref="Sinks"/> provided <see cref="LogMessage.Severity"/>
+    /// equals or exceeds <see cref="Threshold"/> in priority. Debug variants trace the caller of
+    /// the method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(LogMessage message)
     {
-        if (message.Severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(message))
         {
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug ??= new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the message text to <see cref="Sinks"/> with <see cref="SeverityLevel.Debug"/>
+    /// severity provided this equals or exceeds <see cref="Threshold"/> in priority. Debug
+    /// variants trace the caller of the method, but note that debug methods are ignored and
+    /// do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(string? text)
     {
-        if (SeverityLevel.Debug.IsHigherOrEqualThan(v_threshold))
+        const SeverityLevel MsgSeverity = SeverityLevel.Debug;
+
+        var temp = v_helper;
+
+        if (temp.Allow(MsgSeverity))
         {
-            var message = new LogMessage(SeverityLevel.Debug, text);
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            var message = new LogMessage(MsgSeverity, text);
+            message.Debug = new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the message text to <see cref="Sinks"/> provided the given severity equals or
+    /// exceeds <see cref="Threshold"/> in priority. Debug variants trace the caller of the
+    /// method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(SeverityLevel severity, string? text)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(severity))
         {
             var message = new LogMessage(severity, text);
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug = new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the message text to <see cref="Sinks"/> provided the given severity
+    /// equals or exceeds <see cref="Threshold"/> in priority. The message will have
+    /// the supplied ID. Debug variants trace the caller of the method, but note that
+    /// debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(string? msgId, SeverityLevel severity, string? text)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(msgId, severity))
         {
             var message = new LogMessage(msgId, severity, text);
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug = new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the exception to <see cref="Sinks"/> with <see cref="SeverityLevel.Error"/>
+    /// severity provided this equals or exceeds <see cref="Threshold"/> in priority. Debug variants
+    /// trace the caller of the method, but note that debug methods are ignored and do nothing in
+    /// Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(Exception e)
     {
-        if (SeverityLevel.Error.IsHigherOrEqualThan(v_threshold))
+        const SeverityLevel MsgSeverity = SeverityLevel.Error;
+
+        var temp = v_helper;
+
+        if (temp.Allow(MsgSeverity))
         {
-            var message = new LogMessage(SeverityLevel.Error, e.ToString());
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            var message = new LogMessage(MsgSeverity, e.ToString());
+            message.Debug = new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the exception message to <see cref="Sinks"/> with the given severity provided this
+    /// equals or exceeds <see cref="Threshold"/> in priority. Debug variants trace the caller of
+    /// the method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(SeverityLevel severity, Exception e)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(severity))
         {
             var message = new LogMessage(severity, e.ToString());
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug = new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Writes the exception message to <see cref="Sinks"/> with the given severity provided this
+    /// equals or exceeds <see cref="Threshold"/> in priority. The message will have the supplied
+    /// ID. Debug variants trace the caller of the method, but note that debug methods are ignored
+    /// and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void Debug(string? msgId, SeverityLevel severity, Exception e)
     {
-        if (severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (temp.Allow(msgId, severity))
         {
             var message = new LogMessage(msgId, severity, e.ToString());
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug = new(nameof(Debug));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Debug(LogMessage)"/>. Debug variants trace the caller of
+    /// the method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void DebugIf(bool condition, LogMessage message)
     {
-        if (condition && message.Severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (condition && temp.Allow(message))
         {
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug ??= new(nameof(DebugIf));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Debug(string?)"/>. Debug variants trace the caller of
+    /// the method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void DebugIf(bool condition, string? text)
     {
-        if (condition && SeverityLevel.Debug.IsHigherOrEqualThan(v_threshold))
+        const SeverityLevel MsgSeverity = SeverityLevel.Debug;
+
+        var temp = v_helper;
+
+        if (condition && temp.Allow(MsgSeverity))
         {
-            var message = new LogMessage(SeverityLevel.Debug, text);
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            var message = new LogMessage(MsgSeverity, text);
+            message.Debug = new(nameof(DebugIf));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Debug(SeverityLevel, string?)"/>. Debug variants trace the
+    /// caller of the method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void DebugIf(bool condition, SeverityLevel severity, string? text)
     {
-        if (condition && severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (condition && temp.Allow(severity))
         {
             var message = new LogMessage(severity, text);
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
+            message.Debug = new(nameof(DebugIf));
+            temp.Write(message);
         }
     }
 
+    /// <summary>
+    /// Conditional variant of <see cref="Debug(string?, SeverityLevel, string?)"/>. Debug variants trace
+    /// the caller of the method, but note that debug methods are ignored and do nothing in Release builds.
+    /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
     public void DebugIf(bool condition, string? msgId, SeverityLevel severity, string? text)
     {
-        if (condition && severity.IsHigherOrEqualThan(v_threshold))
+        var temp = v_helper;
+
+        if (condition && temp.Allow(msgId, severity))
         {
-            var message = new LogMessage(msgId, severity, text);
-            message.Debug ??= new DebugInfo(nameof(Debug));
-            WriteInternal(message);
-        }
+             var message = new LogMessage(msgId, severity, text);
+            message.Debug = new(nameof(DebugIf));
+            temp.Write(message);
+       }
     }
 
-    private static ILogSink[] CreateSinks()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            var opts = new FileSinkOptions();
-            return new ILogSink[] { new FileSink(opts) };
-        }
 
-        return new ILogSink[] { new SyslogSink() };
-    }
-
-    private void WriteInternal(LogMessage message)
-    {
-    }
 }

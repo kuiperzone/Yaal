@@ -26,46 +26,46 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="ILogSink"/> for syslog on Linux. The class calls the "logger"
-/// command line utility to log a message. It is not supported on Windows.
+/// Implements <see cref="ILogSink"/> for syslog (logger) on Linux, and Event Log on Windows.
 /// </summary>
 public sealed class SyslogSink : ILogSink
 {
-    private static readonly bool _isSupported = GetSupported();
+    private static readonly object _syncObj = new();
+    private static readonly bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    private EventLog? _winLog;
     private volatile bool v_isFailed;
 
     /// <summary>
-    /// Constructor with option values. Serves as default constructor.
-    /// Throws if "logger" not supported on this platform.
+    /// Default constructor.
     /// </summary>
-    /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
-    public SyslogSink(FormatKind format = FormatKind.Rfc5424, SeverityLevel threshold = SeverityLevel.Lowest)
-        : this(new SinkOptions(format, threshold))
+    public SyslogSink()
     {
+        Options = new SyslogSinkOptions();
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public SyslogSink(SeverityLevel threshold)
+    {
+        Options = new SyslogSinkOptions(threshold);
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public SyslogSink(FormatKind format, SeverityLevel threshold = SeverityLevel.Lowest)
+    {
+        Options = new SyslogSinkOptions(format, threshold);
     }
 
     /// <summary>
     /// Constructor with options instance.
-    /// Throws if "logger" not supported on the system.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Not supported on this system</exception>
-    public SyslogSink(IReadOnlySinkOptions options)
+    public SyslogSink(IReadOnlySyslogSinkOptions options)
     {
-        if (!IsSupported)
-        {
-            throw new PlatformNotSupportedException($"{nameof(SyslogSink)} not supported on this system");
-        }
-
         // Take a copy
         Options = new SinkOptions(options);
-    }
-
-    /// <summary>
-    /// Gets whether syslog is supported on the platform.
-    /// </summary>
-    public static bool IsSupported
-    {
-        get { return _isSupported; }
     }
 
     /// <summary>
@@ -82,54 +82,36 @@ public sealed class SyslogSink : ILogSink
     public IReadOnlySinkOptions Options { get; }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Write"/>.
+    /// Implements <see cref="ILogSink.Write"/>. It may throw on Linux where the
+    /// "logger" shell command is not available.
     /// </summary>
+    /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
     public void Write(LogMessage message, IReadOnlyLogOptions options)
     {
         if (!v_isFailed)
         {
-            // It seems that we need to provide priority as an option
-            var buffer = new StringBuilder("-p ", 1024);
-            buffer.Append(message.Severity.ToPriorityPair(options.Facility));
-            buffer.Append(' ');
-
-            buffer.Append('"');
-            var text = message.ToString(Options.Format, options, false);
-            buffer.Append(LogUtil.Escape(text, "\\\""));
-            buffer.Append('"');
-
-            Console.WriteLine(buffer.ToString());
-
             try
             {
-                if (!ExecLog(buffer.ToString()))
-                // if (!ExecLog("\"" + LogUtil.Escape(message, "\\\"") + "\""))
+                if (_isWindows)
                 {
-                    v_isFailed = true;
+                    WriteWindows(message, options);
+                }
+                else
+                {
+                    WriteLinux(message, options);
                 }
             }
             catch
             {
                 v_isFailed = true;
+
+                if (!_isWindows && !ExecLog("--version", true))
+                {
+                    throw new PlatformNotSupportedException("Linux logger not available");
+                }
+
                 throw;
             }
-        }
-    }
-
-    private static bool GetSupported()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return false;
-        }
-
-        try
-        {
-            return ExecLog("--version", true);
-        }
-        catch
-        {
-            return false;
         }
     }
 
@@ -162,4 +144,60 @@ public sealed class SyslogSink : ILogSink
 
         return false;
     }
+
+    private static EventLogEntryType ToEntryType(SeverityLevel severity)
+    {
+        switch (severity)
+        {
+            case SeverityLevel.Emergency:
+            case SeverityLevel.Alert:
+            case SeverityLevel.Critical:
+            case SeverityLevel.Error:
+                return EventLogEntryType.Error;
+
+            case SeverityLevel.Warning:
+                return EventLogEntryType.Warning;
+
+            default:
+                return EventLogEntryType.Information;
+        }
+    }
+
+    public void WriteLinux(LogMessage message, IReadOnlyLogOptions options)
+    {
+        // It seems that we need to provide priority as an option for syslog
+        var text = message.ToString(Options.Format, options, false);
+
+        // It seems that we need to provide priority as an option
+        var buffer = new StringBuilder("-p ", 1024);
+        buffer.Append(message.Severity.ToPriorityPair(options.Facility));
+        buffer.Append(' ');
+
+        buffer.Append('"');
+        buffer.Append(LogUtil.Escape(text, "\\\""));
+        buffer.Append('"');
+
+        if (!ExecLog(buffer.ToString()))
+        {
+            throw new InvalidOperationException("Syslog 'logger' command failed: " + buffer.ToString());
+        }
+    }
+
+    public void WriteWindows(LogMessage message, IReadOnlyLogOptions options)
+    {
+        var text = message.ToString(Options.Format, options, true);
+
+        lock (_syncObj)
+        {
+            if (_winLog == null)
+            {
+                _winLog = new("Application");
+                _winLog.Source = "Application";
+            }
+
+            // _event.MachineName = options.HostName;
+            _winLog.WriteEntry(text, ToEntryType(message.Severity));
+        }
+    }
+
 }
