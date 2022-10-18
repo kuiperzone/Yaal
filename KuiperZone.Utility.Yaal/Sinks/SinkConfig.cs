@@ -41,6 +41,7 @@ public class SinkConfig : IReadOnlySinkConfig
     {
         Format = other.Format;
         Threshold = other.Threshold;
+        MaxTextLength = other.MaxTextLength;
     }
 
     /// <summary>
@@ -52,5 +53,10 @@ public class SinkConfig : IReadOnlySinkConfig
     /// Implements <see cref="IReadOnlySinkConfig.Threshold"/> and provides a setter.
     /// </summary>
     public SeverityLevel Threshold { get; set; }
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlySinkConfig.MaxTextLength"/> and provides a setter.
+    /// </summary>
+    public int MaxTextLength { get; set; } = 2048;
 
 }

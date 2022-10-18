@@ -51,7 +51,7 @@ public sealed class Logger
     /// Constructor with initial value for <see cref="Threshold"/>. <see cref="Sinks"/>
     /// will contain a single instance of <see cref="SyslogSink"/>.
     /// </summary>
-    public Logger(SeverityLevel threshold = SeverityLevel.Debug)
+    public Logger(SeverityLevel threshold)
     {
         v_helper = new(threshold, null);
     }
@@ -81,10 +81,10 @@ public sealed class Logger
     public static readonly Logger Global = new();
 
     /// <summary>
-    /// Gets or sets a collection of sinks. Although these can be changed in-flight, it is recommended
-    /// that they are specified at the start of the program execution and left unchanged. Assigning an
-    /// empty container will be disable logging, although setting <see cref="Threshold"/> to
-    /// <see cref="SeverityLevel.Disabled"/> should be preferred.
+    /// Gets or sets a collection of sinks. Although these can be changed in-flight, it is recommended that they
+    /// are updated at the start of the program execution only. Assigning an empty container will be disable logging,
+    /// although setting <see cref="Threshold"/> to <see cref="SeverityLevel.Disabled"/> should be the preferred way
+    /// of disabling.
     /// </summary>
     public IReadOnlyCollection<ILogSink> Sinks
     {
@@ -94,8 +94,8 @@ public sealed class Logger
 
     /// <summary>
     /// Gets or sets the logger configuration. These can be set using an instance of <see cref="LoggerConfig"/>.
-    /// Although they can be changed in-flight, it is recommended that they are specified at the start of
-    /// the program execution and left unchanged.
+    /// Although they can be changed in-flight, it is recommended that they are updated at the start of
+    /// the program execution only.
     /// </summary>
     public IReadOnlyLoggerConfig Config
     {

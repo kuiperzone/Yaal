@@ -85,7 +85,7 @@ public sealed class FileSink : ILogSink
     /// </summary>
     public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
     {
-        var opts = new MessageStringOptions(Config.Format, config);
+        var opts = new MessageStringOptions(Config, config);
         opts.IndentClean = Config.IndentClean;
 
         var text = msg.ToString(opts);

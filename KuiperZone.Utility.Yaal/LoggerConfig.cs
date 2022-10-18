@@ -74,7 +74,6 @@ public class LoggerConfig : IReadOnlyLoggerConfig
         AppPid = other.AppPid;
         IsTimeUtc = other.IsTimeUtc;
         Facility = other.Facility;
-        MaxTextLength = other.MaxTextLength;
         DebugId = other.DebugId;
     }
 
@@ -115,11 +114,6 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     /// Implements <see cref="IReadOnlyLoggerConfig.Facility"/> and provides a setter.
     /// </summary>
 	public FacilityId Facility { get; set; } = FacilityId.User;
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.MaxTextLength"/> and provides a setter.
-    /// </summary>
-    public int MaxTextLength { get; set; } = 2048;
 
     /// <summary>
     /// Implements <see cref="IReadOnlyLoggerConfig.DebugId"/> and provides a setter.

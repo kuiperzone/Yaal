@@ -59,13 +59,6 @@ public interface IReadOnlyLoggerConfig
 	FacilityId Facility { get; }
 
     /// <summary>
-    /// Gets the maximum message text length in chars, excluding structured and other data.
-    /// If the text exceeds this, it will be truncated. A value of 0 or less implies no limit.
-    /// The default value is 2048.
-    /// </summary>
-    int MaxTextLength { get; }
-
-    /// <summary>
     /// Gets the RFC 5424 SD-ID to be used for debugging <see cref="LogFormat.Rfc5424"/> structured data.
     /// The format is "name@enterprise_number", unless using an IANA ID. Example: "DGB@24601". The value
     /// must not equal any that may be used in structure message elements, otherwise it will be ignored.

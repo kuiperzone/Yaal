@@ -168,7 +168,7 @@ public sealed class SyslogSink : ILogSink
     public void WriteLinux(LogMessage msg, IReadOnlyLoggerConfig config)
     {
         // It seems that we need to provide priority as an option for syslog
-        var opts = new MessageStringOptions(Config.Format, config);
+        var opts = new MessageStringOptions(Config, config);
         opts.IncludePriority = false;
 
         var text = msg.ToString(opts);
@@ -190,7 +190,7 @@ public sealed class SyslogSink : ILogSink
 
     public void WriteWindows(LogMessage msg, IReadOnlyLoggerConfig config)
     {
-        var opts = new MessageStringOptions(Config.Format, config);
+        var opts = new MessageStringOptions(Config, config);
         opts.IncludePriority = true;
 
         var text = msg.ToString(opts);

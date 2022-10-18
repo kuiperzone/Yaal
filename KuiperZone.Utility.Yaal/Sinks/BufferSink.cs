@@ -124,7 +124,7 @@ public sealed class BufferSink : ILogSink
                 _history.RemoveAt(0);
             }
 
-            _history.Add(msg.ToString(new MessageStringOptions(Config.Format, config)));
+            _history.Add(msg.ToString(new MessageStringOptions(Config, config)));
         }
     }
 

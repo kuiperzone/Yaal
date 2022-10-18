@@ -105,7 +105,7 @@ public class LogMessage
     /// </summary>
     public override string ToString()
     {
-        return this.ToString(new MessageStringOptions(LogFormat.Clean));
+        return this.ToString(new MessageStringOptions());
     }
 
     /// <summary>
@@ -113,6 +113,6 @@ public class LogMessage
     /// </summary>
     public string ToString(LogFormat format)
     {
-        return this.ToString(new MessageStringOptions(format));
+        return this.ToString(new MessageStringOptions());
     }
 }

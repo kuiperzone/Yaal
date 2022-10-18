@@ -54,7 +54,7 @@ public sealed class ConsoleSink : ILogSink
     /// </summary>
     public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
     {
-        Console.WriteLine(msg.ToString(new MessageStringOptions(Config.Format, config)));
+        Console.WriteLine(msg.ToString(new MessageStringOptions(Config, config)));
     }
 
 }

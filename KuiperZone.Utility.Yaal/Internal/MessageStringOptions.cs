@@ -18,31 +18,38 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using KuiperZone.Utility.Yaal.Sinks;
+
 namespace KuiperZone.Utility.Yaal.Internal;
 
 /// <summary>
-/// Used to provide options to <see cref="LogMessage.ToString"/>.
+/// Used to provide options to <see cref="LogMessage.ToString"/>. It inherits from
+/// <see cref="SinkConfig"/> because we need a way to get these values to the ToString() method.
 /// </summary>
-public sealed class MessageStringOptions
+public sealed class MessageStringOptions : SinkConfig
 {
     /// <summary>
-    /// Constructor.
+    /// Default.
     /// </summary>
-    public MessageStringOptions(LogFormat format, IReadOnlyLoggerConfig? config = null)
+    public MessageStringOptions()
+        : base(new SinkConfig())
     {
-        Format = format;
-        Config = config ??= new LoggerConfig();
+        LoggerConfig = new LoggerConfig();
     }
 
     /// <summary>
-    /// Gets or sets the output format.
+    /// Constructor.
     /// </summary>
-    public LogFormat Format { get; set; }
+    public MessageStringOptions(IReadOnlySinkConfig sink, IReadOnlyLoggerConfig log)
+        : base(sink)
+    {
+        LoggerConfig = log;
+    }
 
     /// <summary>
     /// Gets or sets the configuration of the host logger.
     /// </summary>
-    public IReadOnlyLoggerConfig Config { get; set; }
+    public IReadOnlyLoggerConfig LoggerConfig { get; set; }
 
     /// <summary>
     /// Gets or sets whether to include the priority code for

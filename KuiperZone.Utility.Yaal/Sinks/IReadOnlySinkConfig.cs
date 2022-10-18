@@ -40,4 +40,11 @@ public interface IReadOnlySinkConfig
     /// changed in-flight. Typically, therefore, the default should be <see cref="SeverityLevel.Lowest"/>.
     /// </summary>
     SeverityLevel Threshold { get; }
+
+    /// <summary>
+    /// Gets the maximum message text length in chars, excluding structured and other data.
+    /// If the text exceeds this, it will be truncated. A value of 0 or less implies no limit.
+    /// The default value is 2048.
+    /// </summary>
+    int MaxTextLength { get; }
 }
