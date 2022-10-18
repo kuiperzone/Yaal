@@ -28,12 +28,15 @@ public interface IReadOnlySinkConfig
     /// <summary>
     /// Gets the output format. The default is to depend on the sink kind.
     /// </summary>
-    FormatKind Format { get; }
+    LogFormat Format { get; }
 
     /// <summary>
-    /// Gets the threshold severity for the sink. Setting this value will prevent the sink form
+    /// Gets the threshold severity for the sink. Setting this value will prevent the sink from
     /// logging any message with a lower priority, irrespective of the threshold value of the
-    /// host logger. Although this allows control on a per sink basis, this threshold cannot be
+    /// host logger. For example, it may desirable to set it to <see cref="SeverityLevel.Error"/>
+    /// for <see cref="SyslogSink"/> so that only errors and higher messages are logged to this
+    /// sink regard
+    /// Although this allows control on a per sink basis, this threshold cannot be
     /// changed in-flight. Typically, therefore, the default should be <see cref="SeverityLevel.Lowest"/>.
     /// </summary>
     SeverityLevel Threshold { get; }

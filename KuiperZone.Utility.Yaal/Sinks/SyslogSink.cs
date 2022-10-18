@@ -54,7 +54,7 @@ public sealed class SyslogSink : ILogSink
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public SyslogSink(FormatKind format, SeverityLevel threshold = SeverityLevel.Lowest)
+    public SyslogSink(LogFormat format, SeverityLevel threshold = SeverityLevel.Lowest)
     {
         Config = new SyslogConfig(format, threshold);
     }
@@ -86,7 +86,7 @@ public sealed class SyslogSink : ILogSink
     /// "logger" shell command is not available.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
-    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
     {
         if (!v_isFailed)
         {
@@ -94,11 +94,11 @@ public sealed class SyslogSink : ILogSink
             {
                 if (_isWindows)
                 {
-                    WriteWindows(message, config);
+                    WriteWindows(msg, config);
                 }
                 else
                 {
-                    WriteLinux(message, config);
+                    WriteLinux(msg, config);
                 }
             }
             catch
@@ -147,6 +147,8 @@ public sealed class SyslogSink : ILogSink
 
     private static EventLogEntryType ToEntryType(SeverityLevel severity)
     {
+        #pragma warning disable CA1416
+
         switch (severity)
         {
             case SeverityLevel.Emergency:
@@ -163,14 +165,17 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteLinux(LogMessage message, IReadOnlyLoggerConfig config)
+    public void WriteLinux(LogMessage msg, IReadOnlyLoggerConfig config)
     {
         // It seems that we need to provide priority as an option for syslog
-        var text = message.ToString(Config.Format, config, false);
+        var opts = new MessageStringOptions(Config.Format, config);
+        opts.IncludePriority = false;
+
+        var text = msg.ToString(opts);
 
         // It seems that we need to provide priority as an option
         var buffer = new StringBuilder("-p ", 1024);
-        buffer.Append(message.Severity.ToPriorityPair(config.Facility));
+        buffer.Append(msg.Severity.ToPriorityPair(config.Facility));
         buffer.Append(' ');
 
         buffer.Append('"');
@@ -183,9 +188,12 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteWindows(LogMessage message, IReadOnlyLoggerConfig config)
+    public void WriteWindows(LogMessage msg, IReadOnlyLoggerConfig config)
     {
-        var text = message.ToString(Config.Format, config, true);
+        var opts = new MessageStringOptions(Config.Format, config);
+        opts.IncludePriority = true;
+
+        var text = msg.ToString(opts);
 
         lock (_syncObj)
         {
@@ -196,7 +204,7 @@ public sealed class SyslogSink : ILogSink
             }
 
             // _event.MachineName = config.HostName;
-            _winLog.WriteEntry(text, ToEntryType(message.Severity));
+            _winLog.WriteEntry(text, ToEntryType(msg.Severity));
         }
     }
 

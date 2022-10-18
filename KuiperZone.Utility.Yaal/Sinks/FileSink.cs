@@ -34,7 +34,7 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Constructor with option values. Serves as default constructor.
     /// </summary>
-    public FileSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileSink(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
         : this(new FileConfig(format, threshold))
     {
     }
@@ -42,7 +42,7 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Constructor variant with <see cref="IReadOnlyFileConfig.DirectoryPattern"/> value.
     /// </summary>
-    public FileSink(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileSink(string directory, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
         : this(new FileConfig(directory, format, threshold))
     {
     }
@@ -83,9 +83,12 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
     {
-        var text = message.ToString(Config.Format, config);
+        var opts = new MessageStringOptions(Config.Format, config);
+        opts.IndentClean = Config.IndentClean;
+
+        var text = msg.ToString(opts);
 
         if (_local != null)
         {

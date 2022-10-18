@@ -18,6 +18,8 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using KuiperZone.Utility.Yaal.Internal;
+
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
@@ -33,7 +35,7 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Constructor with option values. Serves as default constructor.
     /// </summary>
-    public BufferSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public BufferSink(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
         : this(new BufferConfig(format, threshold))
     {
         Config = new BufferConfig(format, threshold);
@@ -42,7 +44,7 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Constructor variant with <see cref="IReadOnlyBufferConfig.Capacity"/> value.
     /// </summary>
-    public BufferSink(int capacity, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public BufferSink(int capacity, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
     {
         Config = new BufferConfig(capacity, format, threshold);
     }
@@ -113,7 +115,7 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
     {
         lock(_syncObj)
         {
@@ -122,7 +124,7 @@ public sealed class BufferSink : ILogSink
                 _history.RemoveAt(0);
             }
 
-            _history.Add(message.ToString(Config.Format, config));
+            _history.Add(msg.ToString(new MessageStringOptions(Config.Format, config)));
         }
     }
 

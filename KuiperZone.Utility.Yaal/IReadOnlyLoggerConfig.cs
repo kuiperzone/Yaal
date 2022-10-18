@@ -47,7 +47,7 @@ public interface IReadOnlyLoggerConfig
     string AppPid { get; }
 
     /// <summary>
-    /// Gets whether times are written as UTC. Ignored for <see cref="FormatKind.Bsd"/>, as
+    /// Gets whether times are written as UTC. Ignored for <see cref="LogFormat.Bsd"/>, as
     /// this format uses only local times. The default is false (local).
     /// </summary>
     bool IsTimeUtc { get; }
@@ -66,7 +66,7 @@ public interface IReadOnlyLoggerConfig
     int MaxTextLength { get; }
 
     /// <summary>
-    /// Gets the RFC 5424 SD-ID to be used for debugging <see cref="FormatKind.Rfc5424"/> structured data.
+    /// Gets the RFC 5424 SD-ID to be used for debugging <see cref="LogFormat.Rfc5424"/> structured data.
     /// The format is "name@enterprise_number", unless using an IANA ID. Example: "DGB@24601". The value
     /// must not equal any that may be used in structure message elements, otherwise it will be ignored.
     /// It will also be ignored if it is empty or the ID is invalid. The default is "DGB@00000000", but

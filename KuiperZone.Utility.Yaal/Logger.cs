@@ -141,13 +141,13 @@ public sealed class Logger
     /// Writes the message to <see cref="Sinks"/> provided <see cref="LogMessage.Severity"/>
     /// equals or exceeds <see cref="Threshold"/> in priority.
     /// </summary>
-    public void Write(LogMessage message)
+    public void Write(LogMessage msg)
     {
         var temp = v_helper;
 
-        if (temp.Allow(message))
+        if (temp.Allow(msg))
         {
-            temp.Write(message);
+            temp.Write(msg);
         }
     }
 
@@ -247,13 +247,13 @@ public sealed class Logger
     /// <summary>
     /// Conditional variant of <see cref="Write(LogMessage)"/>.
     /// </summary>
-    public void WriteIf(bool condition, LogMessage message)
+    public void WriteIf(bool condition, LogMessage msg)
     {
         var temp = v_helper;
 
-        if (condition && temp.Allow(message))
+        if (condition && temp.Allow(msg))
         {
-            temp.Write(message);
+            temp.Write(msg);
         }
     }
 
@@ -304,15 +304,15 @@ public sealed class Logger
     /// the method, but note that debug methods are ignored and do nothing in Release builds.
     /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
-    public void Debug(LogMessage message)
+    public void Debug(LogMessage msg)
     {
         var temp = v_helper;
 
-        if (temp.Allow(message))
+        if (temp.Allow(msg))
         {
             MethodBase.GetCurrentMethod();
-            message.Debug ??= new(DebugMethodName);
-            temp.Write(message);
+            msg.Debug ??= new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -331,9 +331,9 @@ public sealed class Logger
 
         if (temp.Allow(MsgSeverity))
         {
-            var message = new LogMessage(MsgSeverity, text);
-            message.Debug = new(DebugMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(MsgSeverity, text);
+            msg.Debug = new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -349,9 +349,9 @@ public sealed class Logger
 
         if (temp.Allow(severity))
         {
-            var message = new LogMessage(severity, text);
-            message.Debug = new(DebugMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(severity, text);
+            msg.Debug = new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -368,9 +368,9 @@ public sealed class Logger
 
         if (temp.Allow(msgId, severity))
         {
-            var message = new LogMessage(msgId, severity, text);
-            message.Debug = new(DebugMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(msgId, severity, text);
+            msg.Debug = new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -389,9 +389,9 @@ public sealed class Logger
 
         if (temp.Allow(MsgSeverity))
         {
-            var message = new LogMessage(MsgSeverity, e.ToString());
-            message.Debug = new(DebugMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(MsgSeverity, e.ToString());
+            msg.Debug = new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -407,9 +407,9 @@ public sealed class Logger
 
         if (temp.Allow(severity))
         {
-            var message = new LogMessage(severity, e.ToString());
-            message.Debug = new(DebugMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(severity, e.ToString());
+            msg.Debug = new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -426,9 +426,9 @@ public sealed class Logger
 
         if (temp.Allow(msgId, severity))
         {
-            var message = new LogMessage(msgId, severity, e.ToString());
-            message.Debug = new(DebugMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(msgId, severity, e.ToString());
+            msg.Debug = new(DebugMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -437,14 +437,14 @@ public sealed class Logger
     /// the method, but note that debug methods are ignored and do nothing in Release builds.
     /// </summary>
     [System.Diagnostics.Conditional("DEBUG")]
-    public void DebugIf(bool condition, LogMessage message)
+    public void DebugIf(bool condition, LogMessage msg)
     {
         var temp = v_helper;
 
-        if (condition && temp.Allow(message))
+        if (condition && temp.Allow(msg))
         {
-            message.Debug ??= new(DebugIfMethodName);
-            temp.Write(message);
+            msg.Debug ??= new(DebugIfMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -461,9 +461,9 @@ public sealed class Logger
 
         if (condition && temp.Allow(MsgSeverity))
         {
-            var message = new LogMessage(MsgSeverity, text);
-            message.Debug = new(DebugIfMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(MsgSeverity, text);
+            msg.Debug = new(DebugIfMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -478,9 +478,9 @@ public sealed class Logger
 
         if (condition && temp.Allow(severity))
         {
-            var message = new LogMessage(severity, text);
-            message.Debug = new(DebugIfMethodName);
-            temp.Write(message);
+            var msg = new LogMessage(severity, text);
+            msg.Debug = new(DebugIfMethodName);
+            temp.Write(msg);
         }
     }
 
@@ -495,9 +495,9 @@ public sealed class Logger
 
         if (condition && temp.Allow(msgId, severity))
         {
-             var message = new LogMessage(msgId, severity, text);
-            message.Debug = new(DebugIfMethodName);
-            temp.Write(message);
+             var msg = new LogMessage(msgId, severity, text);
+            msg.Debug = new(DebugIfMethodName);
+            temp.Write(msg);
        }
     }
 

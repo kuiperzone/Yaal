@@ -18,56 +18,40 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System.Runtime.InteropServices;
-
-namespace KuiperZone.Utility.Yaal.Sinks;
+namespace KuiperZone.Utility.Yaal.Internal;
 
 /// <summary>
-/// Construction options for the <see cref="SyslogSink"/> class. Implements
-/// <see cref="IReadOnlySyslogConfig"/> and provides setters.
+/// Used to provide options to <see cref="LogMessage.ToString"/>.
 /// </summary>
-public sealed class SyslogConfig : SinkConfig, IReadOnlySyslogConfig
+public sealed class MessageStringOptions
 {
     /// <summary>
-    /// Default constructor.
+    /// Constructor.
     /// </summary>
-    public SyslogConfig()
-        : base(DefaultFormat())
+    public MessageStringOptions(LogFormat format, IReadOnlyLoggerConfig? config = null)
     {
+        Format = format;
+        Config = config ??= new LoggerConfig();
     }
 
     /// <summary>
-    /// Constructor variant.
+    /// Gets or sets the output format.
     /// </summary>
-    public SyslogConfig(SeverityLevel severity)
-        : base(DefaultFormat(), severity)
-    {
-    }
+    public LogFormat Format { get; set; }
 
     /// <summary>
-    /// Constructor variant.
+    /// Gets or sets the configuration of the host logger.
     /// </summary>
-    public SyslogConfig(FormatKind format, SeverityLevel severity = SeverityLevel.Lowest)
-        : base(format, severity)
-    {
-    }
+    public IReadOnlyLoggerConfig Config { get; set; }
 
     /// <summary>
-    /// Copy constructor.
+    /// Gets or sets whether to include the priority code for
+    /// <see cref="LogFormat.Rfc5424"/> and <see cref="LogFormat.Bsd"/>.
     /// </summary>
-    public SyslogConfig(IReadOnlySyslogConfig other)
-        : base(other)
-    {
-    }
+    public bool IncludePriority { get; set; } = true;
 
-    private static FormatKind DefaultFormat()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return FormatKind.Text;
-        }
-
-        return FormatKind.Rfc5424;
-    }
-
+    /// <summary>
+    /// Gets or sets indent count for <see cref="LogFormat.Clean"/> format.
+    /// </summary>
+    public int IndentClean { get; set; }
 }

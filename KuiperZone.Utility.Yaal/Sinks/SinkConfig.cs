@@ -28,7 +28,7 @@ public class SinkConfig : IReadOnlySinkConfig
     /// <summary>
     /// Constructor.
     /// </summary>
-    public SinkConfig(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public SinkConfig(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
     {
         Format = format;
         Threshold = threshold;
@@ -46,7 +46,7 @@ public class SinkConfig : IReadOnlySinkConfig
     /// <summary>
     /// Implements <see cref="IReadOnlySinkConfig.Format"/> and provides a setter.
     /// </summary>
-    public FormatKind Format { get; set; }
+    public LogFormat Format { get; set; }
 
     /// <summary>
     /// Implements <see cref="IReadOnlySinkConfig.Threshold"/> and provides a setter.

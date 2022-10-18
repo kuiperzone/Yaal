@@ -18,42 +18,56 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Runtime.InteropServices;
+
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Construction configuration for the <see cref="BufferSink"/> class. Implements
-/// <see cref="IReadOnlyBufferConfig"/> and provides setters.
+/// Construction options for the <see cref="SyslogSink"/> class. Implements
+/// <see cref="IReadOnlySyslogConfig"/> and provides setters.
 /// </summary>
-public sealed class BufferConfig : SinkConfig, IReadOnlyBufferConfig
+public sealed class SyslogConfig : SinkConfig, IReadOnlySyslogConfig
 {
     /// <summary>
-    /// Default constructor with options.
+    /// Default constructor.
     /// </summary>
-    public BufferConfig(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
-        : base(format, threshold)
+    public SyslogConfig()
+        : base(DefaultFormat())
     {
     }
 
     /// <summary>
-    /// Default constructor with options.
+    /// Constructor variant.
     /// </summary>
-    public BufferConfig(int capacity, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
-        : base(format, threshold)
+    public SyslogConfig(SeverityLevel severity)
+        : base(DefaultFormat(), severity)
     {
-        Capacity = capacity;
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public SyslogConfig(LogFormat format, SeverityLevel severity = SeverityLevel.Lowest)
+        : base(format, severity)
+    {
     }
 
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public BufferConfig(IReadOnlyBufferConfig other)
+    public SyslogConfig(IReadOnlySyslogConfig other)
         : base(other)
     {
     }
 
-    /// <summary>
-    /// Implements <see cref="IReadOnlyBufferConfig.Capacity"/> and provides a setter.
-    /// </summary>
-    public int Capacity { get; set; } = 1000;
+    private static LogFormat DefaultFormat()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return LogFormat.Clean;
+        }
+
+        return LogFormat.Rfc5424;
+    }
 
 }

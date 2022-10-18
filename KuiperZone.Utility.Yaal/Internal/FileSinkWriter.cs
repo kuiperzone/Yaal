@@ -130,10 +130,10 @@ public sealed class FileSinkWriter : IDisposable
     /// <summary>
     /// Writes the message.
     /// </summary>
-    public void Write(string message)
+    public void Write(string msg)
     {
         _stream ??= NewFile();
-        _stream.WriteLine(message);
+        _stream.WriteLine(msg);
         _stream.Flush();
 
         LineCount += 1;

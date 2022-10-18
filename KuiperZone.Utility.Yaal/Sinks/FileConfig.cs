@@ -29,7 +29,7 @@ public sealed class FileConfig : SinkConfig, IReadOnlyFileConfig
     /// <summary>
     /// Default constructor with options.
     /// </summary>
-    public FileConfig(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileConfig(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
     }
@@ -37,7 +37,7 @@ public sealed class FileConfig : SinkConfig, IReadOnlyFileConfig
     /// <summary>
     /// Constructor with <see cref="IReadOnlyFileConfig.DirectoryPattern"/> value.
     /// </summary>
-    public FileConfig(string directory, FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileConfig(string directory, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
         DirectoryPattern = directory;
@@ -52,6 +52,7 @@ public sealed class FileConfig : SinkConfig, IReadOnlyFileConfig
         DirectoryPattern = other.DirectoryPattern;
         FilePattern = other.FilePattern;
         CreateDirectory = other.CreateDirectory;
+        IndentClean = other.IndentClean;
         MaxLines = other.MaxLines;
         StaleLife = other.StaleLife;
     }
@@ -70,6 +71,11 @@ public sealed class FileConfig : SinkConfig, IReadOnlyFileConfig
     /// Implements <see cref="IReadOnlyFileConfig.CreateDirectory"/> and provides a setter.
     /// </summary>
     public bool CreateDirectory { get; set; } = true;
+
+    /// <summary>
+    /// Implements <see cref="IReadOnlyFileConfig.IndentClean"/> and provides a setter.
+    /// </summary>
+    public int IndentClean { get; set; }
 
     /// <summary>
     /// Implements <see cref="IReadOnlyFileConfig.MaxLines"/> and provides a setter.

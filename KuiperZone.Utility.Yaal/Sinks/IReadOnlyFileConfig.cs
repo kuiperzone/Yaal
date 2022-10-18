@@ -96,7 +96,17 @@ public interface IReadOnlyFileConfig : IReadOnlySinkConfig
     bool CreateDirectory { get; }
 
     /// <summary>
-    /// Gets the maximum lines per file before it is closed and a new one opened. A negative or zero value disables.
+    /// Gets the indentation for the <see cref="LogFormat.Clean"/> format, which is default for <see cref="FileSink"/>.
+    /// It does nothing for other formats. When not zero, it indents the message content, but not leading call stack
+    /// information. It may be desirable to set this to a large value, such as 100, so when logging primarily with
+    /// <see cref="Logger.Debug"/> statements, the start of message content are aligned making them easier to
+    /// discern. The default is 0 (disabled).
+    /// </summary>
+    int IndentClean { get; set; }
+
+    /// <summary>
+    /// Gets the maximum lines per file before it is closed and a new one opened. The default is 10,000.
+    /// A negative or zero value disables.
     /// </summary>
     long MaxLines { get; }
 

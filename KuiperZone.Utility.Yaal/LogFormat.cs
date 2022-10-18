@@ -23,7 +23,7 @@ namespace KuiperZone.Utility.Yaal;
 /// <summary>
 /// Logging output format.
 /// </summary>
-public enum FormatKind
+public enum LogFormat
 {
 	/// <summary>
     /// RFC 5424 syslog format.
@@ -31,12 +31,19 @@ public enum FormatKind
 	Rfc5424 = 0,
 
 	/// <summary>
-    /// Legacy BSD syslog format (RFC 3164).
+    /// Legacy BSD syslog format (RFC 3164). Any debug stack trace information
+    /// is appended after the message.
     /// </summary>
 	Bsd,
 
-	/// <summary>
-    /// Only the message text is written.
+    /// <summary>
+    /// The output leads with the message text or debug stack trace information.
     /// </summary>
-	Text,
+    Clean,
+
+	/// <summary>
+    /// Only the message text is written. All other information,
+    /// including date/time, stack trace etc. is discarded.
+    /// </summary>
+	TextOnly,
 };

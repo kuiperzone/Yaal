@@ -35,7 +35,9 @@ class Program
 
         // Add file output. By default FileSink will
         // write to user's Document folder.
-        var files = new FileSink();
+        var fcon = new FileConfig();
+        fcon.IndentClean = 100;
+        var files = new FileSink(fcon);
         log.AddSink(files);
 
         // We will see output on console
@@ -52,10 +54,8 @@ class Program
 
 
         // INTRO
-        log.Write("YAAL HELLO WORLD");
+        log.Write($"YAAL HELLO WORLD: {AppInfo.Pid}");
         log.Write("NOTE. Log files also written to: " + files.DirectoryName);
-        log.Write($"The following are severities down to {log.Threshold}");
-
 
 
         // SEVERITY LEVELS
@@ -66,12 +66,12 @@ class Program
 
         // Write a message for every severity, but note those
         // with lower priority than log.Threshold will be ignored.
+        log.Write($"The following are severities down to {log.Threshold}");
         foreach (var item in Enum.GetValues<SeverityLevel>())
         {
             // We generate MsgId as upper-case severity value
             log.Write(item.ToString().ToUpper(), item, $"Message for {item} severity");
         }
-
 
 
         // STACK TRACE (CALLING METHOD NAME)
@@ -80,7 +80,6 @@ class Program
 
         // Call a method to demonstrate stack trace
         CallingMethod(668);
-
 
 
         // MULTIPLE THREADS

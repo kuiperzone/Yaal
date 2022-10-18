@@ -82,9 +82,9 @@ internal class LoggerHelper
         get { return v_error; }
     }
 
-    public bool Allow(LogMessage message)
+    public bool Allow(LogMessage msg)
     {
-        return Allow(message.MsgId, message.Severity);
+        return Allow(msg.MsgId, msg.Severity);
     }
 
     public bool Allow(SeverityLevel severity)
@@ -132,15 +132,15 @@ internal class LoggerHelper
         return new LoggerHelper(Config, Threshold, Exclusions, sinks, Error);
     }
 
-    public void Write(LogMessage message)
+    public void Write(LogMessage msg)
     {
         foreach (var item in Sinks)
         {
-            if (message.Severity.IsHigherOrEqualPriority(item.Config.Threshold))
+            if (msg.Severity.IsHigherOrEqualPriority(item.Config.Threshold))
             {
                 try
                 {
-                    item.Write(message, Config);
+                    item.Write(msg, Config);
                 }
                 catch (Exception e)
                 {

@@ -18,6 +18,8 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using KuiperZone.Utility.Yaal.Internal;
+
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
@@ -28,7 +30,7 @@ public sealed class ConsoleSink : ILogSink
     /// <summary>
     /// Constructor with option values. Serves as default constructor.
     /// </summary>
-    public ConsoleSink(FormatKind format = FormatKind.Text, SeverityLevel threshold = SeverityLevel.Lowest)
+    public ConsoleSink(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
     {
         Config = new SinkConfig(format, threshold);
     }
@@ -50,9 +52,9 @@ public sealed class ConsoleSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage message, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
     {
-        Console.WriteLine(message.ToString(Config.Format, config));
+        Console.WriteLine(msg.ToString(new MessageStringOptions(Config.Format, config)));
     }
 
 }
