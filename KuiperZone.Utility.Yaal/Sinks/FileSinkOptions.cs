@@ -21,48 +21,48 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Readonly interface for the <see cref="FileSink"/> class.
+/// Options for the <see cref="FileLogSink"/> class.
 /// </summary>
-public interface IReadOnlyFileConfig : IReadOnlySinkConfig
+public sealed class FileSinkOptions : SinkOptions
 {
     /// <summary>
     /// Placeholder for the application name.
     /// </summary>
-    const string AppTag = "{APP}";
+    public const string AppTag = "{APP}";
 
     /// <summary>
     /// Placeholder for the application assembly name.
     /// </summary>
-    const string AsmTag = "{ASM}";
+    public const string AsmTag = "{ASM}";
 
     /// <summary>
     /// Placeholder for the application PID.
     /// </summary>
-    const string ProcIdTag = "{PID}";
+    public const string ProcIdTag = "{PID}";
 
     /// <summary>
     /// Placeholder for the thread name or ID. IMPORTANT. If <see cref="FilePattern"/> contains
     /// <see cref="ThreadTag"/>, a separate file will be created for each thread.
     /// </summary>
-    const string ThreadTag = "{THD}";
+    public const string ThreadTag = "{THD}";
 
     /// <summary>
     /// Placeholder for the page number. This is simply a counter value which incremented
     /// each time the file reaches <see cref="MaxLines"/> and is closed and re-opened.
     /// </summary>
-    const string PageTag = "{PAG}";
+    public const string PageTag = "{PAG}";
 
     /// <summary>
     /// Placeholder for the build (Rel or Dbg).
     /// </summary>
-    const string BuildTag = "{BLD}";
+    public const string BuildTag = "{BLD}";
 
     /// <summary>
     /// Placeholder for the user temp directory, excluding any trailing separator.
     /// The placeholder should occur only at the start of the pattern only.
     /// Example: "{TMPDIR}/Logs"
     /// </summary>
-    const string TempTag = "{TMPDIR}";
+    public const string TempTag = "{TMPDIR}";
 
     /// <summary>
     /// Placeholder for the user Document directory, excluding any trailing separator. This may be the
@@ -70,52 +70,90 @@ public interface IReadOnlyFileConfig : IReadOnlySinkConfig
     /// directory. The placeholder should be specified only at the start of the pattern only.
     /// Example: "{DOCDIR}/Logs"
     /// </summary>
-    const string DocTag = "{DOCDIR}";
+    public const string DocTag = "{DOCDIR}";
 
     /// <summary>
-    /// Gets the directory pattern. The pattern may contain one or more of the following placeholder
+    /// Default constructor.
+    /// </summary>
+    public FileSinkOptions()
+    {
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public FileSinkOptions(LogFormat format, SeverityLevel threshold = SeverityLevel.Lowest)
+    {
+        Format = format;
+        Threshold = threshold;
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public FileSinkOptions(string directory, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+        DirectoryPattern = directory;
+    }
+
+    /// <summary>
+    /// Copy constructor.
+    /// </summary>
+    public FileSinkOptions(FileSinkOptions other)
+        : base(other)
+    {
+        DirectoryPattern = other.DirectoryPattern;
+        FilePattern = other.FilePattern;
+        CreateDirectory = other.CreateDirectory;
+        IndentClean = other.IndentClean;
+        MaxLines = other.MaxLines;
+        StaleLife = other.StaleLife;
+    }
+
+    /// <summary>
+    /// Gets or sets the directory pattern. The pattern may contain one or more of the following placeholder
     /// variables: <see cref="AppTag"/>, <see cref="AsmTag"/>, <see cref="BuildTag"/>, <see cref="TempTag"/>
     /// and <see cref="DocTag"/>. If the value is empty, the working directory is used. The default is empty.
     /// Example: "{DOCDIR}/Logs/{APP}"
     /// </summary>
-    string DirectoryPattern { get; }
+    public string DirectoryPattern { get; set; } = "{DOCDIR}/Logs/{ASM}";
 
     /// <summary>
-    /// Gets the filename pattern, excluding any directory part. The pattern may contain one or more of
+    /// Gets or sets the filename pattern, excluding any directory part. The pattern may contain one or more of
     /// the following placeholder variables: <see cref="AsmTag"/>, <see cref="AppTag"/>, <see cref="ProcIdTag"/>,
     /// <see cref="ThreadTag"/>, <see cref="PageTag"/>, <see cref="BuildTag"/>. Additionally, "{[DateFormat]}"
     /// may also be used, where the text between brace pair "{[" and "]}" will be substituted with a system time
     /// according to the DateTime format. IMPORTANT. If <see cref="FilePattern"/> contains <see cref="ThreadTag"/>,
     /// a separate file will be created for each calling thread. Example:
     /// </summary>
-    string FilePattern { get; }
+    public string FilePattern { get; set; } = "{APP}-{PID}-{THD}-{[yyyyMMddTHHmmss]}.{PAG}.log";
 
     /// <summary>
     /// Gets whether the directory defined by <see cref="DirectoryPattern"/> is created if it does not exist.
     /// </summary>
-    bool CreateDirectory { get; }
+    public bool CreateDirectory { get; set; } = true;
 
     /// <summary>
-    /// Gets the indentation for the <see cref="LogFormat.Clean"/> format, which is default for <see cref="FileSink"/>.
-    /// It does nothing for other formats. When not zero, it indents the message content, but not leading call stack
-    /// information. It may be desirable to set this to a large value, such as 100, so when logging primarily with
-    /// <see cref="Logger.Debug"/> statements, the start of message content are aligned making them easier to
-    /// discern. The default is 0 (disabled).
+    /// Gets or sets the life span of stale (old) files within the <see cref="DirectoryPattern"/> location. After
+    /// this time period, files become subject to house cleaning. If <see cref="StaleLife"/> is a positive non-zero
+    /// value, old log files are subject to automatic removal whenever a new file is opened. Setting this to 0
+    /// disables house cleaning of stale files. The default is <see cref="TimeSpan.Zero"/> (disabled).
     /// </summary>
-    int IndentClean { get; set; }
+    public int IndentClean { get; set; }
 
     /// <summary>
-    /// Gets the maximum lines per file before it is closed and a new one opened. The default is 10,000.
+    /// Gets or sets the maximum lines per file before it is closed and a new one opened. The default is 10,000.
     /// A negative or zero value disables.
     /// </summary>
-    long MaxLines { get; }
+    public long MaxLines { get; set; } = 100000;
 
-    /// <summary>
-    /// Gets the life span of stale (old) files within the <see cref="DirectoryPattern"/> location. After this time
-    /// period, files become subject to house cleaning. If <see cref="StaleLife"/> is a positive non-zero value,
-    /// old log files are subject to automatic removal whenever a new file is opened. Setting this to 0 disables
-    /// house cleaning of stale files. The default is <see cref="TimeSpan.Zero"/> (disabled).
+     /// <summary>
+    /// Gets or sets the life span of stale (old) files within the <see cref="DirectoryPattern"/> location. After
+    /// this time period, files become subject to house cleaning. If <see cref="StaleLife"/> is a positive non-zero
+    /// value, old log files are subject to automatic removal whenever a new file is opened. Setting this to 0
+    /// disables house cleaning of stale files. The default is <see cref="TimeSpan.Zero"/> (disabled).
     /// </summary>
-    TimeSpan StaleLife { get; }
+   public TimeSpan StaleLife { get; set; }
 
 }

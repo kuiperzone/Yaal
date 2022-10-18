@@ -21,14 +21,21 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="IReadOnlySinkConfig"/> and provides setters.
+/// options for the <see cref="ConsoleLogSink"/> class.
 /// </summary>
-public class SinkConfig : IReadOnlySinkConfig
+public sealed class ConsoleSinkOptions : SinkOptions
 {
     /// <summary>
-    /// Constructor.
+    /// Default constructor.
     /// </summary>
-    public SinkConfig(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+    public ConsoleSinkOptions()
+    {
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public ConsoleSinkOptions(LogFormat format, SeverityLevel threshold = SeverityLevel.Lowest)
     {
         Format = format;
         Threshold = threshold;
@@ -37,26 +44,9 @@ public class SinkConfig : IReadOnlySinkConfig
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public SinkConfig(IReadOnlySinkConfig other)
+    public ConsoleSinkOptions(ConsoleSinkOptions other)
+        : base(other)
     {
-        Format = other.Format;
-        Threshold = other.Threshold;
-        MaxTextLength = other.MaxTextLength;
     }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlySinkConfig.Format"/> and provides a setter.
-    /// </summary>
-    public LogFormat Format { get; set; }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlySinkConfig.Threshold"/> and provides a setter.
-    /// </summary>
-    public SeverityLevel Threshold { get; set; }
-
-    /// <summary>
-    /// Implements <see cref="IReadOnlySinkConfig.MaxTextLength"/> and provides a setter.
-    /// </summary>
-    public int MaxTextLength { get; set; } = 2048;
 
 }

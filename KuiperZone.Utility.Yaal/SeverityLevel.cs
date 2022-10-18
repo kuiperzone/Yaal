@@ -114,7 +114,25 @@ public static class SeverityLevelExtension
         return b != SeverityLevel.Disabled && b >= a;
     }
 
-	/// <summary>
+    /// <summary>
+    /// Maps a severity value to console color.
+    /// </summary>
+    public static ConsoleColor ToColor(this SeverityLevel severity)
+    {
+        switch (severity)
+        {
+            case SeverityLevel.Emergency:
+            case SeverityLevel.Alert:
+            case SeverityLevel.Critical: return ConsoleColor.Red;
+            case SeverityLevel.Error: return ConsoleColor.DarkRed;
+            case SeverityLevel.Warning: return ConsoleColor.DarkYellow;
+            case SeverityLevel.Notice: return ConsoleColor.DarkGreen;
+            case SeverityLevel.Informational: return ConsoleColor.DarkCyan;
+            default: return ConsoleColor.DarkGray;
+        }
+    }
+
+    /// <summary>
     /// Returns keyword. See: https://man7.org/linux/man-pages/man1/logger.1.html
     /// </summary>
     public static string ToKeyword(this SeverityLevel severity)

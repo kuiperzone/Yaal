@@ -75,13 +75,13 @@ public static class MessageExtension
 
     private static void AppendRfc5424(StringBuilder buffer, LogMessage msg, MessageStringOptions opts)
     {
-        var lcfg = opts.LoggerConfig;
+        var lo = opts.LoggerOptions;
 
         if (opts.IncludePriority)
         {
             // Will clamp with legal severity range
             buffer.Append('<');
-            buffer.Append(msg.Severity.ToPriorityCode(lcfg.Facility));
+            buffer.Append(msg.Severity.ToPriorityCode(lo.Facility));
             buffer.Append('>');
         }
 
@@ -89,13 +89,13 @@ public static class MessageExtension
         buffer.Append(ToTimestamp(msg, opts));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(lcfg.HostName));
+        buffer.Append(ValueOrNil(lo.HostName));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(lcfg.AppName));
+        buffer.Append(ValueOrNil(lo.AppName));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(lcfg.AppPid));
+        buffer.Append(ValueOrNil(lo.AppPid));
 
         buffer.Append(' ');
         buffer.Append(ValueOrNil(msg.MsgId));
@@ -106,10 +106,10 @@ public static class MessageExtension
         if (!msg.Data.IsEmpty)
         {
             hasData = true;
-            msg.Data.AppendTo(buffer, opts.LoggerConfig);
+            msg.Data.AppendTo(buffer, opts.LoggerOptions);
         }
 
-        string? dbgId = opts.LoggerConfig.DebugId;
+        string? dbgId = opts.LoggerOptions.DebugId;
 
         if (msg.Debug?.Function != null &&
             !string.IsNullOrEmpty(dbgId) &&
@@ -127,7 +127,7 @@ public static class MessageExtension
             }
 
             e.Add("THREAD", AppInfo.Pid + "-" + LogUtil.ThreadName);
-            e.AppendTo(buffer, lcfg);
+            e.AppendTo(buffer, (IReadOnlyLoggerOptions)lo);
         }
 
         if (!hasData)
@@ -142,30 +142,30 @@ public static class MessageExtension
 
     private static void AppendBsd(StringBuilder buffer, LogMessage msg, MessageStringOptions opts)
     {
-        var lcfg = opts.LoggerConfig;
+        var lo = opts.LoggerOptions;
 
         if (opts.IncludePriority)
         {
             // Will clamp with legal severity range
             buffer.Append('<');
-            buffer.Append(msg.Severity.ToPriorityCode(lcfg.Facility));
+            buffer.Append(msg.Severity.ToPriorityCode(lo.Facility));
             buffer.Append('>');
         }
 
         buffer.Append(ToTimestamp(msg, opts));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(lcfg.HostName));
+        buffer.Append(ValueOrNil(lo.HostName));
 
-        if (!string.IsNullOrEmpty(lcfg.AppName))
+        if (!string.IsNullOrEmpty(lo.AppName))
         {
             buffer.Append(' ');
-            buffer.Append(ValueOrNil(lcfg.AppName));
+            buffer.Append(ValueOrNil(lo.AppName));
 
-            if (!string.IsNullOrEmpty(lcfg.AppPid))
+            if (!string.IsNullOrEmpty(lo.AppPid))
             {
                 buffer.Append('[');
-                buffer.Append(lcfg.AppPid);
+                buffer.Append(lo.AppPid);
                 buffer.Append(']');
             }
 
@@ -211,7 +211,7 @@ public static class MessageExtension
 
     private static string ToTimestamp(LogMessage msg, MessageStringOptions opts)
     {
-        var t = opts.LoggerConfig.IsTimeUtc ? msg.Time.ToUniversalTime() : msg.Time.ToLocalTime();
+        var t = opts.LoggerOptions.IsTimeUtc ? msg.Time.ToUniversalTime() : msg.Time.ToLocalTime();
 
         switch (opts.Format)
         {

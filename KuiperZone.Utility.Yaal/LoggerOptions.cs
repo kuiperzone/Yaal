@@ -23,9 +23,9 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Implementation of <see cref="IReadOnlyLoggerConfig"/> with setters.
+/// Implementation of <see cref="IReadOnlyLoggerOptions"/> with setters.
 /// </summary>
-public class LoggerConfig : IReadOnlyLoggerConfig
+public class LoggerOptions : IReadOnlyLoggerOptions
 {
     private string _appName = "";
     private string _procId = "";
@@ -33,29 +33,29 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     private string _debugId = "DGB@00000000";
 
     /// <summary>
-    /// Gets the <see cref="LoggerConfig.AppName"/> max length in characters.
+    /// Gets the <see cref="LoggerOptions.AppName"/> max length in characters.
     /// </summary>
     public const int AppNameMaxLength = 48;
 
     /// <summary>
-    /// Gets the <see cref="LoggerConfig.AppPid"/> max length in characters.
+    /// Gets the <see cref="LoggerOptions.AppPid"/> max length in characters.
     /// </summary>
     public const int PidMaxLength = 128;
 
     /// <summary>
-    /// Gets the <see cref="LoggerConfig.HostName"/> max length in characters.
+    /// Gets the <see cref="LoggerOptions.HostName"/> max length in characters.
     /// </summary>
     public const int HostNameMaxLength = 255;
 
     /// <summary>
-    /// Gets the <see cref="LoggerConfig.DebugId"/> max length in characters.
+    /// Gets the <see cref="LoggerOptions.DebugId"/> max length in characters.
     /// </summary>
     public const int DebugMaxLength = 32;
 
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public LoggerConfig()
+    public LoggerOptions()
     {
         HostName = AppInfo.HostName;
         AppPid = AppInfo.Pid;
@@ -67,7 +67,7 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public LoggerConfig(LoggerConfig other)
+    public LoggerOptions(LoggerOptions other)
     {
         HostName = other.HostName;
         AppName = other.AppName;
@@ -78,7 +78,7 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.HostName"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLoggerOptions.HostName"/> and provides a setter.
     /// </summary>
     public string HostName
     {
@@ -87,7 +87,7 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.AppName"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLoggerOptions.AppName"/> and provides a setter.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
     public string AppName
@@ -97,7 +97,7 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.AppPid"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLoggerOptions.AppPid"/> and provides a setter.
     /// </summary>
     public string AppPid
     {
@@ -106,17 +106,17 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.IsTimeUtc"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLoggerOptions.IsTimeUtc"/> and provides a setter.
     /// </summary>
     public bool IsTimeUtc { get; set; }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.Facility"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLoggerOptions.Facility"/> and provides a setter.
     /// </summary>
 	public FacilityId Facility { get; set; } = FacilityId.User;
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.DebugId"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLoggerOptions.DebugId"/> and provides a setter.
     /// </summary>
 	public string DebugId
     {
@@ -125,11 +125,11 @@ public class LoggerConfig : IReadOnlyLoggerConfig
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerConfig.Clone"/>.
+    /// Implements <see cref="IReadOnlyLoggerOptions.Clone"/>.
     /// </summary>
-    public LoggerConfig Clone()
+    public LoggerOptions Clone()
     {
-        return new LoggerConfig(this);
+        return new LoggerOptions(this);
     }
 
     private static string EnsureId(string id, int maxLength, bool assembly = false)

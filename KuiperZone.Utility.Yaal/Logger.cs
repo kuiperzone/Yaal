@@ -40,7 +40,7 @@ public sealed class Logger
     /// <summary>
     /// Default constructor. The <see cref="Threshold"/> property will be initialised to
     /// <see cref="SeverityLevel.Debug"/>, and <see cref="Sinks"/> will contain a single
-    /// instance of <see cref="SyslogSink"/>.
+    /// instance of <see cref="SyslogLogSink"/>.
     /// </summary>
     public Logger()
     {
@@ -49,7 +49,7 @@ public sealed class Logger
 
     /// <summary>
     /// Constructor with initial value for <see cref="Threshold"/>. <see cref="Sinks"/>
-    /// will contain a single instance of <see cref="SyslogSink"/>.
+    /// will contain a single instance of <see cref="SyslogLogSink"/>.
     /// </summary>
     public Logger(SeverityLevel threshold)
     {
@@ -76,7 +76,7 @@ public sealed class Logger
 
     /// <summary>
     /// Gets a global singleton. By default, its <see cref="Sinks"/> property will contain
-    /// a single instance of <see cref="SyslogSink"/>.
+    /// a single instance of <see cref="SyslogLogSink"/>.
     /// </summary>
     public static readonly Logger Global = new();
 
@@ -93,14 +93,14 @@ public sealed class Logger
     }
 
     /// <summary>
-    /// Gets or sets the logger configuration. These can be set using an instance of <see cref="LoggerConfig"/>.
+    /// Gets or sets the logger options. These can be set using an instance of <see cref="LoggerOptions"/>.
     /// Although they can be changed in-flight, it is recommended that they are updated at the start of
     /// the program execution only.
     /// </summary>
-    public IReadOnlyLoggerConfig Config
+    public IReadOnlyLoggerOptions Options
     {
-        get { return v_helper.Config; }
-        set { v_helper = v_helper.NewConfig(value); }
+        get { return v_helper.Options; }
+        set { v_helper = v_helper.NewOptions(value); }
     }
 
     /// <summary>

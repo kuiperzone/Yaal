@@ -24,32 +24,32 @@ namespace KuiperZone.Utility.Yaal.Internal;
 
 /// <summary>
 /// Used to provide options to <see cref="LogMessage.ToString"/>. It inherits from
-/// <see cref="SinkConfig"/> because we need a way to get these values to the ToString() method.
+/// <see cref="SinkOptions"/> because we need a way to get these values to the ToString() method.
 /// </summary>
-public sealed class MessageStringOptions : SinkConfig
+public sealed class MessageStringOptions : SinkOptions
 {
     /// <summary>
     /// Default.
     /// </summary>
     public MessageStringOptions()
-        : base(new SinkConfig())
+        : base(new SinkOptions())
     {
-        LoggerConfig = new LoggerConfig();
+        LoggerOptions = new LoggerOptions();
     }
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    public MessageStringOptions(IReadOnlySinkConfig sink, IReadOnlyLoggerConfig log)
+    public MessageStringOptions(SinkOptions sink, IReadOnlyLoggerOptions logger)
         : base(sink)
     {
-        LoggerConfig = log;
+        LoggerOptions = logger;
     }
 
     /// <summary>
-    /// Gets or sets the configuration of the host logger.
+    /// Gets or sets the options of the host logger.
     /// </summary>
-    public IReadOnlyLoggerConfig LoggerConfig { get; set; }
+    public IReadOnlyLoggerOptions LoggerOptions { get; set; }
 
     /// <summary>
     /// Gets or sets whether to include the priority code for

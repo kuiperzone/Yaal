@@ -28,44 +28,29 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// <summary>
 /// Implements <see cref="ILogSink"/> for syslog (logger) on Linux, and EventLog on Windows.
 /// </summary>
-public sealed class SyslogSink : ILogSink
+public sealed class SyslogLogSink : ILogSink
 {
     private static readonly object _syncObj = new();
     private static readonly bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    private readonly SyslogSinkOptions _options;
     private EventLog? _winLog;
     private volatile bool v_isFailed;
 
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public SyslogSink()
+    public SyslogLogSink()
     {
-        SinkConfig = new SyslogConfig();
+        _options = new SyslogSinkOptions();
     }
 
     /// <summary>
-    /// Constructor variant.
+    /// Constructor with options instance.
     /// </summary>
-    public SyslogSink(SeverityLevel threshold)
-    {
-        SinkConfig = new SyslogConfig(threshold);
-    }
-
-    /// <summary>
-    /// Constructor variant.
-    /// </summary>
-    public SyslogSink(LogFormat format, SeverityLevel threshold = SeverityLevel.Lowest)
-    {
-        SinkConfig = new SyslogConfig(format, threshold);
-    }
-
-    /// <summary>
-    /// Constructor with configuration instance.
-    /// </summary>
-    public SyslogSink(IReadOnlySyslogConfig config)
+    public SyslogLogSink(SyslogSinkOptions opts)
     {
         // Take a copy
-        SinkConfig = new SyslogConfig(config);
+        _options = new SyslogSinkOptions(opts);
     }
 
     /// <summary>
@@ -77,36 +62,23 @@ public sealed class SyslogSink : ILogSink
     }
 
     /// <summary>
-    /// Gets a clone of the configuration instance supplied on construction.
-    /// </summary>
-    public IReadOnlySyslogConfig SinkConfig { get; }
-
-    /// <summary>
-    /// Implements <see cref="ILogSink.SinkConfig"/>.
-    /// </summary>
-    IReadOnlySinkConfig ILogSink.SinkConfig
-    {
-        get { return SinkConfig; }
-    }
-
-    /// <summary>
     /// Implements <see cref="ILogSink.Write"/>. It may throw on Linux where the
     /// "logger" shell command is not available.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
-    public void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg)
+    public void Write(LogMessage msg, IReadOnlyLoggerOptions opts)
     {
-        if (!v_isFailed)
+        if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold) && !v_isFailed)
         {
             try
             {
                 if (_isWindows)
                 {
-                    WriteWindows(msg, lcfg);
+                    WriteWindows(msg, opts);
                 }
                 else
                 {
-                    WriteLinux(msg, lcfg);
+                    WriteLinux(msg, opts);
                 }
             }
             catch
@@ -173,17 +145,17 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteLinux(LogMessage msg, IReadOnlyLoggerConfig lcfg)
+    public void WriteLinux(LogMessage msg, IReadOnlyLoggerOptions opts)
     {
         // It seems that we need to provide priority as an option for syslog
-        var opts = new MessageStringOptions(SinkConfig, lcfg);
-        opts.IncludePriority = false;
+        var mo = new MessageStringOptions(_options, opts);
+        mo.IncludePriority = false;
 
-        var text = msg.ToString(opts);
+        var text = msg.ToString(mo);
 
         // It seems that we need to provide priority as an option
         var buffer = new StringBuilder("-p ", 1024);
-        buffer.Append(msg.Severity.ToPriorityPair(lcfg.Facility));
+        buffer.Append(msg.Severity.ToPriorityPair(opts.Facility));
         buffer.Append(' ');
 
         buffer.Append('"');
@@ -196,12 +168,12 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteWindows(LogMessage msg, IReadOnlyLoggerConfig lcfg)
+    public void WriteWindows(LogMessage msg, IReadOnlyLoggerOptions opts)
     {
-        var opts = new MessageStringOptions(SinkConfig, lcfg);
-        opts.IncludePriority = true;
+        var mo = new MessageStringOptions(_options, opts);
+        mo.IncludePriority = true;
 
-        var text = msg.ToString(opts);
+        var text = msg.ToString(mo);
 
         lock (_syncObj)
         {

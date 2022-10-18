@@ -18,42 +18,48 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System.Runtime.InteropServices;
+
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Construction configuration for the <see cref="BufferSink"/> class. Implements
-/// <see cref="IReadOnlyBufferConfig"/> and provides setters.
+/// Construction options for the <see cref="SyslogLogSink"/> class. Implements
+/// <see cref="IReadOnlySyslogSinkOptions"/> and provides setters.
 /// </summary>
-public sealed class BufferConfig : SinkConfig, IReadOnlyBufferConfig
+public sealed class SyslogSinkOptions : SinkOptions
 {
     /// <summary>
-    /// Default constructor with options.
+    /// Default constructor.
     /// </summary>
-    public BufferConfig(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
-        : base(format, threshold)
+    public SyslogSinkOptions()
+        : base(DefaultFormat())
     {
     }
 
     /// <summary>
-    /// Default constructor with options.
+    /// Constructor variant.
     /// </summary>
-    public BufferConfig(int capacity, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+    public SyslogSinkOptions(LogFormat format, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
-        Capacity = capacity;
     }
 
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public BufferConfig(IReadOnlyBufferConfig other)
+    public SyslogSinkOptions(SyslogSinkOptions other)
         : base(other)
     {
     }
 
-    /// <summary>
-    /// Implements <see cref="IReadOnlyBufferConfig.Capacity"/> and provides a setter.
-    /// </summary>
-    public int Capacity { get; set; } = 1000;
+    private static LogFormat DefaultFormat()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return LogFormat.Clean;
+        }
+
+        return LogFormat.Rfc5424;
+    }
 
 }

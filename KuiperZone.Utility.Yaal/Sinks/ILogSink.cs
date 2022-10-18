@@ -21,18 +21,13 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Interface for a loging sink. Implmentations should be thread instance safe and, once
-/// constructed, have read-only public properties.
+/// Interface for a loging sink. Implementations should be thread instance safe.
 /// </summary>
 public interface ILogSink
 {
     /// <summary>
-    /// Gets read-only options assigned during construction.
+    /// Writes the message. The method should do nothing unless the <see cref="LogMessage.Severity"/>
+    /// is equal or higher in priority than <see cref="SinkOptions.Threshold"/>.
     /// </summary>
-    IReadOnlySinkConfig SinkConfig { get; }
-
-    /// <summary>
-    /// Writes the message.
-    /// </summary>
-    void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg);
+    void Write(LogMessage msg, IReadOnlyLoggerOptions opts);
 }

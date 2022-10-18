@@ -18,13 +18,43 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using KuiperZone.Utility.Yaal.Internal;
+
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Readonly interface for the <see cref="SyslogSink"/> class. The default
-/// <see cref="IReadOnlySinkConfig.Format"/> is <see cref="LogFormat.Clean"/>
-/// on Windows and <see cref="LogFormat.Rfc5424"/> otherwise.
+/// Implements <see cref="ILogSink"/>. Messages are written directly to <see cref="Console"/>.
 /// </summary>
-public interface IReadOnlySyslogConfig : IReadOnlySinkConfig
+public sealed class ConsoleLogSink : ILogSink
 {
+    private readonly ConsoleSinkOptions _options;
+
+    /// <summary>
+    /// Default constructor.
+    /// </summary>
+    public ConsoleLogSink()
+    {
+        _options = new ConsoleSinkOptions();
+    }
+
+    /// <summary>
+    /// Constructor with options instance.
+    /// </summary>
+    public ConsoleLogSink(ConsoleSinkOptions opts)
+    {
+        // Take a copy
+        _options = new ConsoleSinkOptions(opts);
+    }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.Write"/>.
+    /// </summary>
+    public void Write(LogMessage msg, IReadOnlyLoggerOptions opts)
+    {
+        if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
+        {
+            Console.WriteLine(msg.ToString(new MessageStringOptions(_options, opts)));
+        }
+    }
+
 }

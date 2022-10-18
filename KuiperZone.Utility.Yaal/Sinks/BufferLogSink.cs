@@ -27,48 +27,27 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// where the caller holds a reference to the sink instance and can query whether certain code paths
 /// have correctly executed based on their logging output. An instance of this is thread-safe.
 /// </summary>
-public sealed class BufferSink : ILogSink
+public sealed class BufferLogSink : ILogSink
 {
     private readonly object _syncObj = new();
+    private readonly BufferSinkOptions _options;
     private readonly List<string> _history = new();
 
     /// <summary>
-    /// Constructor with option values. Serves as default constructor.
+    /// Default constructor.
     /// </summary>
-    public BufferSink(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
-        : this(new BufferConfig(format, threshold))
+    public BufferLogSink()
     {
-        SinkConfig = new BufferConfig(format, threshold);
+        _options = new BufferSinkOptions();
     }
 
     /// <summary>
-    /// Constructor variant with <see cref="IReadOnlyBufferConfig.Capacity"/> value.
+    /// Constructor with options instance.
     /// </summary>
-    public BufferSink(int capacity, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
-    {
-        SinkConfig = new BufferConfig(capacity, format, threshold);
-    }
-
-    /// <summary>
-    /// Constructor with config instance.
-    /// </summary>
-    public BufferSink(IReadOnlyBufferConfig config)
+    public BufferLogSink(BufferSinkOptions opts)
     {
         // Take a copy
-        SinkConfig = new BufferConfig(config);
-    }
-
-    /// <summary>
-    /// Gets a clone of the configuration instance supplied on construction.
-    /// </summary>
-    public IReadOnlyBufferConfig SinkConfig { get; }
-
-    /// <summary>
-    /// Implements <see cref="ILogSink.SinkConfig"/>.
-    /// </summary>
-    IReadOnlySinkConfig ILogSink.SinkConfig
-    {
-        get { return SinkConfig; }
+        _options = new BufferSinkOptions(opts);
     }
 
     /// <summary>
@@ -115,16 +94,19 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg)
+    public void Write(LogMessage msg, IReadOnlyLoggerOptions opts)
     {
-        lock(_syncObj)
+        if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
-            if (_history.Count == SinkConfig.Capacity && _history.Count > 0)
+            lock (_syncObj)
             {
-                _history.RemoveAt(0);
-            }
+                if (_history.Count == _options.Capacity && _history.Count > 0)
+                {
+                    _history.RemoveAt(0);
+                }
 
-            _history.Add(msg.ToString(new MessageStringOptions(SinkConfig, lcfg)));
+                _history.Add(msg.ToString(new MessageStringOptions(_options, opts)));
+            }
         }
     }
 

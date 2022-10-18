@@ -35,17 +35,17 @@ class Program
 
         // Add file output. By default FileSink will
         // write to user's Document folder.
-        var fcon = new FileConfig();
+        var fcon = new FileSinkOptions();
         fcon.IndentClean = 100;
-        var files = new FileSink(fcon);
+        var files = new FileLogSink(fcon);
         log.AddSink(files);
 
         // We will see output on console
-        log.AddSink(new ConsoleSink());
+        log.AddSink(new ConsoleLogSink());
 
         // We will use BufferSink later.
         // It's primary use case is in unit testing.
-        var buffer = new BufferSink();
+        var buffer = new BufferLogSink();
         log.AddSink(buffer);
 
 
