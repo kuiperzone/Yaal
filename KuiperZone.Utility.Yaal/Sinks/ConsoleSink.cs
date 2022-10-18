@@ -32,7 +32,7 @@ public sealed class ConsoleSink : ILogSink
     /// </summary>
     public ConsoleSink(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        Config = new SinkConfig(format, threshold);
+        SinkConfig = new SinkConfig(format, threshold);
     }
 
     /// <summary>
@@ -41,20 +41,20 @@ public sealed class ConsoleSink : ILogSink
     public ConsoleSink(IReadOnlySinkConfig config)
     {
         // Take a copy
-        Config = new SinkConfig(config);
+        SinkConfig = new SinkConfig(config);
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Config"/>.
+    /// Implements <see cref="ILogSink.SinkConfig"/>.
     /// </summary>
-    public IReadOnlySinkConfig Config { get; }
+    public IReadOnlySinkConfig SinkConfig { get; }
 
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg)
     {
-        Console.WriteLine(msg.ToString(new MessageStringOptions(Config, config)));
+        Console.WriteLine(msg.ToString(new MessageStringOptions(SinkConfig, lcfg)));
     }
 
 }

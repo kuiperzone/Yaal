@@ -57,10 +57,10 @@ internal class LoggerHelper
         Sinks = temp;
     }
 
-    private LoggerHelper(IReadOnlyLoggerConfig config, SeverityLevel severity,
+    private LoggerHelper(IReadOnlyLoggerConfig lcfg, SeverityLevel severity,
         string excludes, IReadOnlyCollection<ILogSink> sinks, Exception? lastError)
     {
-        Config = config;
+        Config = lcfg;
         Threshold = severity;
         Exclusions = excludes;
         Sinks = sinks;
@@ -112,9 +112,9 @@ internal class LoggerHelper
         v_error = null;
     }
 
-    public LoggerHelper NewConfig(IReadOnlyLoggerConfig config)
+    public LoggerHelper NewConfig(IReadOnlyLoggerConfig lcfg)
     {
-        return new LoggerHelper(config, Threshold, Exclusions, Sinks, Error);
+        return new LoggerHelper(lcfg, Threshold, Exclusions, Sinks, Error);
     }
 
     public LoggerHelper NewThreshold(SeverityLevel severity)
@@ -136,7 +136,7 @@ internal class LoggerHelper
     {
         foreach (var item in Sinks)
         {
-            if (msg.Severity.IsHigherOrEqualPriority(item.Config.Threshold))
+            if (msg.Severity.IsHigherOrEqualPriority(item.SinkConfig.Threshold))
             {
                 try
                 {

@@ -223,7 +223,7 @@ public class SdDictionary<T> : IDictionary<string, T>,
     /// Efficiently appends RFC 5424 formatted data to the StringBuilder.
     /// The resulting string data may be escaped according RFC 5424.
     /// </summary>
-    public virtual void AppendTo(StringBuilder buffer, IReadOnlyLoggerConfig config)
+    public virtual void AppendTo(StringBuilder buffer, IReadOnlyLoggerConfig lcfg)
     {
         foreach (var item in _dictionary)
         {

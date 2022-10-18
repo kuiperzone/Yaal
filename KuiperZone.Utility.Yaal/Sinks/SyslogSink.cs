@@ -40,7 +40,7 @@ public sealed class SyslogSink : ILogSink
     /// </summary>
     public SyslogSink()
     {
-        Config = new SyslogConfig();
+        SinkConfig = new SyslogConfig();
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public sealed class SyslogSink : ILogSink
     /// </summary>
     public SyslogSink(SeverityLevel threshold)
     {
-        Config = new SyslogConfig(threshold);
+        SinkConfig = new SyslogConfig(threshold);
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public sealed class SyslogSink : ILogSink
     /// </summary>
     public SyslogSink(LogFormat format, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        Config = new SyslogConfig(format, threshold);
+        SinkConfig = new SyslogConfig(format, threshold);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public sealed class SyslogSink : ILogSink
     public SyslogSink(IReadOnlySyslogConfig config)
     {
         // Take a copy
-        Config = new SinkConfig(config);
+        SinkConfig = new SyslogConfig(config);
     }
 
     /// <summary>
@@ -77,16 +77,24 @@ public sealed class SyslogSink : ILogSink
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Config"/>.
+    /// Gets a clone of the configuration instance supplied on construction.
     /// </summary>
-    public IReadOnlySinkConfig Config { get; }
+    public IReadOnlySyslogConfig SinkConfig { get; }
+
+    /// <summary>
+    /// Implements <see cref="ILogSink.SinkConfig"/>.
+    /// </summary>
+    IReadOnlySinkConfig ILogSink.SinkConfig
+    {
+        get { return SinkConfig; }
+    }
 
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>. It may throw on Linux where the
     /// "logger" shell command is not available.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
-    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg)
     {
         if (!v_isFailed)
         {
@@ -94,11 +102,11 @@ public sealed class SyslogSink : ILogSink
             {
                 if (_isWindows)
                 {
-                    WriteWindows(msg, config);
+                    WriteWindows(msg, lcfg);
                 }
                 else
                 {
-                    WriteLinux(msg, config);
+                    WriteLinux(msg, lcfg);
                 }
             }
             catch
@@ -165,17 +173,17 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteLinux(LogMessage msg, IReadOnlyLoggerConfig config)
+    public void WriteLinux(LogMessage msg, IReadOnlyLoggerConfig lcfg)
     {
         // It seems that we need to provide priority as an option for syslog
-        var opts = new MessageStringOptions(Config, config);
+        var opts = new MessageStringOptions(SinkConfig, lcfg);
         opts.IncludePriority = false;
 
         var text = msg.ToString(opts);
 
         // It seems that we need to provide priority as an option
         var buffer = new StringBuilder("-p ", 1024);
-        buffer.Append(msg.Severity.ToPriorityPair(config.Facility));
+        buffer.Append(msg.Severity.ToPriorityPair(lcfg.Facility));
         buffer.Append(' ');
 
         buffer.Append('"');
@@ -188,9 +196,9 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteWindows(LogMessage msg, IReadOnlyLoggerConfig config)
+    public void WriteWindows(LogMessage msg, IReadOnlyLoggerConfig lcfg)
     {
-        var opts = new MessageStringOptions(Config, config);
+        var opts = new MessageStringOptions(SinkConfig, lcfg);
         opts.IncludePriority = true;
 
         var text = msg.ToString(opts);

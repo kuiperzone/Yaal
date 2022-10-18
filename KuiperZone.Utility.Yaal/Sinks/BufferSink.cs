@@ -38,7 +38,7 @@ public sealed class BufferSink : ILogSink
     public BufferSink(LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
         : this(new BufferConfig(format, threshold))
     {
-        Config = new BufferConfig(format, threshold);
+        SinkConfig = new BufferConfig(format, threshold);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public sealed class BufferSink : ILogSink
     /// </summary>
     public BufferSink(int capacity, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
     {
-        Config = new BufferConfig(capacity, format, threshold);
+        SinkConfig = new BufferConfig(capacity, format, threshold);
     }
 
     /// <summary>
@@ -55,20 +55,20 @@ public sealed class BufferSink : ILogSink
     public BufferSink(IReadOnlyBufferConfig config)
     {
         // Take a copy
-        Config = new BufferConfig(config);
+        SinkConfig = new BufferConfig(config);
     }
 
     /// <summary>
     /// Gets a clone of the configuration instance supplied on construction.
     /// </summary>
-    public IReadOnlyBufferConfig Config { get; }
+    public IReadOnlyBufferConfig SinkConfig { get; }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Config"/>.
+    /// Implements <see cref="ILogSink.SinkConfig"/>.
     /// </summary>
-    IReadOnlySinkConfig ILogSink.Config
+    IReadOnlySinkConfig ILogSink.SinkConfig
     {
-        get { return Config; }
+        get { return SinkConfig; }
     }
 
     /// <summary>
@@ -115,16 +115,16 @@ public sealed class BufferSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg)
     {
         lock(_syncObj)
         {
-            if (_history.Count == Config.Capacity && _history.Count > 0)
+            if (_history.Count == SinkConfig.Capacity && _history.Count > 0)
             {
                 _history.RemoveAt(0);
             }
 
-            _history.Add(msg.ToString(new MessageStringOptions(Config, config)));
+            _history.Add(msg.ToString(new MessageStringOptions(SinkConfig, lcfg)));
         }
     }
 

@@ -53,26 +53,26 @@ public sealed class FileSink : ILogSink
     public FileSink(IReadOnlyFileConfig config)
     {
         // Take a copy
-        Config = new FileConfig(config);
-        DirectoryName = FileSinkWriter.Assert(Config);
+        SinkConfig = new FileConfig(config);
+        DirectoryName = FileSinkWriter.Assert(SinkConfig);
 
-        if (Config.FilePattern.Contains(IReadOnlyFileConfig.ThreadTag))
+        if (SinkConfig.FilePattern.Contains(IReadOnlyFileConfig.ThreadTag))
         {
-            _local = new(() => {return new FileSinkWriter(Config);}, true);
+            _local = new(() => {return new FileSinkWriter(SinkConfig);}, true);
         }
     }
 
     /// <summary>
     /// Gets a clone of the configuration instance supplied on construction.
     /// </summary>
-    public IReadOnlyFileConfig Config { get; }
+    public IReadOnlyFileConfig SinkConfig { get; }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Config"/>.
+    /// Implements <see cref="ILogSink.SinkConfig"/>.
     /// </summary>
-    IReadOnlySinkConfig ILogSink.Config
+    IReadOnlySinkConfig ILogSink.SinkConfig
     {
-        get { return Config; }
+        get { return SinkConfig; }
     }
 
     /// <summary>
@@ -83,10 +83,10 @@ public sealed class FileSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage msg, IReadOnlyLoggerConfig config)
+    public void Write(LogMessage msg, IReadOnlyLoggerConfig lcfg)
     {
-        var opts = new MessageStringOptions(Config, config);
-        opts.IndentClean = Config.IndentClean;
+        var opts = new MessageStringOptions(SinkConfig, lcfg);
+        opts.IndentClean = SinkConfig.IndentClean;
 
         var text = msg.ToString(opts);
 
@@ -98,7 +98,7 @@ public sealed class FileSink : ILogSink
         {
             lock (_syncObj)
             {
-                _global ??= new FileSinkWriter(Config);
+                _global ??= new FileSinkWriter(SinkConfig);
                 _global.Write(text);
             }
         }
