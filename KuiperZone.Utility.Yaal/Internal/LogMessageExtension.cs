@@ -28,6 +28,7 @@ namespace KuiperZone.Utility.Yaal.Internal;
 /// </summary>
 public static class MessageExtension
 {
+    private const int MaxMsgIdLength = 32;
     private const string Time5424 = "yyyy-MM-ddTHH:mm:ss.ffffffK";
     private const string TimeBsd = "MMM dd HH:mm:ss";
     private const string TimeText = "MMM dd HH:mm:ss.ffffff";
@@ -47,7 +48,7 @@ public static class MessageExtension
             case LogFormat.Bsd:
                 AppendBsd(buffer, msg, opts);
                 break;
-            case LogFormat.Clean:
+            case LogFormat.General:
                 AppendClean(buffer, msg, opts);
                 break;
             default:
@@ -100,7 +101,7 @@ public static class MessageExtension
         buffer.Append(ValueOrNil(lo.AppPid));
 
         buffer.Append(' ');
-        buffer.Append(ValueOrNil(msg.MsgId));
+        buffer.Append(ValueOrNil(LogUtil.EnsureId(msg.MsgId, MaxMsgIdLength)));
 
         buffer.Append(' ');
         bool hasData = false;
@@ -198,10 +199,12 @@ public static class MessageExtension
         int pad = Math.Clamp(opts.IndentCount - buffer.Length, 0, 1000);
         buffer.Append(' ', pad);
 
-        if (!string.IsNullOrEmpty(msg.MsgId))
+        var msgId = LogUtil.EnsureId(msg.MsgId, MaxMsgIdLength);
+
+        if (!string.IsNullOrEmpty(msgId))
         {
             buffer.Append('[');
-            buffer.Append(msg.MsgId);
+            buffer.Append(msgId);
             buffer.Append("] ");
         }
 

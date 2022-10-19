@@ -44,7 +44,7 @@ public sealed class ConsoleSinkOptions : SinkOptions
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public ConsoleSinkOptions(bool useColor, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+    public ConsoleSinkOptions(bool useColor, LogFormat format = LogFormat.General, SeverityLevel threshold = SeverityLevel.Lowest)
     {
         Format = format;
         Threshold = threshold;

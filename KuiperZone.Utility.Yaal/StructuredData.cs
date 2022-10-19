@@ -35,13 +35,6 @@ public sealed class StructuredData : SdDictionary<SdElement>
     /// </summary>
     public override void AppendTo(StringBuilder buffer, IReadOnlyLoggerOptions opts)
     {
-        if (IsEmpty)
-        {
-            // NIL
-            buffer.Append('-');
-            return;
-        }
-
         base.AppendTo(buffer, opts);
     }
 

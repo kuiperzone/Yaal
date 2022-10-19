@@ -44,7 +44,7 @@ public sealed class BufferSinkOptions : SinkOptions
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public BufferSinkOptions(int capacity, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+    public BufferSinkOptions(int capacity, LogFormat format = LogFormat.General, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
         Capacity = capacity;

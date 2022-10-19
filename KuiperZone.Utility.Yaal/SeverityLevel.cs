@@ -61,7 +61,7 @@ public enum SeverityLevel
 	/// <summary>
     /// Informational: informational messages.
     /// </summary>
-	Informational = 6,
+	Info = 6,
 
 	/// <summary>
     /// Debug: debug-level messages. Lowest severity.
@@ -87,7 +87,7 @@ public enum SeverityLevel
 	DebugL3,
 
 	/// <summary>
-	/// Lowest priority level for setting <see cref="Logger.Threshold"/> and <see cref="IReadOnlySinkConfig.Threshold"/>.
+	/// Lowest priority level for setting <see cref="Logger.Threshold"/> and <see cref="SinkOptions.Threshold"/>.
     /// This level allows all message priorities except <see cref="Disabled"/>. Do not use with
     /// <see cref="LogMessage.Severity"/>.
     /// </summary>
@@ -127,7 +127,7 @@ public static class SeverityLevelExtension
             case SeverityLevel.Error: return ConsoleColor.Red;
             case SeverityLevel.Warning: return ConsoleColor.DarkYellow;
             case SeverityLevel.Notice: return ConsoleColor.DarkGreen;
-            case SeverityLevel.Informational: return ConsoleColor.DarkCyan;
+            case SeverityLevel.Info: return ConsoleColor.DarkCyan;
             default: return ConsoleColor.DarkGray;
         }
     }
@@ -147,7 +147,7 @@ public static class SeverityLevelExtension
             case SeverityLevel.Error: return "err";
             case SeverityLevel.Warning: return "warning";
             case SeverityLevel.Notice: return "notice";
-            case SeverityLevel.Informational: return "info";
+            case SeverityLevel.Info: return "info";
             default: return "debug";
         }
     }

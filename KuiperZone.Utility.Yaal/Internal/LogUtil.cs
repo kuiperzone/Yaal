@@ -114,12 +114,28 @@ public static class LogUtil
     }
 
     /// <summary>
-    /// Overload. Equivalent to: Escape(obj?.ToString(), false, chars).
+    /// Unlike <see cref="AssertId"/>, the call does not throw. The length exceeds the maximum, it is
+    /// truncated. If it contains invalid characters, it returns an empty string.
     /// </summary>
-    public static string EscapeRemoval(object? obj, string? chars = null)
+    public static string EnsureId(string? id, int maxLength = int.MaxValue)
     {
-        return Escape(obj?.ToString(), false, chars);
-    }
+        id = id?.Trim();
+
+        if (!string.IsNullOrEmpty(id))
+        {
+            if (id.Length > maxLength)
+            {
+                id = id.Substring(maxLength);
+            }
+
+            if (LogUtil.IsValidId(id, maxLength))
+            {
+                return id;
+            }
+        }
+
+        return "";
+   }
 
     /// <summary>
     /// Overload. Equivalent to: Escape(str, false, chars).

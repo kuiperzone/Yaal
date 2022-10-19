@@ -75,14 +75,15 @@ public class LogMessage
     public DateTime Time { get; set; } = DateTime.Now;
 
     /// <summary>
-    /// Gets or sets the MSG-ID.
+    /// Gets or sets the MSG-ID. The value is limited to ASCII and 32 characters.
+    /// The value is not included in the BSD format.
     /// </summary>
     public string? MsgId { get; set; }
 
     /// <summary>
     /// Gets or sets the severity level.
     /// </summary>
-    public SeverityLevel Severity { get; set; } = SeverityLevel.Informational;
+    public SeverityLevel Severity { get; set; } = SeverityLevel.Info;
 
     /// <summary>
     /// Gets or sets the message text.
@@ -101,11 +102,11 @@ public class LogMessage
     public StructuredData Data { get; } = new();
 
     /// <summary>
-    /// Overrides and equivalent to: ToString(<see cref="LogFormat.Clean"/>).
+    /// Overrides and equivalent to: ToString(<see cref="LogFormat.General"/>).
     /// </summary>
     public override string ToString()
     {
-        return this.ToString(new MessageParams());
+        return ToString(LogFormat.General);
     }
 
     /// <summary>
@@ -113,6 +114,6 @@ public class LogMessage
     /// </summary>
     public string ToString(LogFormat format)
     {
-        return this.ToString(new MessageParams());
+        return this.ToString(new MessageParams(format));
     }
 }

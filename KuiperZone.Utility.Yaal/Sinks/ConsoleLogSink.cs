@@ -80,13 +80,6 @@ public sealed class ConsoleLogSink : ILogSink
         }
     }
 
-    /// <summary>
-    /// Implements.
-    /// </summary>
-    public void Dispose()
-    {
-    }
-
     private ConsoleColor GetForegroundColor()
     {
         try

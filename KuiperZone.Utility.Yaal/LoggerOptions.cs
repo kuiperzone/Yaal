@@ -61,7 +61,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
         AppPid = AppInfo.Pid;
 
         // Truncate at last "." if too long
-        AppName = EnsureId(AppInfo.AppName, AppNameMaxLength, true);
+        AppName = LogUtil.EnsureId(AppInfo.AppName, AppNameMaxLength);
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     public string HostName
     {
         get { return _hostName; }
-        set { _hostName = EnsureId(value, HostNameMaxLength); }
+        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength); }
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     public string AppName
     {
         get { return _appName; }
-        set { _appName = EnsureId(value, AppNameMaxLength); }
+        set { _appName = LogUtil.EnsureId(value, AppNameMaxLength); }
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     public string AppPid
     {
         get { return _procId; }
-        set { _procId = EnsureId(value, PidMaxLength); }
+        set { _procId = LogUtil.EnsureId(value, PidMaxLength); }
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
 	public string DebugId
     {
         get { return _debugId; }
-        set { _debugId = EnsureId(value, HostNameMaxLength); }
+        set { _debugId = LogUtil.EnsureId(value, HostNameMaxLength); }
     }
 
     /// <summary>
@@ -132,38 +132,4 @@ public class LoggerOptions : IReadOnlyLoggerOptions
         return new LoggerOptions(this);
     }
 
-    private static string EnsureId(string id, int maxLength, bool assembly = false)
-    {
-        id = id.Trim();
-
-        if (string.IsNullOrEmpty(id))
-        {
-            return "";
-        }
-
-        if (id.Length > maxLength)
-        {
-            if (assembly)
-            {
-                int pos = id.LastIndexOf('.');
-
-                if (pos > 0)
-                {
-                    id = id.Substring(pos + 1);
-                }
-            }
-
-            if (id.Length > maxLength)
-            {
-                id = id.Substring(AppNameMaxLength);
-            }
-        }
-
-        if (LogUtil.IsValidId(id, maxLength))
-        {
-            return id;
-        }
-
-        return "";
-   }
 }

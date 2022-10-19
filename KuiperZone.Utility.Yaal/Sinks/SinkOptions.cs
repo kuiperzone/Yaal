@@ -54,9 +54,9 @@ public class SinkOptions
     /// <summary>
     /// Gets or sets the output format. The default value shall depend on the sink kind. For example,
     /// the default for <see cref="SyslogLogSink"/> shall be <see cref="LogFormat.Rfc5424"/>.
-    /// For others, it may typically be <see cref="LogFormat.Clean"/>.
+    /// For others, it may typically be <see cref="LogFormat.General"/>.
     /// </summary>
-    public LogFormat Format { get; set; } = LogFormat.Clean;
+    public LogFormat Format { get; set; } = LogFormat.General;
 
     /// <summary>
     /// Gets or sets the threshold severity for the sink. Setting this value will prevent the sink from

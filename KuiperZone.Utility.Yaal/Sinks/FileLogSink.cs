@@ -98,43 +98,4 @@ public sealed class FileLogSink : ILogSink
             }
         }
     }
-
-    /// <summary>
-    /// Implements.
-    /// </summary>
-    public void Dispose()
-    {
-        lock (_syncObj)
-        {
-            if (!_disposed)
-            {
-                _disposed = true;
-                var hold = _local?.Values;
-
-                if (hold != null)
-                {
-                    foreach (var item in hold)
-                    {
-                        DisposeOf(item);
-                    }
-                }
-
-                DisposeOf(_local);
-
-                DisposeOf(_global);
-            }
-        }
-
-    }
-
-    private static void DisposeOf(IDisposable? obj)
-    {
-        try
-        {
-            obj?.Dispose();
-        }
-        catch
-        {
-        }
-    }
 }

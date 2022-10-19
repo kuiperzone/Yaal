@@ -18,20 +18,25 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Xunit;
-using Xunit.Abstractions;
 
-namespace KuiperZone.Utility.Yaal.Sinks.Test;
+namespace KuiperZone.Utility.Yaal.Test;
 
-public class LocalSyslogSinkTest
+public class LogMessageTest
 {
-    private readonly ITestOutputHelper Helper;
-
-    public LocalSyslogSinkTest(ITestOutputHelper helper)
+    [Fact]
+    public void ToString_AllPropertiesIncStructuredData()
     {
-        Helper = helper;
+        var msg = new LogMessage();
+        Assert.Equal(SeverityLevel.Info, msg.Severity);
+
+        msg.Severity = SeverityLevel.Critical;
+        msg.MsgId = "MsgId7653";
+        msg.Text = "Text84763";
+
+        var sd = new StructuredData();
+        sd.Add("e-id", new SdElement());
+
     }
 
 }

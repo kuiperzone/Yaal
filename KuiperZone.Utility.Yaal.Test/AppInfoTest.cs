@@ -18,18 +18,24 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-namespace KuiperZone.Utility.Yaal.Sinks;
+using System;
+using Xunit;
 
-/// <summary>
-/// Interface for a loging sink. Implementations should be thread instance safe. Note. Implementations
-/// are not expected to implement <see cref="IDisposable"/>, as creation is to be infrequement and
-/// instances long-lived. We leave it to finalizers to clean up, if ever necessary.
-/// </summary>
-public interface ILogSink
+namespace KuiperZone.Utility.Yaal.Test;
+
+public class AppInfoTest
 {
-    /// <summary>
-    /// Writes the message. The method should do nothing unless the <see cref="LogMessage.Severity"/>
-    /// is equal or higher in priority than <see cref="SinkOptions.Threshold"/>.
-    /// </summary>
-    void Write(LogMessage msg, IReadOnlyLoggerOptions opts);
+    [Fact]
+    public void Properties_NotEmpty()
+    {
+        // Output
+        Console.WriteLine(AppInfo.ToString(true));
+
+        Assert.NotEmpty(AppInfo.HostName);
+        Assert.NotEmpty(AppInfo.AppName);
+        Assert.NotEmpty(AppInfo.AssemblyName);
+        Assert.NotEmpty(AppInfo.Version.ToString());
+        Assert.NotEmpty(AppInfo.Pid);
+    }
+
 }

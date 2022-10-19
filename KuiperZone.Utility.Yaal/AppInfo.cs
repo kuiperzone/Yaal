@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Reflection;
+using System.Text;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -61,12 +62,6 @@ public static class AppInfo
                         break;
                     }
                 }
-
-                var info = FileVersionInfo.GetVersionInfo(ea.Location);
-                ProductName = info.ProductName ?? AppName;
-                Company = info.CompanyName ?? "";
-                Copyright = info.LegalCopyright ?? "";
-                FileName = info.FileName;
             }
         }
         catch
@@ -76,10 +71,6 @@ public static class AppInfo
         AssemblyName ??= "";
         AppName ??= "";
         Version ??= new Version();
-        ProductName ??= "";
-        Company ??= "";
-        Copyright ??= "";
-        FileName ??= "";
     }
 
     /// <summary>
@@ -88,19 +79,9 @@ public static class AppInfo
     public static string HostName { get; }
 
     /// <summary>
-    /// Gets an application process-id.
-    /// </summary>
-    public static string Pid { get; }
-
-    /// <summary>
     /// Gets the application name, being the last element in <see cref="AssemblyName"/>.
     /// </summary>
     public static string AppName { get; }
-
-    /// <summary>
-    /// Gets the entry assembly name.
-    /// </summary>
-    public static string AssemblyName { get; }
 
     /// <summary>
     /// Gets the entry assembly version.
@@ -108,24 +89,14 @@ public static class AppInfo
     public static Version Version { get; }
 
     /// <summary>
-    /// Gets the application ProductName, falling back to <see cref="AppName"/> if not defined.
+    /// Gets the entry assembly name.
     /// </summary>
-    public static string ProductName { get; }
+    public static string AssemblyName { get; }
 
     /// <summary>
-    /// Gets the CompanyName assigned to the entry assembly.
+    /// Gets an application process-id.
     /// </summary>
-    public static string Company { get; }
-
-    /// <summary>
-    /// Gets the LegalCopyright string assigned to the entry assembly.
-    /// </summary>
-    public static string Copyright { get; }
-
-    /// <summary>
-    /// Gets entry assembly FileName.
-    /// </summary>
-    public static string FileName { get; }
+    public static string Pid { get; }
 
     /// <summary>
     /// Gets whether the entry assembly has debug JIT tracking enabled.
@@ -136,6 +107,54 @@ public static class AppInfo
     /// Gets whether the entry assembly has JIT optimization enabled.
     /// </summary>
     public static bool IsOptimized { get; }
+
+    public static string ToString(bool verbose)
+    {
+        var buffer = new StringBuilder(512);
+
+        if (verbose)
+        {
+            buffer.Append(nameof(HostName));
+            buffer.Append('=');
+            buffer.Append(HostName);
+            buffer.Append(", ");
+        }
+
+        buffer.Append(nameof(AppName));
+        buffer.Append('=');
+        buffer.Append(AppName);
+        buffer.Append(", ");
+
+        buffer.Append(nameof(Version));
+        buffer.Append('=');
+        buffer.Append(Version);
+        buffer.Append(", ");
+
+        buffer.Append(nameof(AssemblyName));
+        buffer.Append('=');
+        buffer.Append(AssemblyName);
+        buffer.Append(", ");
+
+        buffer.Append(nameof(Pid));
+        buffer.Append('=');
+        buffer.Append(Pid);
+        buffer.Append(", ");
+
+        if (verbose)
+        {
+            buffer.Append(nameof(IsDebug));
+            buffer.Append('=');
+            buffer.Append(IsDebug);
+            buffer.Append(", ");
+
+            buffer.Append(nameof(IsOptimized));
+            buffer.Append('=');
+            buffer.Append(IsOptimized);
+            buffer.Append(", ");
+        }
+
+        return buffer.ToString();
+    }
 
     private static string GetProcId()
     {

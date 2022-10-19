@@ -24,7 +24,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Construction options for the <see cref="SyslogLogSink"/> class. Implements
-/// <see cref="IReadOnlySyslogSinkOptions"/> and provides setters.
+/// <see cref="SyslogSinkOptions"/> and provides setters.
 /// </summary>
 public sealed class SyslogSinkOptions : SinkOptions
 {
@@ -56,7 +56,7 @@ public sealed class SyslogSinkOptions : SinkOptions
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return LogFormat.Clean;
+            return LogFormat.General;
         }
 
         return LogFormat.Rfc5424;

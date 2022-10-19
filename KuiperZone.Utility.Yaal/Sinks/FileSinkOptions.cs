@@ -106,7 +106,7 @@ public sealed class FileSinkOptions : SinkOptions
     /// <summary>
     /// Constructor variant.
     /// </summary>
-    public FileSinkOptions(string directory, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+    public FileSinkOptions(string directory, LogFormat format = LogFormat.General, SeverityLevel threshold = SeverityLevel.Lowest)
         : base(format, threshold)
     {
         DirectoryPattern = directory;
@@ -150,9 +150,9 @@ public sealed class FileSinkOptions : SinkOptions
     public bool CreateDirectory { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the number of pad (indent) characters in the <see cref="LogFormat.Clean"/> and
+    /// Gets or sets the number of pad (indent) characters in the <see cref="LogFormat.General"/> and
     /// <see cref="LogFormat.TextOnly"/> formats (it does nothing in other formats). This setting is included
-    /// specifically for use with the <see cref="LogFormat.Clean"/> format in conjunction with
+    /// specifically for use with the <see cref="LogFormat.General"/> format in conjunction with
     /// <see cref="Logger.Debug"/> statements. In this scenario, it serves as padding between leading stack trace
     /// information (method name and line) and the message content. This makes a log files easier to read, as the
     /// start of message contents are aligned. Typically, it should be set to a large value of 80 to 100 characters

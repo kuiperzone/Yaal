@@ -25,21 +25,22 @@ namespace KuiperZone.Utility.Yaal;
 /// </summary>
 public enum LogFormat
 {
+    /// <summary>
+    /// A format for general human readability. The output leads with the message text
+    /// or debug stack trace information.
+    /// </summary>
+    General = 0,
+
 	/// <summary>
     /// RFC 5424 syslog format.
     /// </summary>
-	Rfc5424 = 0,
+	Rfc5424,
 
 	/// <summary>
     /// Legacy BSD syslog format (RFC 3164). Any debug stack trace information
     /// is appended after the message.
     /// </summary>
 	Bsd,
-
-    /// <summary>
-    /// The output leads with the message text or debug stack trace information.
-    /// </summary>
-    Clean,
 
 	/// <summary>
     /// Only the message text is written. All other information,

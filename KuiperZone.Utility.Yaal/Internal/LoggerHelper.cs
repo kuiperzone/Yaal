@@ -82,6 +82,11 @@ internal class LoggerHelper
         get { return v_error; }
     }
 
+    public void ResetError()
+    {
+        v_error = null;
+    }
+
     public bool Allow(LogMessage msg)
     {
         return Allow(msg.MsgId, msg.Severity);
@@ -105,11 +110,6 @@ internal class LoggerHelper
         }
 
         return false;
-    }
-
-    public void ClearError()
-    {
-        v_error = null;
     }
 
     public LoggerHelper NewOptions(IReadOnlyLoggerOptions opts)
@@ -144,17 +144,6 @@ internal class LoggerHelper
             {
                 v_error ??= e;
             }
-        }
-    }
-
-    /// <summary>
-    /// Disposes.
-    /// </summary>
-    public void Dispose()
-    {
-        foreach (var item in Sinks)
-        {
-            item.Dispose();
         }
     }
 

@@ -95,20 +95,6 @@ public sealed class SyslogLogSink : ILogSink
         }
     }
 
-    /// <summary>
-    /// Implements.
-    /// </summary>
-    public void Dispose()
-    {
-        try
-        {
-            _winLog?.Dispose();
-        }
-        catch
-        {
-        }
-    }
-
     private static bool ExecLog(string args, bool wait = false)
     {
         var info = new ProcessStartInfo

@@ -31,8 +31,8 @@ public sealed class MessageParams : SinkOptions
     /// <summary>
     /// Default.
     /// </summary>
-    public MessageParams()
-        : base(new SinkOptions())
+    public MessageParams(LogFormat format)
+        : base(new SinkOptions(format))
     {
         LoggerOptions = new LoggerOptions();
     }

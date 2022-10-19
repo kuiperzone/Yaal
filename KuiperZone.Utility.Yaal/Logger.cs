@@ -29,14 +29,13 @@ namespace KuiperZone.Utility.Yaal;
 /// in RFC 5424 format on Linux, and EventLog on Windows. An instance is thread-safe, and the class
 /// provides a global singleton.
 /// </summary>
-public sealed class Logger : IDisposable
+public sealed class Logger
 {
     // Assumed to be faster than MethodBase.GetCurrentMethod()
     private readonly static string DebugMethodName = typeof(Logger).FullName + "." + nameof(Debug);
     private readonly static string DebugIfMethodName = typeof(Logger).FullName + "." + nameof(DebugIf);
 
     private volatile LoggerHelper v_helper;
-    private volatile bool v_disposed;
 
     /// <summary>
     /// Default constructor. The <see cref="Threshold"/> property will be initialised to
@@ -90,16 +89,7 @@ public sealed class Logger : IDisposable
     public IReadOnlyCollection<ILogSink> Sinks
     {
         get { return v_helper.Sinks; }
-
-        set
-        {
-            if (!v_disposed)
-            {
-                var hold = v_helper;
-                v_helper = v_helper.NewSinks(value);
-                hold.Dispose();
-            }
-        }
+        set { v_helper = v_helper.NewSinks(value); }
     }
 
     /// <summary>
@@ -116,20 +106,13 @@ public sealed class Logger : IDisposable
     /// <summary>
     /// Gets or sets the logger severity threshold. If set to <see cref="SeverityLevel.Critical"/>, for
     /// example, only messages with this severity or higher will be logged. Those with lower priorities,
-    /// such as <see cref="SeverityLevel.Informational"/> will be ignored. Setting <see cref="Threshold"/>
+    /// such as <see cref="SeverityLevel.Info"/> will be ignored. Setting <see cref="Threshold"/>
     /// to <see cref="SeverityLevel.Disabled"/> will suspend all logging.
     /// </summary>
     public SeverityLevel Threshold
     {
         get { return v_helper.Threshold; }
-
-        set
-        {
-            if (!v_disposed)
-            {
-                v_helper = v_helper.NewThreshold(value);
-            }
-        }
+        set { v_helper = v_helper.NewThreshold(value); }
     }
 
     /// <summary>
@@ -141,6 +124,24 @@ public sealed class Logger : IDisposable
     {
         get { return v_helper.Exclusions; }
         set { v_helper = v_helper.NewExclusions(value); }
+    }
+
+    /// <summary>
+    /// Gets the first Exception thrown internally. The approach of this <see cref="Logger"/> instance
+    /// is not to throw exceptions, and this method is provided as means of diagnoising any problem that
+    /// may be encountered logging data. The result is null if no internal error has been thrown (nominal case).
+    /// </summary>
+    public Exception? Error
+    {
+        get { return v_helper.Error; }
+    }
+
+    /// <summary>
+    /// Sets <see cref="Error"/> to null.
+    /// </summary>
+    public void ResetError()
+    {
+        v_helper.ResetError();
     }
 
     /// <summary>
@@ -169,12 +170,12 @@ public sealed class Logger : IDisposable
     }
 
     /// <summary>
-    /// Writes the message text to <see cref="Sinks"/> with <see cref="SeverityLevel.Informational"/>
+    /// Writes the message text to <see cref="Sinks"/> with <see cref="SeverityLevel.Info"/>
     /// severity provided this equals or exceeds <see cref="Threshold"/> in priority.
     /// </summary>
     public void Write(string? text)
     {
-        const SeverityLevel MsgSeverity = SeverityLevel.Informational;
+        const SeverityLevel MsgSeverity = SeverityLevel.Info;
 
         var temp = v_helper;
 
@@ -279,7 +280,7 @@ public sealed class Logger : IDisposable
     /// </summary>
     public void WriteIf(bool condition, string? text)
     {
-        const SeverityLevel MsgSeverity = SeverityLevel.Informational;
+        const SeverityLevel MsgSeverity = SeverityLevel.Info;
 
         var temp = v_helper;
 
@@ -516,21 +517,6 @@ public sealed class Logger : IDisposable
             msg.Debug = new(DebugIfMethodName);
             temp.Write(msg);
        }
-    }
-
-    /// <summary>
-    /// Implements disposal.
-    /// </summary>
-    public void Dispose()
-    {
-        if (!v_disposed)
-        {
-            v_disposed = true;
-
-            var hold = v_helper;
-            v_helper = v_helper.NewSinks(Array.Empty<ILogSink>()).NewThreshold(SeverityLevel.Disabled);
-            hold.Dispose();
-        }
     }
 
 }

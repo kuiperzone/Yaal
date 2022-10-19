@@ -28,21 +28,21 @@ public interface IReadOnlyLoggerOptions
     /// <summary>
     /// Gets the local host name. It will be set on construction to a default value.
     /// If not empty, all characters are to be within the printable ASCII range, and must not
-    /// contain: '=', SP, ']', '"'
+    /// contain: '=', SP, ']', '"'. The value may be truncated if too long.
     /// </summary>
     string HostName { get; }
 
     /// <summary>
     /// Gets the application name. It will be set on construction to a default value.
     /// If not empty, all characters are to be within the printable ASCII range, and must not
-    /// contain: '=', SP, ']', '"'
+    /// contain: '=', SP, ']', '"'. The value may be truncated if too long.
     /// </summary>
     string AppName { get; }
 
     /// <summary>
     /// Gets the application PID. It will be set on construction to a default value.
     /// If not empty, all characters are to be within the printable ASCII range, and must not
-    /// contain: '=', SP, ']', '"'
+    /// contain: '=', SP, ']', '"'. The value may be truncated if too long.
     /// </summary>
     string AppPid { get; }
 

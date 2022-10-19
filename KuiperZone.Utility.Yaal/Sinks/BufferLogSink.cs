@@ -110,10 +110,4 @@ public sealed class BufferLogSink : ILogSink
         }
     }
 
-    /// <summary>
-    /// Implements.
-    /// </summary>
-    public void Dispose()
-    {
-    }
 }
