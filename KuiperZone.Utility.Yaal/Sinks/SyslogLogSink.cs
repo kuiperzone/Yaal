@@ -95,6 +95,20 @@ public sealed class SyslogLogSink : ILogSink
         }
     }
 
+    /// <summary>
+    /// Implements.
+    /// </summary>
+    public void Dispose()
+    {
+        try
+        {
+            _winLog?.Dispose();
+        }
+        catch
+        {
+        }
+    }
+
     private static bool ExecLog(string args, bool wait = false)
     {
         var info = new ProcessStartInfo
@@ -148,7 +162,7 @@ public sealed class SyslogLogSink : ILogSink
     public void WriteLinux(LogMessage msg, IReadOnlyLoggerOptions opts)
     {
         // It seems that we need to provide priority as an option for syslog
-        var mo = new MessageStringOptions(_options, opts);
+        var mo = new MessageParams(_options, opts);
         mo.IncludePriority = false;
 
         var text = msg.ToString(mo);
@@ -170,7 +184,7 @@ public sealed class SyslogLogSink : ILogSink
 
     public void WriteWindows(LogMessage msg, IReadOnlyLoggerOptions opts)
     {
-        var mo = new MessageStringOptions(_options, opts);
+        var mo = new MessageParams(_options, opts);
         mo.IncludePriority = true;
 
         var text = msg.ToString(mo);

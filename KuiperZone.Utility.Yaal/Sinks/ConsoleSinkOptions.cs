@@ -42,11 +42,27 @@ public sealed class ConsoleSinkOptions : SinkOptions
     }
 
     /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public ConsoleSinkOptions(bool useColor, LogFormat format = LogFormat.Clean, SeverityLevel threshold = SeverityLevel.Lowest)
+    {
+        Format = format;
+        Threshold = threshold;
+        UseColor = useColor;
+    }
+
+    /// <summary>
     /// Copy constructor.
     /// </summary>
     public ConsoleSinkOptions(ConsoleSinkOptions other)
         : base(other)
     {
+        UseColor = other.UseColor;
     }
 
+    /// <summary>
+    /// Gets or sets whether log messages are to be written in a foreground color which matches
+    /// their <see cref="SeverityLevel"/> value. It has no effect where not supported.
+    /// </summary>
+    public bool UseColor { get; set; } = true;
 }

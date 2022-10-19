@@ -27,7 +27,9 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// </summary>
 public sealed class ConsoleLogSink : ILogSink
 {
+    private readonly object _syncObj = new();
     private readonly ConsoleSinkOptions _options;
+    private readonly ConsoleColor _initColor = ConsoleColor.Gray;
 
     /// <summary>
     /// Default constructor.
@@ -35,6 +37,7 @@ public sealed class ConsoleLogSink : ILogSink
     public ConsoleLogSink()
     {
         _options = new ConsoleSinkOptions();
+        _initColor = GetForegroundColor();
     }
 
     /// <summary>
@@ -44,6 +47,7 @@ public sealed class ConsoleLogSink : ILogSink
     {
         // Take a copy
         _options = new ConsoleSinkOptions(opts);
+        _initColor = GetForegroundColor();
     }
 
     /// <summary>
@@ -53,7 +57,60 @@ public sealed class ConsoleLogSink : ILogSink
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
-            Console.WriteLine(msg.ToString(new MessageStringOptions(_options, opts)));
+            if (_options.UseColor)
+            {
+                // Must lock, other race on color setting
+                lock (_syncObj)
+                {
+                    try
+                    {
+                        SetForegroundColor(msg.Severity.ToColor());
+                        Console.WriteLine(msg.ToString(new MessageParams(_options, opts)));
+                    }
+                    finally
+                    {
+                        SetForegroundColor(_initColor);
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine(msg.ToString(new MessageParams(_options, opts)));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Implements.
+    /// </summary>
+    public void Dispose()
+    {
+    }
+
+    private ConsoleColor GetForegroundColor()
+    {
+        try
+        {
+            return Console.ForegroundColor;
+        }
+        catch
+        {
+            // Unset
+            _options.UseColor = false;
+            return ConsoleColor.Gray;;
+        }
+    }
+
+    private void SetForegroundColor(ConsoleColor color)
+    {
+        try
+        {
+            Console.ForegroundColor = color;
+        }
+        catch
+        {
+            // Don't do it again
+            _options.UseColor = false;
         }
     }
 

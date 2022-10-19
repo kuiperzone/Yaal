@@ -31,6 +31,7 @@ public sealed class FileLogSink : ILogSink
     private readonly ThreadLocal<FileSinkWriter>? _local;
     private readonly FileSinkOptions _options;
     private FileSinkWriter? _global;
+    private bool _disposed;
 
     /// <summary>
     /// Default constructor.
@@ -47,11 +48,19 @@ public sealed class FileLogSink : ILogSink
     {
         // Take a copy
         _options = new FileSinkOptions(opts);
-        DirectoryName = FileSinkWriter.Assert(_options);
+        DirectoryName = _options.GetDirectoryName();
+
+        // Assert no throw
+        _options.GetFileName(0);
 
         if (_options.FilePattern.Contains(FileSinkOptions.ThreadTag))
         {
             _local = new(() => {return new FileSinkWriter(_options);}, true);
+        }
+
+        if (_options.RemoveLogsOnStart && Directory.Exists(DirectoryName))
+        {
+            FileSinkWriter.RemoveStalefiles(DirectoryName);
         }
     }
 
@@ -67,8 +76,8 @@ public sealed class FileLogSink : ILogSink
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
-            var mo = new MessageStringOptions(_options, opts);
-            mo.IndentClean = _options.IndentClean;
+            var mo = new MessageParams(_options, opts);
+            mo.IndentCount = _options.IndentCount;
 
             var text = msg.ToString(mo);
 
@@ -80,11 +89,52 @@ public sealed class FileLogSink : ILogSink
             {
                 lock (_syncObj)
                 {
-                    _global ??= new FileSinkWriter(_options);
-                    _global.Write(text);
+                    if (!_disposed)
+                    {
+                        _global ??= new FileSinkWriter(_options);
+                        _global.Write(text);
+                    }
                 }
             }
         }
     }
 
+    /// <summary>
+    /// Implements.
+    /// </summary>
+    public void Dispose()
+    {
+        lock (_syncObj)
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                var hold = _local?.Values;
+
+                if (hold != null)
+                {
+                    foreach (var item in hold)
+                    {
+                        DisposeOf(item);
+                    }
+                }
+
+                DisposeOf(_local);
+
+                DisposeOf(_global);
+            }
+        }
+
+    }
+
+    private static void DisposeOf(IDisposable? obj)
+    {
+        try
+        {
+            obj?.Dispose();
+        }
+        catch
+        {
+        }
+    }
 }

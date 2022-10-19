@@ -26,12 +26,12 @@ namespace KuiperZone.Utility.Yaal.Internal;
 /// Used to provide options to <see cref="LogMessage.ToString"/>. It inherits from
 /// <see cref="SinkOptions"/> because we need a way to get these values to the ToString() method.
 /// </summary>
-public sealed class MessageStringOptions : SinkOptions
+public sealed class MessageParams : SinkOptions
 {
     /// <summary>
     /// Default.
     /// </summary>
-    public MessageStringOptions()
+    public MessageParams()
         : base(new SinkOptions())
     {
         LoggerOptions = new LoggerOptions();
@@ -40,7 +40,7 @@ public sealed class MessageStringOptions : SinkOptions
     /// <summary>
     /// Constructor.
     /// </summary>
-    public MessageStringOptions(SinkOptions sink, IReadOnlyLoggerOptions logger)
+    public MessageParams(SinkOptions sink, IReadOnlyLoggerOptions logger)
         : base(sink)
     {
         LoggerOptions = logger;
@@ -58,7 +58,7 @@ public sealed class MessageStringOptions : SinkOptions
     public bool IncludePriority { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets indent count for <see cref="LogFormat.Clean"/> format.
+    /// Gets or sets indent count.
     /// </summary>
-    public int IndentClean { get; set; }
+    public int IndentCount { get; set; }
 }

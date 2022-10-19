@@ -136,14 +136,25 @@ internal class LoggerHelper
     {
         foreach (var item in Sinks)
         {
-                try
-                {
-                    item.Write(msg, Options);
-                }
-                catch (Exception e)
-                {
-                    v_error ??= e;
-                }
+            try
+            {
+                item.Write(msg, Options);
+            }
+            catch (Exception e)
+            {
+                v_error ??= e;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Disposes.
+    /// </summary>
+    public void Dispose()
+    {
+        foreach (var item in Sinks)
+        {
+            item.Dispose();
         }
     }
 

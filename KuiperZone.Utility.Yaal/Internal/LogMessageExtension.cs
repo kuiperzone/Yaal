@@ -33,9 +33,9 @@ public static class MessageExtension
     private const string TimeText = "MMM dd HH:mm:ss.ffffff";
 
     /// <summary>
-    /// Returns a string output according to options.
+    /// Returns a string output according to parameters.
     /// </summary>
-    public static string ToString(this LogMessage msg, MessageStringOptions opts)
+    public static string ToString(this LogMessage msg, MessageParams opts)
     {
         var buffer = new StringBuilder(1024);
 
@@ -51,6 +51,8 @@ public static class MessageExtension
                 AppendClean(buffer, msg, opts);
                 break;
             default:
+                int pad = Math.Clamp(opts.IndentCount - buffer.Length, 0, 1000);
+                buffer.Append(' ', pad);
                 buffer.Append(msg.Text);
                 break;
         }
@@ -73,7 +75,7 @@ public static class MessageExtension
         return string.IsNullOrEmpty(value) ? "-" : value;
     }
 
-    private static void AppendRfc5424(StringBuilder buffer, LogMessage msg, MessageStringOptions opts)
+    private static void AppendRfc5424(StringBuilder buffer, LogMessage msg, MessageParams opts)
     {
         var lo = opts.LoggerOptions;
 
@@ -140,7 +142,7 @@ public static class MessageExtension
         AppendMessage(buffer, msg, opts);
     }
 
-    private static void AppendBsd(StringBuilder buffer, LogMessage msg, MessageStringOptions opts)
+    private static void AppendBsd(StringBuilder buffer, LogMessage msg, MessageParams opts)
     {
         var lo = opts.LoggerOptions;
 
@@ -184,7 +186,7 @@ public static class MessageExtension
         }
     }
 
-    private static void AppendClean(StringBuilder buffer, LogMessage msg, MessageStringOptions opts)
+    private static void AppendClean(StringBuilder buffer, LogMessage msg, MessageParams opts)
     {
         if (msg.Debug?.Function != null)
         {
@@ -193,7 +195,7 @@ public static class MessageExtension
             buffer.Append(" : ");
         }
 
-        int pad = Math.Clamp(opts.IndentClean - buffer.Length, 0, 1000);
+        int pad = Math.Clamp(opts.IndentCount - buffer.Length, 0, 1000);
         buffer.Append(' ', pad);
 
         if (!string.IsNullOrEmpty(msg.MsgId))
@@ -209,7 +211,7 @@ public static class MessageExtension
         buffer.Append(ToTimestamp(msg, opts));
     }
 
-    private static string ToTimestamp(LogMessage msg, MessageStringOptions opts)
+    private static string ToTimestamp(LogMessage msg, MessageParams opts)
     {
         var t = opts.LoggerOptions.IsTimeUtc ? msg.Time.ToUniversalTime() : msg.Time.ToLocalTime();
 
@@ -224,7 +226,7 @@ public static class MessageExtension
         }
     }
 
-    private static void AppendMessage(StringBuilder buffer, LogMessage msg, MessageStringOptions opts)
+    private static void AppendMessage(StringBuilder buffer, LogMessage msg, MessageParams opts)
     {
         if (!string.IsNullOrEmpty(msg.Text))
         {

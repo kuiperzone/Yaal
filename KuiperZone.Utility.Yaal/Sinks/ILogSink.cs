@@ -22,8 +22,10 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
 /// Interface for a loging sink. Implementations should be thread instance safe.
+/// Note. Implements are not expected to implement <see cref="IDisposable"/>, as creation is
+/// to be infrequement and instances long-lived. We live it to finalizers to clean up.
 /// </summary>
-public interface ILogSink
+public interface ILogSink : IDisposable
 {
     /// <summary>
     /// Writes the message. The method should do nothing unless the <see cref="LogMessage.Severity"/>

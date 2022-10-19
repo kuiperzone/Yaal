@@ -105,9 +105,15 @@ public sealed class BufferLogSink : ILogSink
                     _history.RemoveAt(0);
                 }
 
-                _history.Add(msg.ToString(new MessageStringOptions(_options, opts)));
+                _history.Add(msg.ToString(new MessageParams(_options, opts)));
             }
         }
     }
 
+    /// <summary>
+    /// Implements.
+    /// </summary>
+    public void Dispose()
+    {
+    }
 }

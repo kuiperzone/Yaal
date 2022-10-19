@@ -123,8 +123,8 @@ public static class SeverityLevelExtension
         {
             case SeverityLevel.Emergency:
             case SeverityLevel.Alert:
-            case SeverityLevel.Critical: return ConsoleColor.Red;
-            case SeverityLevel.Error: return ConsoleColor.DarkRed;
+            case SeverityLevel.Critical: return ConsoleColor.DarkRed;
+            case SeverityLevel.Error: return ConsoleColor.Red;
             case SeverityLevel.Warning: return ConsoleColor.DarkYellow;
             case SeverityLevel.Notice: return ConsoleColor.DarkGreen;
             case SeverityLevel.Informational: return ConsoleColor.DarkCyan;

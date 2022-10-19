@@ -29,13 +29,14 @@ namespace KuiperZone.Utility.Yaal;
 /// in RFC 5424 format on Linux, and EventLog on Windows. An instance is thread-safe, and the class
 /// provides a global singleton.
 /// </summary>
-public sealed class Logger
+public sealed class Logger : IDisposable
 {
     // Assumed to be faster than MethodBase.GetCurrentMethod()
     private readonly static string DebugMethodName = typeof(Logger).FullName + "." + nameof(Debug);
     private readonly static string DebugIfMethodName = typeof(Logger).FullName + "." + nameof(DebugIf);
 
     private volatile LoggerHelper v_helper;
+    private volatile bool v_disposed;
 
     /// <summary>
     /// Default constructor. The <see cref="Threshold"/> property will be initialised to
@@ -89,7 +90,16 @@ public sealed class Logger
     public IReadOnlyCollection<ILogSink> Sinks
     {
         get { return v_helper.Sinks; }
-        set { v_helper = v_helper.NewSinks(value); }
+
+        set
+        {
+            if (!v_disposed)
+            {
+                var hold = v_helper;
+                v_helper = v_helper.NewSinks(value);
+                hold.Dispose();
+            }
+        }
     }
 
     /// <summary>
@@ -112,7 +122,14 @@ public sealed class Logger
     public SeverityLevel Threshold
     {
         get { return v_helper.Threshold; }
-        set { v_helper = v_helper.NewThreshold(value); }
+
+        set
+        {
+            if (!v_disposed)
+            {
+                v_helper = v_helper.NewThreshold(value);
+            }
+        }
     }
 
     /// <summary>
@@ -501,5 +518,19 @@ public sealed class Logger
        }
     }
 
+    /// <summary>
+    /// Implements disposal.
+    /// </summary>
+    public void Dispose()
+    {
+        if (!v_disposed)
+        {
+            v_disposed = true;
+
+            var hold = v_helper;
+            v_helper = v_helper.NewSinks(Array.Empty<ILogSink>()).NewThreshold(SeverityLevel.Disabled);
+            hold.Dispose();
+        }
+    }
 
 }
