@@ -19,7 +19,6 @@
 // -----------------------------------------------------------------------------
 
 using System.Text;
-using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -30,49 +29,31 @@ namespace KuiperZone.Utility.Yaal;
 public class SdElement : SdDictionary<string>
 {
     /// <summary>
-    /// Constructor with value for <see cref="Id"/>. The id should not contain printable
-    /// ASCII only and or space characters. The format is "name@enterprise_number", unless an IANA ID is used.
+    /// Default constructor. The format is "name@enterprise_number", unless an IANA ID is used.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
-    public SdElement(string id)
+    public SdElement()
 	{
-        LogUtil.AssertId(id);
-        Id = id;
     }
 
     /// <summary>
-    /// Constructor with value for <see cref="Id"/>, and an initial key-value.
+    /// Constructor with initial key-value.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
-    public SdElement(string id, string key, string value)
-        : this(id)
+    public SdElement(string key, string value)
+        : base(key, value)
 	{
-        Add(key, value);
     }
 
     /// <summary>
-    /// Gets the SD-ID (unique per message). The format is "name@enterprise_number", unless
-    /// an IANA ID is used. The value is immutable.
+    /// Overloads with Id.
     /// </summary>
-    public string Id { get; }
-
-    /// <summary>
-    /// Overrides.
-    /// </summary>
-    public override void AppendTo(StringBuilder buffer, IReadOnlyLoggerOptions opts)
+    public void AppendTo(StringBuilder buffer, string id)
     {
         buffer.Append('[');
-        buffer.Append(Id);
-        base.AppendTo(buffer, opts);
+        buffer.Append(id);
+        base.AppendTo(buffer);
         buffer.Append(']');
-    }
-
-    /// <summary>
-    /// Overrides to give Id.GetHashCode().
-    /// </summary>
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
     }
 }
 

@@ -93,11 +93,11 @@ public sealed class Logger
     }
 
     /// <summary>
-    /// Gets or sets the logger options. These can be set using an instance of <see cref="LoggerOptions"/>.
+    /// Gets or sets the logger options. These can be set using an instance of <see cref="LogOptions"/>.
     /// Although they can be changed in-flight, it is recommended that they are updated at the start of
     /// the program execution only.
     /// </summary>
-    public IReadOnlyLoggerOptions Options
+    public IReadOnlyLogOptions Options
     {
         get { return v_helper.Options; }
         set { v_helper = v_helper.NewOptions(value); }
@@ -116,7 +116,7 @@ public sealed class Logger
     }
 
     /// <summary>
-    /// Gets or sets a comma separated string contained message IDs to exclude (case insensitive).
+    /// Gets or sets a comma separated string contained message IDs to exclude (case sensitive).
     /// A message with a <see cref="LogMessage.MsgId"/> value contained within this string will be ignored.
     /// Example: "TCPIN,TCPOUT,LoopA".
     /// </summary>

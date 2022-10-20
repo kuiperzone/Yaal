@@ -49,12 +49,12 @@ public static class MessageExtension
                 AppendBsd(buffer, msg, opts);
                 break;
             case LogFormat.General:
-                AppendClean(buffer, msg, opts);
+                AppendGeneral(buffer, msg, opts);
                 break;
             default:
                 int pad = Math.Clamp(opts.IndentCount - buffer.Length, 0, 1000);
                 buffer.Append(' ', pad);
-                buffer.Append(msg.Text);
+                AppendText(buffer, msg.Text, opts, false);
                 break;
         }
 
@@ -109,7 +109,7 @@ public static class MessageExtension
         if (!msg.Data.IsEmpty)
         {
             hasData = true;
-            msg.Data.AppendTo(buffer, opts.LoggerOptions);
+            msg.Data.AppendTo(buffer);
         }
 
         string? dbgId = opts.LoggerOptions.DebugId;
@@ -120,7 +120,7 @@ public static class MessageExtension
         {
             hasData = true;
 
-            var e = new SdElement(dbgId);
+            var e = new SdElement();
             e.Add("SEVERITY", msg.Severity.ToString().ToUpperInvariant());
             e.Add("FUNCTION", msg.Debug.Function);
 
@@ -130,7 +130,7 @@ public static class MessageExtension
             }
 
             e.Add("THREAD", AppInfo.Pid + "-" + LogUtil.ThreadName);
-            e.AppendTo(buffer, (IReadOnlyLoggerOptions)lo);
+            e.AppendTo(buffer, dbgId);
         }
 
         if (!hasData)
@@ -139,8 +139,7 @@ public static class MessageExtension
             buffer.Append('-');
         }
 
-        buffer.Append(' ');
-        AppendMessage(buffer, msg, opts);
+        AppendText(buffer, msg.Text, opts, true);
     }
 
     private static void AppendBsd(StringBuilder buffer, LogMessage msg, MessageParams opts)
@@ -175,19 +174,18 @@ public static class MessageExtension
             buffer.Append(':');
         }
 
-        buffer.Append(' ');
-        AppendMessage(buffer, msg, opts);
+        AppendText(buffer, msg.Text, opts, true);
 
         if (msg.Debug?.Function != null)
         {
             // No standard for BSD debug data, so just
-            // tag on SD output after message text.
-            buffer.Append(' ');
+            // tag on after message text.
+            buffer.Append(" @ ");
             buffer.Append(msg.Debug.ToString());
         }
     }
 
-    private static void AppendClean(StringBuilder buffer, LogMessage msg, MessageParams opts)
+    private static void AppendGeneral(StringBuilder buffer, LogMessage msg, MessageParams opts)
     {
         if (msg.Debug?.Function != null)
         {
@@ -199,19 +197,43 @@ public static class MessageExtension
         int pad = Math.Clamp(opts.IndentCount - buffer.Length, 0, 1000);
         buffer.Append(' ', pad);
 
+        bool space = false;
         var msgId = LogUtil.EnsureId(msg.MsgId, MaxMsgIdLength);
 
         if (!string.IsNullOrEmpty(msgId))
         {
             buffer.Append('[');
             buffer.Append(msgId);
-            buffer.Append("] ");
+            buffer.Append(']');
+            space = true;
         }
 
-        AppendMessage(buffer, msg, opts);
+        AppendText(buffer, msg.Text, opts, space);
 
-        buffer.Append(" @");
+        buffer.Append(" @ ");
         buffer.Append(ToTimestamp(msg, opts));
+    }
+
+    private static void AppendText(StringBuilder buffer, string? text, MessageParams opts, bool leadSpace)
+    {
+        if (!string.IsNullOrEmpty(text))
+        {
+            if (leadSpace)
+            {
+                buffer.Append(' ');
+            }
+
+            int max = opts.MaxTextLength;
+
+            if (max > 0 && text.Length > max)
+            {
+                buffer.Append(LogUtil.Escape(text.Substring(0, max)));
+            }
+            else
+            {
+                buffer.Append(LogUtil.Escape(text));
+            }
+        }
     }
 
     private static string ToTimestamp(LogMessage msg, MessageParams opts)
@@ -228,22 +250,4 @@ public static class MessageExtension
                 return t.ToString(TimeText, CultureInfo.InvariantCulture);
         }
     }
-
-    private static void AppendMessage(StringBuilder buffer, LogMessage msg, MessageParams opts)
-    {
-        if (!string.IsNullOrEmpty(msg.Text))
-        {
-            int max = opts.MaxTextLength;
-
-            if (max > 0 && msg.Text.Length > max)
-            {
-                buffer.Append(LogUtil.Escape(msg.Text.Substring(0, max)));
-            }
-            else
-            {
-                buffer.Append(LogUtil.Escape(msg.Text));
-            }
-        }
-    }
-
 }

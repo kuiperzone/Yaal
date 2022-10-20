@@ -66,7 +66,7 @@ public sealed class SyslogLogSink : ILogSink
     /// "logger" shell command is not available.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
-    public void Write(LogMessage msg, IReadOnlyLoggerOptions opts)
+    public void Write(LogMessage msg, IReadOnlyLogOptions opts)
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold) && !v_isFailed)
         {
@@ -145,7 +145,7 @@ public sealed class SyslogLogSink : ILogSink
         }
     }
 
-    public void WriteLinux(LogMessage msg, IReadOnlyLoggerOptions opts)
+    public void WriteLinux(LogMessage msg, IReadOnlyLogOptions opts)
     {
         // It seems that we need to provide priority as an option for syslog
         var mo = new MessageParams(_options, opts);
@@ -168,7 +168,7 @@ public sealed class SyslogLogSink : ILogSink
         }
     }
 
-    public void WriteWindows(LogMessage msg, IReadOnlyLoggerOptions opts)
+    public void WriteWindows(LogMessage msg, IReadOnlyLogOptions opts)
     {
         var mo = new MessageParams(_options, opts);
         mo.IncludePriority = true;

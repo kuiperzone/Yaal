@@ -94,7 +94,7 @@ public sealed class BufferLogSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage msg, IReadOnlyLoggerOptions opts)
+    public void Write(LogMessage msg, IReadOnlyLogOptions opts)
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {

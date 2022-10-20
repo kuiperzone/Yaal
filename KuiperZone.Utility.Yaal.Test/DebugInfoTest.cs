@@ -18,26 +18,18 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using Xunit;
 
-using System.Text;
+namespace KuiperZone.Utility.Yaal.Test;
 
-namespace KuiperZone.Utility.Yaal;
-
-/// <summary>
-/// Structured RFC 5424 SD-ELEMENT. The class inherits <see cref="SdDictionary{T}"/>
-/// where T is <see cref="SdElement"/>. In other words, this is a dictionary where the
-/// key is an SD-ELEMENT SD-ID. Parameter values are access as: Data[SD-ID][SD-NAME].
-/// </summary>
-public sealed class StructuredData : SdDictionary<SdElement>
+public class DebugInfoTest
 {
-    /// <summary>
-    /// Overrides.
-    /// </summary>
-    public override void AppendTo(StringBuilder buffer)
+    [Fact]
+    public void Constructor_GetsCaller()
     {
-        foreach (var item in this)
-        {
-            item.Value.AppendTo(buffer, item.Key);
-        }
+        var dbg = new DebugInfo();
+        Assert.True(dbg.Function?.Contains(nameof(Constructor_GetsCaller)));
+        Assert.True(dbg.LineNumber > 1);
+        Assert.True(dbg.ToString()?.Contains(nameof(Constructor_GetsCaller)));
     }
 }

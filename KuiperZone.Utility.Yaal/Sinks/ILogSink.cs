@@ -31,5 +31,5 @@ public interface ILogSink
     /// Writes the message. The method should do nothing unless the <see cref="LogMessage.Severity"/>
     /// is equal or higher in priority than <see cref="SinkOptions.Threshold"/>.
     /// </summary>
-    void Write(LogMessage msg, IReadOnlyLoggerOptions opts);
+    void Write(LogMessage msg, IReadOnlyLogOptions opts);
 }

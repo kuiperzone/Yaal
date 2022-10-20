@@ -18,14 +18,71 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
+using System;
+using KuiperZone.Utility.Yaal.Internal;
 using Xunit;
 
 namespace KuiperZone.Utility.Yaal.Test;
 
 public class LogMessageTest
 {
+    private static readonly DateTime TestTime = new(1988, 12, 5, 12, 54, 23);
+
     [Fact]
-    public void ToString_AllPropertiesIncStructuredData()
+    public void ToString5424_GivesExpected()
+    {
+        var msg = CreateMessage();
+
+        var msgStr = msg.ToString(LogFormat.Rfc5424);
+        Console.WriteLine(msgStr);
+
+        var temp = new LogOptions();
+        string Time = "1988-12-05T12:54:23.000000+00:00";
+        string Thread = $"{temp.AppPid}-{LogUtil.ThreadName}";
+        string Expect = $"<10>1 {Time} {temp.HostName} {temp.AppName} {temp.AppPid} MsgId7653 [e1 key1=\"value\\n1\"]" +
+            $"[e2 key2=\"value\\n2\"][DGB@00000000 FUNCTION=\"Function\" LINE=\"668\" SEVERITY=\"CRITICAL\" THREAD=\"{Thread}\"] Text84763";
+
+        Assert.Equal(Expect, msgStr);
+    }
+
+    [Fact]
+    public void ToStringBsd_GivesExpected()
+    {
+        var msg = CreateMessage();
+
+        var msgStr = msg.ToString(LogFormat.Bsd);
+        Console.WriteLine(msgStr);
+
+        var temp = new LogOptions();
+        string Time = "Dec 05 12:54:23";
+        string Expect = $"<10>{Time} {temp.HostName} {temp.AppName}[{temp.AppPid}]: Text84763 @ Function #668";
+        Assert.Equal(Expect, msgStr);
+    }
+
+    [Fact]
+    public void ToStringGeneral_GivesExpected()
+    {
+        var msg = CreateMessage();
+
+        var msgStr = msg.ToString(LogFormat.General);
+        Console.WriteLine(msgStr);
+
+        var temp = new LogOptions();
+        string Time = "Dec 05 12:54:23.000000";
+        string Expect = $"Function #668 : [MsgId7653] Text84763 @ {Time}";
+        Assert.Equal(Expect, msgStr);
+    }
+
+    [Fact]
+    public void ToStringTextOnly_GivesExpected()
+    {
+        var msg = CreateMessage();
+
+        var msgStr = msg.ToString(LogFormat.TextOnly);
+        Assert.Equal("Text84763", msgStr);
+    }
+
+    private static LogMessage CreateMessage()
     {
         var msg = new LogMessage();
         Assert.Equal(SeverityLevel.Info, msg.Severity);
@@ -33,10 +90,12 @@ public class LogMessageTest
         msg.Severity = SeverityLevel.Critical;
         msg.MsgId = "MsgId7653";
         msg.Text = "Text84763";
+        msg.Data.Add("e1", new SdElement("key1", "value\n1"));
+        msg.Data.Add("e2", new SdElement("key2", "value\n2"));
 
-        var sd = new StructuredData();
-        sd.Add("e-id", new SdElement());
-
+        msg.Time = TestTime;
+        msg.Debug = new DebugInfo("Function", 668);
+        return msg;
     }
 
 }

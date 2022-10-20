@@ -27,11 +27,10 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// </summary>
 public sealed class FileLogSink : ILogSink
 {
-    private object _syncObj = new();
+    private readonly object _syncObj = new();
     private readonly ThreadLocal<FileSinkWriter>? _local;
     private readonly FileSinkOptions _options;
     private FileSinkWriter? _global;
-    private bool _disposed;
 
     /// <summary>
     /// Default constructor.
@@ -72,7 +71,7 @@ public sealed class FileLogSink : ILogSink
     /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
-    public void Write(LogMessage msg, IReadOnlyLoggerOptions opts)
+    public void Write(LogMessage msg, IReadOnlyLogOptions opts)
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
@@ -89,11 +88,8 @@ public sealed class FileLogSink : ILogSink
             {
                 lock (_syncObj)
                 {
-                    if (!_disposed)
-                    {
-                        _global ??= new FileSinkWriter(_options);
-                        _global.Write(text);
-                    }
+                    _global ??= new FileSinkWriter(_options);
+                    _global.Write(text);
                 }
             }
         }

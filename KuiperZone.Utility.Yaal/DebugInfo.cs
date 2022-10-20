@@ -20,7 +20,7 @@
 
 using System.Globalization;
 
-namespace KuiperZone.Utility.Yaal.Internal;
+namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
 /// </summary>

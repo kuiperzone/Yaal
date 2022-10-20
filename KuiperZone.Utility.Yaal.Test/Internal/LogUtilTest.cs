@@ -18,22 +18,13 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using System;
 using KuiperZone.Utility.Yaal.Internal;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace KuiperZone.Utility.Yaal.Test;
 
 public class LogUtilTest
 {
-    private readonly ITestOutputHelper Helper;
-
-    public LogUtilTest(ITestOutputHelper helper)
-    {
-        Helper = helper;
-    }
-
     [Fact]
     public void Escape_EscapesMixedString()
     {
@@ -42,13 +33,9 @@ public class LogUtilTest
         const string ExpectTrue = " Hello world \\\" test \\\\ \\] Test\\nTest \\0 \\x05 Test \\u221E Test";
 
         var s = LogUtil.Escape(TestString, false, "\\]\"");
-        Console.WriteLine(s);
-
         Assert.Equal(ExpectFalse, s);
 
         s = LogUtil.Escape(TestString, true, "\\]\"");
-        Console.WriteLine(s);
-
         Assert.Equal(ExpectTrue, s);
     }
 

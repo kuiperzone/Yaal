@@ -34,13 +34,13 @@ public sealed class MessageParams : SinkOptions
     public MessageParams(LogFormat format)
         : base(new SinkOptions(format))
     {
-        LoggerOptions = new LoggerOptions();
+        LoggerOptions = new LogOptions();
     }
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    public MessageParams(SinkOptions sink, IReadOnlyLoggerOptions logger)
+    public MessageParams(SinkOptions sink, IReadOnlyLogOptions logger)
         : base(sink)
     {
         LoggerOptions = logger;
@@ -49,7 +49,7 @@ public sealed class MessageParams : SinkOptions
     /// <summary>
     /// Gets or sets the options of the host logger.
     /// </summary>
-    public IReadOnlyLoggerOptions LoggerOptions { get; set; }
+    public IReadOnlyLogOptions LoggerOptions { get; set; }
 
     /// <summary>
     /// Gets or sets whether to include the priority code for

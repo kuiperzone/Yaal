@@ -137,7 +137,7 @@ public sealed class FileSinkWriter : IDisposable
             return dir;
         }
 
-        if (_options.CreateDirectory)
+        if (_options.CanCreateDirectory)
         {
             Directory.CreateDirectory(dir);
             return dir;

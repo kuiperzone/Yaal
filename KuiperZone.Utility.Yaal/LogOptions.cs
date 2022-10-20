@@ -23,9 +23,9 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Implementation of <see cref="IReadOnlyLoggerOptions"/> with setters.
+/// Implementation of <see cref="IReadOnlyLogOptions"/> with setters.
 /// </summary>
-public class LoggerOptions : IReadOnlyLoggerOptions
+public class LogOptions : IReadOnlyLogOptions
 {
     private string _appName = "";
     private string _procId = "";
@@ -33,29 +33,29 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     private string _debugId = "DGB@00000000";
 
     /// <summary>
-    /// Gets the <see cref="LoggerOptions.AppName"/> max length in characters.
+    /// Gets the <see cref="LogOptions.AppName"/> max length in characters.
     /// </summary>
     public const int AppNameMaxLength = 48;
 
     /// <summary>
-    /// Gets the <see cref="LoggerOptions.AppPid"/> max length in characters.
+    /// Gets the <see cref="LogOptions.AppPid"/> max length in characters.
     /// </summary>
     public const int PidMaxLength = 128;
 
     /// <summary>
-    /// Gets the <see cref="LoggerOptions.HostName"/> max length in characters.
+    /// Gets the <see cref="LogOptions.HostName"/> max length in characters.
     /// </summary>
     public const int HostNameMaxLength = 255;
 
     /// <summary>
-    /// Gets the <see cref="LoggerOptions.DebugId"/> max length in characters.
+    /// Gets the <see cref="LogOptions.DebugId"/> max length in characters.
     /// </summary>
     public const int DebugMaxLength = 32;
 
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public LoggerOptions()
+    public LogOptions()
     {
         HostName = AppInfo.HostName;
         AppPid = AppInfo.Pid;
@@ -67,7 +67,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     /// <summary>
     /// Copy constructor.
     /// </summary>
-    public LoggerOptions(LoggerOptions other)
+    public LogOptions(LogOptions other)
     {
         HostName = other.HostName;
         AppName = other.AppName;
@@ -78,7 +78,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.HostName"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.HostName"/> and provides a setter.
     /// </summary>
     public string HostName
     {
@@ -87,7 +87,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.AppName"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.AppName"/> and provides a setter.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid RFC 5424 name value</exception>
     public string AppName
@@ -97,7 +97,7 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.AppPid"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.AppPid"/> and provides a setter.
     /// </summary>
     public string AppPid
     {
@@ -106,17 +106,17 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.IsTimeUtc"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.IsTimeUtc"/> and provides a setter.
     /// </summary>
     public bool IsTimeUtc { get; set; }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.Facility"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.Facility"/> and provides a setter.
     /// </summary>
 	public FacilityId Facility { get; set; } = FacilityId.User;
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.DebugId"/> and provides a setter.
+    /// Implements <see cref="IReadOnlyLogOptions.DebugId"/> and provides a setter.
     /// </summary>
 	public string DebugId
     {
@@ -125,11 +125,11 @@ public class LoggerOptions : IReadOnlyLoggerOptions
     }
 
     /// <summary>
-    /// Implements <see cref="IReadOnlyLoggerOptions.Clone"/>.
+    /// Implements <see cref="IReadOnlyLogOptions.Clone"/>.
     /// </summary>
-    public LoggerOptions Clone()
+    public LogOptions Clone()
     {
-        return new LoggerOptions(this);
+        return new LogOptions(this);
     }
 
 }

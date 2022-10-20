@@ -25,15 +25,16 @@ namespace KuiperZone.Utility.Yaal.Internal;
 /// <summary>
 /// Helps facilite alock-free design in Logger class. It holds everything that would otherwise
 /// be volatile in one class which, therefore, can be accessed via one volatile reference.
+/// Public for unit testing only.
 /// </summary>
-internal class LoggerHelper
+public class LoggerHelper
 {
     private readonly IReadOnlyCollection<string> _exclusions = Array.Empty<string>();
     private volatile Exception? v_error;
 
     public LoggerHelper(SeverityLevel threshold, IEnumerable<ILogSink>? sinks = null)
     {
-        Options = new LoggerOptions();
+        Options = new LogOptions();
         Threshold = threshold;
 
         var temp = new List<ILogSink>();
@@ -57,7 +58,7 @@ internal class LoggerHelper
         Sinks = temp;
     }
 
-    private LoggerHelper(IReadOnlyLoggerOptions opts, SeverityLevel severity,
+    private LoggerHelper(IReadOnlyLogOptions opts, SeverityLevel severity,
         string excludes, IReadOnlyCollection<ILogSink> sinks, Exception? lastError)
     {
         Options = opts;
@@ -69,7 +70,7 @@ internal class LoggerHelper
         _exclusions = CreateIds(excludes);
     }
 
-    public readonly IReadOnlyLoggerOptions Options;
+    public readonly IReadOnlyLogOptions Options;
 
     public readonly SeverityLevel Threshold;
 
@@ -106,13 +107,13 @@ internal class LoggerHelper
                 return true;
             }
 
-            return !_exclusions.Contains(msgId.ToLowerInvariant());
+            return !_exclusions.Contains(msgId);
         }
 
         return false;
     }
 
-    public LoggerHelper NewOptions(IReadOnlyLoggerOptions opts)
+    public LoggerHelper NewOptions(IReadOnlyLogOptions opts)
     {
         return new LoggerHelper(opts, Threshold, Exclusions, Sinks, Error);
     }
@@ -149,7 +150,6 @@ internal class LoggerHelper
 
     private static IReadOnlyCollection<string> CreateIds(string s)
     {
-        s = s.ToLowerInvariant();
         var ids = s.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
         if (ids.Length < 10)

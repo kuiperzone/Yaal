@@ -42,7 +42,7 @@ public sealed class FileSinkOptions : SinkOptions
     /// <summary>
     /// Placeholder for the application PID.
     /// </summary>
-    public const string ProcIdTag = "{PID}";
+    public const string PidTag = "{PID}";
 
     /// <summary>
     /// Placeholder for the thread name or ID. IMPORTANT. If <see cref="FilePattern"/> contains
@@ -120,7 +120,7 @@ public sealed class FileSinkOptions : SinkOptions
     {
         DirectoryPattern = other.DirectoryPattern;
         FilePattern = other.FilePattern;
-        CreateDirectory = other.CreateDirectory;
+        CanCreateDirectory = other.CanCreateDirectory;
         IndentCount = other.IndentCount;
         MaxLines = other.MaxLines;
         RemoveLogsOnStart = other.RemoveLogsOnStart;
@@ -136,7 +136,7 @@ public sealed class FileSinkOptions : SinkOptions
 
     /// <summary>
     /// Gets or sets the filename pattern, excluding any directory part. The pattern may contain one or more of
-    /// the following placeholder variables: <see cref="AsmTag"/>, <see cref="AppTag"/>, <see cref="ProcIdTag"/>,
+    /// the following placeholder variables: <see cref="AsmTag"/>, <see cref="AppTag"/>, <see cref="PidTag"/>,
     /// <see cref="ThreadTag"/>, <see cref="PageTag"/>, <see cref="BuildTag"/>. Additionally, "{[DateFormat]}"
     /// may also be used, where the text between brace pair "{[" and "]}" will be substituted with a system time
     /// according to the DateTime format. IMPORTANT. If <see cref="FilePattern"/> contains <see cref="ThreadTag"/>,
@@ -147,7 +147,7 @@ public sealed class FileSinkOptions : SinkOptions
     /// <summary>
     /// Gets whether the directory defined by <see cref="DirectoryPattern"/> is created if it does not exist.
     /// </summary>
-    public bool CreateDirectory { get; set; } = true;
+    public bool CanCreateDirectory { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the number of pad (indent) characters in the <see cref="LogFormat.General"/> and
@@ -209,7 +209,7 @@ public sealed class FileSinkOptions : SinkOptions
     /// Note that result may change on each call.
     /// </summary>
     /// <exception cref="ArgumentException">Invalid FilePattern</exception>
-    public string GetFileName(int page)
+    public string GetFileName(int page = 0)
     {
         var rslt = SubstituteCommon(FilePattern);
 
@@ -219,7 +219,7 @@ public sealed class FileSinkOptions : SinkOptions
         }
 
         const int ZeroPad = 3;
-        rslt = rslt.Replace(FileSinkOptions.ProcIdTag, AppInfo.Pid.PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
+        rslt = rslt.Replace(FileSinkOptions.PidTag, AppInfo.Pid.PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
         rslt = rslt.Replace(FileSinkOptions.ThreadTag, LogUtil.ThreadName, StringComparison.OrdinalIgnoreCase);
         rslt = rslt.Replace(FileSinkOptions.PageTag, page.ToString(CultureInfo.InvariantCulture).PadLeft(ZeroPad, '0'), StringComparison.OrdinalIgnoreCase);
 
