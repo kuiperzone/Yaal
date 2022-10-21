@@ -68,7 +68,16 @@ public class SeverityLevelExtensionTest
         // (Severity=0) would have a Priority value of 0.  Also, a "local use 4"
         // message (Facility=20) with a Severity of Notice (Severity=5) would
         // have a Priority value of 165.
-        Assert.Equal("0", SeverityLevel.Emergency.ToPriorityCode((FacilityId)0));
-        Assert.Equal("165", SeverityLevel.Notice.ToPriorityCode(FacilityId.Local4));
+        Assert.Equal(0, SeverityLevel.Emergency.ToPriorityCode((FacilityId)0));
+        Assert.Equal(165, SeverityLevel.Notice.ToPriorityCode(FacilityId.Local4));
     }
+
+    [Fact]
+    public void ToPriority_CorrectMappings()
+    {
+        Assert.Empty(SeverityLevel.Notice.ToPriority(PriorityKind.Omit, FacilityId.Local4));
+        Assert.Equal("<165>", SeverityLevel.Notice.ToPriority(PriorityKind.Default, FacilityId.Local4));
+        Assert.Equal("<notice>", SeverityLevel.Notice.ToPriority(PriorityKind.Keyword, FacilityId.Local4));
+    }
+
 }

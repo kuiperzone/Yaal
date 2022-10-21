@@ -32,15 +32,14 @@ public class LogMessageTest
     public void ToString5424_GivesExpected()
     {
         var msg = CreateMessage();
+        var opts = new LogOptions();
 
-        var msgStr = msg.ToString(LogFormat.Rfc5424);
-        Console.WriteLine(msgStr);
+        var msgStr = msg.ToString(LogFormat.Rfc5424, opts);
 
-        var temp = new LogOptions();
         string Time = "1988-12-05T12:54:23.000000+00:00";
-        string Thread = $"{temp.AppPid}-{LogUtil.ThreadName}";
-        string Expect = $"<10>1 {Time} {temp.HostName} {temp.AppName} {temp.AppPid} MsgId7653 [e1 key1=\"value\\n1\"]" +
-            $"[e2 key2=\"value\\n2\"][DGB@00000000 FUNCTION=\"Function\" LINE=\"668\" SEVERITY=\"CRITICAL\" THREAD=\"{Thread}\"] Text84763";
+        string Thread = $"{opts.AppPid}-{LogUtil.ThreadName}";
+        string Expect = $"<10>1 {Time} {opts.HostName} {opts.AppName} {opts.AppPid} MsgId7653 [e1 key1=\"value\\n1\"]" +
+            $"[e2 key2=\"value\\n2\"][DGB@00000000 FUNC=\"Function\" LINE=\"668\" SEVERITY=\"crit\" THREAD=\"{Thread}\"] Text84763";
 
         Assert.Equal(Expect, msgStr);
     }
@@ -49,28 +48,43 @@ public class LogMessageTest
     public void ToStringBsd_GivesExpected()
     {
         var msg = CreateMessage();
+        var opts = new LogOptions();
+        opts.Priority = PriorityKind.Default;
 
-        var msgStr = msg.ToString(LogFormat.Bsd);
-        Console.WriteLine(msgStr);
+        var msgStr = msg.ToString(LogFormat.Bsd, opts);
 
-        var temp = new LogOptions();
-        string Time = "Dec 05 12:54:23";
-        string Expect = $"<10>{Time} {temp.HostName} {temp.AppName}[{temp.AppPid}]: Text84763 @ Function #668";
-        Assert.Equal(Expect, msgStr);
+        string time = "Dec 05 12:54:23";
+        string expect = $"<10>{time} {opts.HostName} {opts.AppName}[{opts.AppPid}]: Text84763 @ Function #668";
+        Assert.Equal(expect, msgStr);
     }
 
     [Fact]
-    public void ToStringGeneral_GivesExpected()
+    public void ToStringGeneralNoPad_GivesExpected()
     {
         var msg = CreateMessage();
+        var opts = new LogOptions();
 
-        var msgStr = msg.ToString(LogFormat.General);
-        Console.WriteLine(msgStr);
+        var msgStr = msg.ToString(LogFormat.General, opts);
 
-        var temp = new LogOptions();
-        string Time = "Dec 05 12:54:23.000000";
-        string Expect = $"Function #668 : [MsgId7653] Text84763 @ {Time}";
-        Assert.Equal(Expect, msgStr);
+        string time = "Dec 05 12:54:23.000000";
+        string expect = $"Function #668 : [MsgId7653] Text84763 @ {time}";
+        Assert.Equal(expect, msgStr);
+    }
+
+    [Fact]
+    public void ToStringGeneralPad80_GivesExpected()
+    {
+        const int Pad = 80;
+        var msg = CreateMessage();
+        var opts = new LogOptions();
+
+        var msgStr = msg.ToString(LogFormat.General, opts, 2000, Pad);
+
+        string time = "Dec 05 12:54:23.000000";
+        string expect = $"Function #668 :";
+        string pad = new string(' ', Pad - expect.Length);
+        expect += $"{pad}[MsgId7653] Text84763 @ {time}";
+        Assert.Equal(expect, msgStr);
     }
 
     [Fact]

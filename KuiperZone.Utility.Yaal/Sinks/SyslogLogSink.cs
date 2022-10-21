@@ -145,13 +145,10 @@ public sealed class SyslogLogSink : ILogSink
         }
     }
 
-    public void WriteLinux(LogMessage msg, IReadOnlyLogOptions opts)
+    private void WriteLinux(LogMessage msg, IReadOnlyLogOptions opts)
     {
         // It seems that we need to provide priority as an option for syslog
-        var mo = new MessageParams(_options, opts);
-        mo.IncludePriority = false;
-
-        var text = msg.ToString(mo);
+        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
 
         // It seems that we need to provide priority as an option
         var buffer = new StringBuilder("-p ", 1024);
@@ -168,12 +165,9 @@ public sealed class SyslogLogSink : ILogSink
         }
     }
 
-    public void WriteWindows(LogMessage msg, IReadOnlyLogOptions opts)
+    private void WriteWindows(LogMessage msg, IReadOnlyLogOptions opts)
     {
-        var mo = new MessageParams(_options, opts);
-        mo.IncludePriority = true;
-
-        var text = msg.ToString(mo);
+        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
 
         lock (_syncObj)
         {

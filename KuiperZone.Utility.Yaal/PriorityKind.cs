@@ -18,47 +18,30 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using KuiperZone.Utility.Yaal.Sinks;
 
-namespace KuiperZone.Utility.Yaal.Internal;
+namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Used to provide options to <see cref="LogMessage.ToString"/>. It inherits from
-/// <see cref="SinkOptions"/> because we need a way to get these values to the ToString() method.
+/// Defines a priority field inclusion behavior for <see cref="LogFormat.Rfc5424"/> and <see cref="LogFormat.Bsd"/>
+/// (RFC 3164) formats. Both these RFCs specify a leading numeric priority code (a combination of severity and
+/// facility) at the start of messages. However, it is comman practice to either omit this code or provide a
+/// <see cref="SeverityLevel"/> keyword instead.
 /// </summary>
-public sealed class MessageParams : SinkOptions
+public enum PriorityKind
 {
     /// <summary>
-    /// Default.
+    /// According RFC. I.e, "<165>...".
     /// </summary>
-    public MessageParams(LogFormat format)
-        : base(new SinkOptions(format))
-    {
-        LoggerOptions = new LogOptions();
-    }
+    Default = 0,
 
     /// <summary>
-    /// Constructor.
+    /// Severity keyword instead of numeric code. I.e.  "<notice>...".
     /// </summary>
-    public MessageParams(SinkOptions sink, IReadOnlyLogOptions logger)
-        : base(sink)
-    {
-        LoggerOptions = logger;
-    }
+    Keyword,
 
     /// <summary>
-    /// Gets or sets the options of the host logger.
+    /// Omits the priority leader.
     /// </summary>
-    public IReadOnlyLogOptions LoggerOptions { get; set; }
+    Omit,
 
-    /// <summary>
-    /// Gets or sets whether to include the priority code for
-    /// <see cref="LogFormat.Rfc5424"/> and <see cref="LogFormat.Bsd"/>.
-    /// </summary>
-    public bool IncludePriority { get; set; } = true;
-
-    /// <summary>
-    /// Gets or sets indent count.
-    /// </summary>
-    public int IndentCount { get; set; }
 }

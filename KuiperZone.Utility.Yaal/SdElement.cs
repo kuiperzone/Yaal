@@ -46,7 +46,7 @@ public class SdElement : SdDictionary<string>
     }
 
     /// <summary>
-    /// Overloads with Id.
+    /// Overloads with SD-ELEMENT Id.
     /// </summary>
     public void AppendTo(StringBuilder buffer, string id)
     {

@@ -57,6 +57,8 @@ public sealed class ConsoleLogSink : ILogSink
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
+            var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
+
             if (_options.UseColor)
             {
                 // Must lock, other race on color setting
@@ -65,7 +67,7 @@ public sealed class ConsoleLogSink : ILogSink
                     try
                     {
                         SetForegroundColor(msg.Severity.ToColor());
-                        Console.WriteLine(msg.ToString(new MessageParams(_options, opts)));
+                        Console.WriteLine(text);
                     }
                     finally
                     {
@@ -75,7 +77,7 @@ public sealed class ConsoleLogSink : ILogSink
             }
             else
             {
-                Console.WriteLine(msg.ToString(new MessageParams(_options, opts)));
+                Console.WriteLine(text);
             }
         }
     }

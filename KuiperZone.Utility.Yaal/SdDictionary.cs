@@ -26,9 +26,9 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// A dictionary implementation where the key is a string, but the value is generic. This serves as base class
-/// for structure data. Keys must meet RFC 5424 SD-NAME requirements, i.e. all characters are to be within the
-/// printable ASCII range, and must not contain: '=', SP, ']', '"'. Keys are ordinal sorted and case sensitive.
+/// A dictionary implementation where the key is a string, but the value is generic. This serves as a base class
+/// for structured data. Keys must meet RFC 5424 SD-NAME requirements, i.e. all characters are to be within the
+/// printable ASCII range, and must not contain: '=', SP, ']', '"'. Keys are ordinally sorted and case sensitive.
 /// </summary>
 public class SdDictionary<T> : IDictionary<string, T>,
     IReadOnlyDictionary<string, T>,

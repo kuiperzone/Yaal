@@ -35,9 +35,9 @@ class Program
 
         // Add file output. By default FileSink will
         // write to user's Document folder.
-        var fcon = new FileSinkOptions();
-        fcon.IndentCount= 100;
-        var files = new FileLogSink(fcon);
+        var fopts = new FileSinkOptions();
+        fopts.RemoveLogsOnStart = true;
+        var files = new FileLogSink(fopts);
         log.AddSink(files);
 
         // We will see output on console
@@ -75,8 +75,7 @@ class Program
 
 
         // STACK TRACE (CALLING METHOD NAME)
-        log.Write("The following will be logged only in DEBUG build");
-        log.Debug("This line should have the Main() method name nad line # associated with it");
+        log.Debug("This line will only be written in DEBUG and will have the Main() method name and line #");
 
         // Call a method to demonstrate stack trace
         CallingMethod(668);
@@ -102,6 +101,7 @@ class Program
 
     private static void CallingMethod(int value)
     {
+        // Following will be logged on in DEBUG
         // Debug() queries the stack to determine the method name which called the logger.
         // In syslog, caller information will be included as structured data. In plain
         // Text format, it is prefixed to the message.

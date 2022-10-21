@@ -21,124 +21,125 @@
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Logging facility code which specifying what type of program is logging the message. It used for RFC 5424 only.
+/// Logging facility code specifying the type of logging program.
+/// It used for syslog only, and numeric values include a shift right.
 /// </summary>
 public enum FacilityId
 {
     /// <summary>
     /// Miscellaneous user process. This is default for applications.
     /// </summary>
-    User = 1,
+    User = 1 << 3,
 
     /// <summary>
     /// Mail system.
     /// </summary>
-    Mail = 2,
+    Mail = 2 << 3,
 
     /// <summary>
     /// System daemons.
     /// </summary>
-    Daemon = 3,
+    Daemon = 3 << 3,
 
     /// <summary>
     /// Security/authorization messages.
     /// </summary>
-    Auth = 4,
+    Auth = 4 << 3,
 
     /// <summary>
     /// Messages generated internally by syslogd.
     /// </summary>
-    Syslog = 5,
+    Syslog = 5 << 3,
 
 	/// <summary>
     /// Line printer subsystem.
     /// </summary>
-    Lpr = 6,
+    Lpr = 6 << 3,
 
     /// <summary>
     /// Network news subsystem.
     /// </summary>
-    News = 7,
+    News = 7 << 3,
 
 	/// <summary>
     /// UUCP subsystem.
     /// </summary>
-    Uucp = 8,
+    Uucp = 8 << 3,
 
 	/// <summary>
     /// Clock daemon.
     /// </summary>
-    Cron = 9,
+    Cron = 9 << 3,
 
 	/// <summary>
     /// Security/authorization messages private.
     /// </summary>
-    AuthPriv = 10,
+    AuthPriv = 10 << 3,
 
 	/// <summary>
     /// Ftp daemon.
     /// </summary>
-    Ftp = 11,
+    Ftp = 11 << 3,
 
 	/// <summary>
     /// Ntp subsystem.
     /// </summary>
-    Ntp = 12,
+    Ntp = 12 << 3,
 
 	/// <summary>
     /// Log audit.
     /// </summary>
-    LogAudit = 13,
+    LogAudit = 13 << 3,
 
 	/// <summary>
     /// Log alert
     /// </summary>
-    LogAlert = 14,
+    LogAlert = 14 << 3,
 
 	/// <summary>
     /// Clock daemon
     /// </summary>
-    Clock = 15,
+    Clock = 15 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local0 = 16,
+    Local0 = 16 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local1 = 17,
+    Local1 = 17 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local2 = 18,
+    Local2 = 18 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local3 = 19,
+    Local3 = 19 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local4 = 20,
+    Local4 = 20 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local5 = 21,
+    Local5 = 21 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local6 = 22,
+    Local6 = 22 << 3,
 
 	/// <summary>
     /// Reserved for local use.
     /// </summary>
-    Local7 = 23,
+    Local7 = 23 << 3,
 };
 
 /// <summary>

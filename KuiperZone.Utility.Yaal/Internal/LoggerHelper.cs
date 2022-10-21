@@ -29,7 +29,6 @@ namespace KuiperZone.Utility.Yaal.Internal;
 /// </summary>
 public class LoggerHelper
 {
-    private readonly IReadOnlyCollection<string> _exclusions = Array.Empty<string>();
     private volatile Exception? v_error;
 
     public LoggerHelper(SeverityLevel threshold, IEnumerable<ILogSink>? sinks = null)
@@ -59,22 +58,18 @@ public class LoggerHelper
     }
 
     private LoggerHelper(IReadOnlyLogOptions opts, SeverityLevel severity,
-        string excludes, IReadOnlyCollection<ILogSink> sinks, Exception? lastError)
+        IReadOnlyCollection<ILogSink> sinks, Exception? lastError)
     {
         Options = opts;
         Threshold = severity;
-        Exclusions = excludes;
         Sinks = sinks;
 
         v_error = lastError;
-        _exclusions = CreateIds(excludes);
     }
 
     public readonly IReadOnlyLogOptions Options;
 
     public readonly SeverityLevel Threshold;
-
-    public readonly string Exclusions = "";
 
     public readonly IReadOnlyCollection<ILogSink> Sinks;
 
@@ -88,49 +83,24 @@ public class LoggerHelper
         v_error = null;
     }
 
-    public bool Allow(LogMessage msg)
-    {
-        return Allow(msg.MsgId, msg.Severity);
-    }
-
     public bool Allow(SeverityLevel severity)
     {
         return severity.IsHigherOrEqualPriority(Threshold);
     }
 
-    public bool Allow(string? msgId, SeverityLevel severity)
-    {
-        if (severity.IsHigherOrEqualPriority(Threshold))
-        {
-            if (string.IsNullOrEmpty(msgId) || _exclusions.Count == 0)
-            {
-                return true;
-            }
-
-            return !_exclusions.Contains(msgId);
-        }
-
-        return false;
-    }
-
     public LoggerHelper NewOptions(IReadOnlyLogOptions opts)
     {
-        return new LoggerHelper(opts, Threshold, Exclusions, Sinks, Error);
+        return new LoggerHelper(opts, Threshold, Sinks, Error);
     }
 
     public LoggerHelper NewThreshold(SeverityLevel severity)
     {
-        return new LoggerHelper(Options, severity, Exclusions, Sinks, Error);
-    }
-
-    public LoggerHelper NewExclusions(string excludes)
-    {
-        return new LoggerHelper(Options, Threshold, excludes, Sinks, Error);
+        return new LoggerHelper(Options, severity, Sinks, Error);
     }
 
     public LoggerHelper NewSinks(IReadOnlyCollection<ILogSink> sinks)
     {
-        return new LoggerHelper(Options, Threshold, Exclusions, sinks, Error);
+        return new LoggerHelper(Options, Threshold, sinks, Error);
     }
 
     public void Write(LogMessage msg)

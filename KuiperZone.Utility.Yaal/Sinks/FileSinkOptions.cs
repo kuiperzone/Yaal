@@ -113,6 +113,25 @@ public sealed class FileSinkOptions : SinkOptions
     }
 
     /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public FileSinkOptions(TimeSpan life, LogFormat format = LogFormat.General, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+        StaleLife = life;
+    }
+
+    /// <summary>
+    /// Constructor variant.
+    /// </summary>
+    public FileSinkOptions(string directory, TimeSpan life, LogFormat format = LogFormat.General, SeverityLevel threshold = SeverityLevel.Lowest)
+        : base(format, threshold)
+    {
+        DirectoryPattern = directory;
+        StaleLife = life;
+    }
+
+    /// <summary>
     /// Copy constructor.
     /// </summary>
     public FileSinkOptions(FileSinkOptions other)
@@ -121,8 +140,8 @@ public sealed class FileSinkOptions : SinkOptions
         DirectoryPattern = other.DirectoryPattern;
         FilePattern = other.FilePattern;
         CanCreateDirectory = other.CanCreateDirectory;
-        IndentCount = other.IndentCount;
         MaxLines = other.MaxLines;
+        DebugPad = other.DebugPad;
         RemoveLogsOnStart = other.RemoveLogsOnStart;
         StaleLife = other.StaleLife;
     }
@@ -150,22 +169,20 @@ public sealed class FileSinkOptions : SinkOptions
     public bool CanCreateDirectory { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the number of pad (indent) characters in the <see cref="LogFormat.General"/> and
-    /// <see cref="LogFormat.TextOnly"/> formats (it does nothing in other formats). This setting is included
-    /// specifically for use with the <see cref="LogFormat.General"/> format in conjunction with
-    /// <see cref="Logger.Debug"/> statements. In this scenario, it serves as padding between leading stack trace
-    /// information (method name and line) and the message content. This makes a log files easier to read, as the
-    /// start of message contents are aligned. Typically, it should be set to a large value of 80 to 100 characters
-    /// to leave sufficient room for stack information. In other modes, it simply serves as an indentation count and
-    /// is not particularly useful. The default is 0 (disabled).
-    /// </summary>
-    public int IndentCount { get; set; }
-
-    /// <summary>
     /// Gets or sets the maximum lines per file before it is closed and a new one opened. The default is 10,000.
     /// A negative or zero value disables.
     /// </summary>
     public long MaxLines { get; set; } = 100000;
+
+    /// <summary>
+    /// Gets the number of pad characters for use with the <see cref="LogFormat.General"/> format in
+    /// conjunction with <see cref="Logger.Debug"/> statements, i.e. messages with <see cref="DebugInfo"/>
+    /// assigned (it does nothing in other formats). In this scenario, it serves as padding between leading
+    /// stack trace information (method name and line) and the message content. This ensures the logs with debug
+    /// statements are easier to read as the start of message contents are aligned. Typically, it should be set
+    /// to a value of 80 to 100 characters to leave sufficient room for stack information. The default is 80.
+    /// </summary>
+    public int DebugPad { get; set; } = 80;
 
     /// <summary>
     /// Gets or sets whether to attempt to remove any pre-existing log files (with extension ".log") within the

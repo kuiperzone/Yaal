@@ -153,19 +153,35 @@ public static class SeverityLevelExtension
     }
 
 	/// <summary>
-    /// Returns an RFC 5424 (and BSD) priority code given a <see cref="FacilityId"/> value.
-    /// The result is an integer (as a string) for the severity clamped within the legal
-    /// RFC 5424 range and OR-ed with facility * 8.
+    /// Returns an RFC 5424 and BSD priority code given a <see cref="FacilityId"/> value. The result is an
+    /// integer for the severity clamped within the legal RFC 5424 range and OR-ed with facility.
     /// </summary>
-    public static string ToPriorityCode(this SeverityLevel severity, FacilityId facility)
+    public static int ToPriorityCode(this SeverityLevel severity, FacilityId facility)
     {
         const int Min = (int)SeverityLevel.Emergency;
 		const int Max = (int)SeverityLevel.Debug;
-        return (Math.Clamp((int)severity, Min, Max) | (int)facility << 3).ToString(CultureInfo.InvariantCulture);
+        return Math.Clamp((int)severity, Min, Max) | (int)facility;
     }
 
 	/// <summary>
-    /// Returns an RFC 5424 keyword pair, i.e. "info.user".
+    /// Returns an RFC 5424 and BSD priority code according to the kind, and given a <see cref="FacilityId"/> value.
+    /// The result includes angled brackets.
+    /// </summary>
+    public static string ToPriority(this SeverityLevel severity, PriorityKind kind, FacilityId facility)
+    {
+        switch (kind)
+        {
+            case PriorityKind.Keyword:
+                return '<' + ToKeyword(severity) + '>';
+            case PriorityKind.Omit:
+                return "";
+            default:
+                return '<' + ToPriorityCode(severity, facility).ToString(CultureInfo.InvariantCulture) + '>';
+        }
+    }
+
+	/// <summary>
+    /// Returns an RFC 5424 keyword pair, i.e. "user.info".
     /// </summary>
     public static string ToPriorityPair(this SeverityLevel severity, FacilityId facility)
     {

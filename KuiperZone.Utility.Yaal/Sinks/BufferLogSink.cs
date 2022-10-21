@@ -98,6 +98,8 @@ public sealed class BufferLogSink : ILogSink
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
+            var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
+
             lock (_syncObj)
             {
                 if (_history.Count == _options.Capacity && _history.Count > 0)
@@ -105,7 +107,7 @@ public sealed class BufferLogSink : ILogSink
                     _history.RemoveAt(0);
                 }
 
-                _history.Add(msg.ToString(new MessageParams(_options, opts)));
+                _history.Add(text);
             }
         }
     }

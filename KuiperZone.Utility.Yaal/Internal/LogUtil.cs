@@ -115,9 +115,9 @@ public static class LogUtil
 
     /// <summary>
     /// Unlike <see cref="AssertId"/>, the call does not throw. The length exceeds the maximum, it is
-    /// truncated. If it contains invalid characters, it returns an empty string.
+    /// truncated. If it contains invalid characters, it returns null.
     /// </summary>
-    public static string EnsureId(string? id, int maxLength = int.MaxValue)
+    public static string? EnsureId(string? id, int maxLength = int.MaxValue)
     {
         id = id?.Trim();
 
@@ -125,7 +125,7 @@ public static class LogUtil
         {
             if (id.Length > maxLength)
             {
-                id = id.Substring(maxLength);
+                id = id.Substring(0, maxLength);
             }
 
             if (LogUtil.IsValidId(id, maxLength))
@@ -134,7 +134,7 @@ public static class LogUtil
             }
         }
 
-        return "";
+        return null;
    }
 
     /// <summary>

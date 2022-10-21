@@ -18,15 +18,15 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-
 using System.Text;
 
 namespace KuiperZone.Utility.Yaal;
 
 /// <summary>
-/// Structured RFC 5424 SD-ELEMENT. The class inherits <see cref="SdDictionary{T}"/>
-/// where T is <see cref="SdElement"/>. In other words, this is a dictionary where the
-/// key is an SD-ELEMENT SD-ID. Parameter values are access as: Data[SD-ID][SD-NAME].
+/// RFC 5424 data class. The class inherits <see cref="SdDictionary{T}"/> where T is
+/// <see cref="SdElement"/>. Here, the dictionary key is the SD-ELEMENT SD-ID, and each
+/// <see cref="SdElement"/> comprises a sequence of SD-PARAM key-values. Individual
+/// values are access as: Data[SD-ID][SD-NAME].
 /// </summary>
 public sealed class StructuredData : SdDictionary<SdElement>
 {
@@ -37,6 +37,7 @@ public sealed class StructuredData : SdDictionary<SdElement>
     {
         foreach (var item in this)
         {
+            // Call the overloaded method with its Id
             item.Value.AppendTo(buffer, item.Key);
         }
     }

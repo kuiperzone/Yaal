@@ -59,9 +59,7 @@ public class LogOptions : IReadOnlyLogOptions
     {
         HostName = AppInfo.HostName;
         AppPid = AppInfo.Pid;
-
-        // Truncate at last "." if too long
-        AppName = LogUtil.EnsureId(AppInfo.AppName, AppNameMaxLength);
+        AppName = LogUtil.EnsureId(AppInfo.AppName, AppNameMaxLength) ?? "";
     }
 
     /// <summary>
@@ -74,6 +72,7 @@ public class LogOptions : IReadOnlyLogOptions
         AppPid = other.AppPid;
         IsTimeUtc = other.IsTimeUtc;
         Facility = other.Facility;
+        Priority = other.Priority;
         DebugId = other.DebugId;
     }
 
@@ -83,7 +82,7 @@ public class LogOptions : IReadOnlyLogOptions
     public string HostName
     {
         get { return _hostName; }
-        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength); }
+        set { _hostName = LogUtil.EnsureId(value, HostNameMaxLength) ?? ""; }
     }
 
     /// <summary>
@@ -93,7 +92,7 @@ public class LogOptions : IReadOnlyLogOptions
     public string AppName
     {
         get { return _appName; }
-        set { _appName = LogUtil.EnsureId(value, AppNameMaxLength); }
+        set { _appName = LogUtil.EnsureId(value, AppNameMaxLength) ?? ""; }
     }
 
     /// <summary>
@@ -102,7 +101,7 @@ public class LogOptions : IReadOnlyLogOptions
     public string AppPid
     {
         get { return _procId; }
-        set { _procId = LogUtil.EnsureId(value, PidMaxLength); }
+        set { _procId = LogUtil.EnsureId(value, PidMaxLength) ?? ""; }
     }
 
     /// <summary>
@@ -116,12 +115,17 @@ public class LogOptions : IReadOnlyLogOptions
 	public FacilityId Facility { get; set; } = FacilityId.User;
 
     /// <summary>
+    /// Implements <see cref="IReadOnlyLogOptions.Priority"/> and provides a setter.
+    /// </summary>
+    public PriorityKind Priority { get; set; } = PriorityKind.Default;
+
+    /// <summary>
     /// Implements <see cref="IReadOnlyLogOptions.DebugId"/> and provides a setter.
     /// </summary>
 	public string DebugId
     {
         get { return _debugId; }
-        set { _debugId = LogUtil.EnsureId(value, HostNameMaxLength); }
+        set { _debugId = LogUtil.EnsureId(value, HostNameMaxLength) ?? ""; }
     }
 
     /// <summary>

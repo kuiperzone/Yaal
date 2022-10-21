@@ -75,10 +75,7 @@ public sealed class FileLogSink : ILogSink
     {
         if (msg.Severity.IsHigherOrEqualPriority(_options.Threshold))
         {
-            var mo = new MessageParams(_options, opts);
-            mo.IndentCount = _options.IndentCount;
-
-            var text = msg.ToString(mo);
+            var text = msg.ToString(_options.Format, opts, _options.MaxTextLength, _options.DebugPad);
 
             if (_local != null)
             {

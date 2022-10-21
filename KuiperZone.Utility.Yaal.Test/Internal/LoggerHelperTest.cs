@@ -40,7 +40,6 @@ public class LoggerHelperTest
         // Unchanged
         Assert.Equal(sinks, help.Sinks);
         Assert.Equal(opts, help.Options);
-        Assert.True(help.Allow("Kdjuf", SeverityLevel.Emergency));
     }
 
     [Fact]
@@ -56,7 +55,6 @@ public class LoggerHelperTest
         Assert.Equal(opts, help.Options);
         Assert.Equal(SeverityLevel.Critical, help.Threshold);
         Assert.Equal(sinks, help.Sinks);
-        Assert.True(help.Allow("Kdjuf", SeverityLevel.Emergency));
     }
 
     [Fact]
@@ -68,33 +66,6 @@ public class LoggerHelperTest
 
         sinks = new ILogSink[] { new ConsoleLogSink(), new BufferLogSink() };
         help = help.NewSinks(sinks);
-
-        Assert.Equal(sinks, help.Sinks);
-        Assert.Equal(SeverityLevel.Critical, help.Threshold);
-        Assert.Equal(opts, help.Options);
-        Assert.True(help.Allow("Kdjuf", SeverityLevel.Emergency));
-    }
-
-    [Fact]
-    public void NewExclusions_SetsAndPreservesOthers()
-    {
-        var sinks = new ILogSink[] { new BufferLogSink(), new ConsoleLogSink() };
-        var help = new LoggerHelper(SeverityLevel.Critical, sinks );
-        var opts = help.Options;
-
-        string excl = "msgid1, msgid2,msgid3";
-        help = help.NewExclusions(excl);
-
-        Assert.Equal(excl, help.Exclusions);
-        Assert.False(help.Allow("msgid1", SeverityLevel.Emergency));
-        Assert.False(help.Allow("msgid1", SeverityLevel.DebugL3));
-
-        Assert.False(help.Allow("msgid2", SeverityLevel.Emergency));
-        Assert.False(help.Allow("msgid3", SeverityLevel.Emergency));
-
-        Assert.True(help.Allow("Kdjuf", SeverityLevel.Emergency));
-        Assert.True(help.Allow("", SeverityLevel.Emergency));
-        Assert.False(help.Allow("Kdjuf", SeverityLevel.DebugL3));
 
         Assert.Equal(sinks, help.Sinks);
         Assert.Equal(SeverityLevel.Critical, help.Threshold);

@@ -79,7 +79,7 @@ public static class AppInfo
     public static string HostName { get; }
 
     /// <summary>
-    /// Gets the application name, being the last element in <see cref="AssemblyName"/>.
+    /// Gets the application name. This is to be the last element in <see cref="AssemblyName"/>.
     /// </summary>
     public static string AppName { get; }
 

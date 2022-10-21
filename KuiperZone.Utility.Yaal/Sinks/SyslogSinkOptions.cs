@@ -22,6 +22,9 @@ using System.Runtime.InteropServices;
 
 namespace KuiperZone.Utility.Yaal.Sinks;
 
+// Strip priority
+// https://stackoverflow.com/questions/9209130/confused-with-syslog-message-format
+
 /// <summary>
 /// Construction options for the <see cref="SyslogLogSink"/> class. Implements
 /// <see cref="SyslogSinkOptions"/> and provides setters.

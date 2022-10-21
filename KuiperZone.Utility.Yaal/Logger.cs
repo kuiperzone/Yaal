@@ -116,17 +116,6 @@ public sealed class Logger
     }
 
     /// <summary>
-    /// Gets or sets a comma separated string contained message IDs to exclude (case sensitive).
-    /// A message with a <see cref="LogMessage.MsgId"/> value contained within this string will be ignored.
-    /// Example: "TCPIN,TCPOUT,LoopA".
-    /// </summary>
-    public string Exclusions
-    {
-        get { return v_helper.Exclusions; }
-        set { v_helper = v_helper.NewExclusions(value); }
-    }
-
-    /// <summary>
     /// Gets the first Exception thrown internally. The approach of this <see cref="Logger"/> instance
     /// is not to throw exceptions, and this method is provided as means of diagnoising any problem that
     /// may be encountered logging data. The result is null if no internal error has been thrown (nominal case).
@@ -163,7 +152,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (temp.Allow(msg))
+        if (temp.Allow(msg.Severity))
         {
             temp.Write(msg);
         }
@@ -208,7 +197,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (temp.Allow(msgId, severity))
+        if (temp.Allow(severity))
         {
             temp.Write(new LogMessage(msgId, severity, text));
         }
@@ -255,7 +244,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (temp.Allow(msgId, severity))
+        if (temp.Allow(severity))
         {
             // Exception.Message only
             temp.Write(new LogMessage(msgId, severity, e.Message));
@@ -269,7 +258,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (condition && temp.Allow(msg))
+        if (condition && temp.Allow(msg.Severity))
         {
             temp.Write(msg);
         }
@@ -310,7 +299,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (condition && temp.Allow(msgId, severity))
+        if (condition && temp.Allow(severity))
         {
             temp.Write(new LogMessage(msgId, severity, text));
         }
@@ -326,7 +315,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (temp.Allow(msg))
+        if (temp.Allow(msg.Severity))
         {
             MethodBase.GetCurrentMethod();
             msg.Debug ??= new(DebugMethodName);
@@ -384,7 +373,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (temp.Allow(msgId, severity))
+        if (temp.Allow(severity))
         {
             var msg = new LogMessage(msgId, severity, text);
             msg.Debug = new(DebugMethodName);
@@ -442,7 +431,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (temp.Allow(msgId, severity))
+        if (temp.Allow(severity))
         {
             var msg = new LogMessage(msgId, severity, e.ToString());
             msg.Debug = new(DebugMethodName);
@@ -459,7 +448,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (condition && temp.Allow(msg))
+        if (condition && temp.Allow(msg.Severity))
         {
             msg.Debug ??= new(DebugIfMethodName);
             temp.Write(msg);
@@ -511,7 +500,7 @@ public sealed class Logger
     {
         var temp = v_helper;
 
-        if (condition && temp.Allow(msgId, severity))
+        if (condition && temp.Allow(severity))
         {
              var msg = new LogMessage(msgId, severity, text);
             msg.Debug = new(DebugIfMethodName);
