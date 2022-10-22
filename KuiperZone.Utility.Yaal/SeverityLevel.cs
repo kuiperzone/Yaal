@@ -157,9 +157,7 @@ public static class SeverityLevelExtension
     /// </summary>
     public static int ToPriorityCode(this SeverityLevel severity, FacilityId facility)
     {
-        const int Min = (int)SeverityLevel.Emergency;
-		const int Max = (int)SeverityLevel.Debug;
-        return Math.Clamp((int)severity, Min, Max) | (int)facility;
+        return Math.Clamp((int)severity, 0, 7) | (int)facility;
     }
 
 	/// <summary>

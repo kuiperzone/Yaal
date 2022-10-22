@@ -2,11 +2,11 @@
 
 # yaal - An RFC 5424 Logger for .NET #
 
-**Yaal** is *yet another application logger* for dotnet. On Linux, it writes to syslog in [RFC 5424](https://www.rfc-editor.org/rfc/rfc5424) format by default and, on Windows, to EventLog. It supports other sinks and formats, including a file logger with rotation and auto-removal.
+**Yaal** is *yet another application logger* for .NET. On Linux, it writes to syslog in [RFC 5424](https://www.rfc-editor.org/rfc/rfc5424) format by default and, on Windows, to EventLog. It supports other sinks and formats, including a file logger with rotation and auto-removal.
 
 **[NUGET PACKAGE TBD]()**
 
-Note. Yaal is licensed under GPLv3. It has been tested on Linux and Windows, but not on other platforms.
+Yaal is licensed under It is licensed as **GPL-3.0-or-later**. It has been tested on Linux and Windows, but not on other platforms.
 
 ## Features ##
 Features include:
