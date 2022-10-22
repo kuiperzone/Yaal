@@ -64,7 +64,7 @@ Other instances of `Logger` can be created, however.
 
 ### Logging Severity and Threshold ###
 
-Every log message has an associated `SeverityLevel` value which follow the RFC 5424 specification. Namely, in
+Every log message has an associated `SeverityLevel` value which follows the RFC 5424 specification. Namely, in
 order of decreasing priority: Emergency, Alert, Critical, Error, Warning, Notice, Info, Debug. If unspecified,
 the default message severity is `SeverityLevel.Info`.
 
@@ -81,14 +81,14 @@ Additionally, we can disable all logging as follows:
 
     Logger.Global.Threshold = SeverityLevel.Disabled;
 
-## FileSink ###
+## The FileSink ###
 
-Yaal supports the concenpt of "sinks". Multiple sinks can be added to a `Logger` instance. It is best to add sinks
-and change logging parameters at application start-up.
+Yaal supports the concenpt of "sinks", such that multiple sinks can be added to a `Logger` instance.
+It is best to add sinks at application start-up (although it can be done at any time).
 
 To add a file sink:
 
-    Logger.Global.AddSink(new FileSink(new FileSinkOptions()));
+    Logger.Global.AddSink(new FileSink());
 
 The logger will now write to both Syslog (or EventLog), and files. The default file output directory is located under the user's home. By default, each thread writes to a separate file:
 
@@ -113,10 +113,12 @@ Including the "{THD}" (thread name) placeholder in the filename will cause the s
     var opts = new FileSinkOptions();
     opts.DirectoryPattern = "{DOCDIR}/Logs/{ASM}";
     opts.FilePattern = "{APP}-{PID}-{THD}-{[yyyyMMddTHHmmss]}.{PAG}.log";
+
     Logger.Global.AddSink(new FileSink(opts));
 
-Above will cause a logging directory to be created under the user home directory. Each log file will be named after the application, PID, thread name (or ID), date-time, and a "page" counter. If "{THD}" is omitted, logging output from
-different threads will be written to the same file.
+The above will cause a logging directory to be created under the user home directory. Each log file will be named
+after the application, PID, thread name (or ID), date-time, and a "page" counter. If "{THD}" is omitted, logging
+output from different threads will be written to the same file.
 
 ## More Sinks ##
 
