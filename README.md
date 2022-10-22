@@ -130,7 +130,7 @@ To add a Console sink:
 
 By default, output is colored according to severity.
 
-<img src="Media/console.png" style="width:500%;max-width:400px;"/>
+<img src="Media/console.png" style="width:50%;max-width:400px;"/>
 
 ### BufferSink ###
 
