@@ -23,7 +23,7 @@ using KuiperZone.Utility.Yaal.Sinks;
 namespace KuiperZone.Utility.Yaal.Internal;
 
 /// <summary>
-/// Helps facilite alock-free design in Logger class. It holds everything that would otherwise
+/// Helps facilitate a lock-free design in Logger class. It holds everything that would otherwise
 /// be volatile in one class which, therefore, can be accessed via one volatile reference.
 /// Public for unit testing only.
 /// </summary>

@@ -64,8 +64,8 @@ public static class LogUtil
     }
 
     /// <summary>
-	/// Static routine which returns true if id a valid SD-NAME or SD-ID. I.e. it is not empty, and
-	/// all characters are within the printable ASCII range, and they do not contain: '=', SP, ']', '"'.
+    /// Static routine which returns true if id a valid SD-NAME or SD-ID. I.e. it is not empty, and
+    /// all characters are within the printable ASCII range, and they do not contain: '=', SP, ']', '"'.
     /// </summary>
 	public static bool IsValidId([NotNullWhen(true)] string? id, int maxLength = int.MaxValue)
     {
@@ -146,7 +146,7 @@ public static class LogUtil
     }
 
     /// <summary>
-	/// Escapes the ASCII string, replacing non-printing characters with escaped numerical codes.
+    /// Escapes the ASCII string, replacing non-printing characters with escaped numerical codes.
     /// If "escapeExt" is true, characters >= 0x7F are also escaped. The "chars" value provides a
     /// list of additional characters to escape, i.e. "\\]\"".
     /// </summary>
