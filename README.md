@@ -19,11 +19,11 @@ Features include:
 * Writes stack trace information in DEBUG build
 * Supports file logging, with file rotation and old file removal
 * Each thread can have own log file
-* Other sinks available to write Console and a in-memory buffer
+* Other sinks available to write to Console and a in-memory buffer
 
 ## Getting Started ##
 
-Install the nuget package. See also the AppDemo application in the source code, as it provides examples
+Install the nuget package. See also the DemoApp application in the source code, as it provides examples
 of how to use many of the features of the Yaal `Logger` class.
 
 Once installed, simply:
@@ -36,8 +36,7 @@ Or for debug:
 
     Logger.Global.Debug($"Value: {value} = 0x{value:X8}");
 
-These two example, out of the box, will write to syslog on Linux and EventLog on Windows. It is possible to change
-these "log sinks" or add new ones.
+You can see that we are calling a global singleton. These two examples, out of the box, will write to syslog on Linux and EventLog on Windows. It is possible to change these "log sinks" or add new ones.
 
 The latter example, above, writes to the log only in a DEBUG build (it is omitted in RELEASE).
 Moreover, on Linux, it writes in RFC 5424 format with stack trace as *structured data*:
@@ -55,8 +54,8 @@ In writing to EventLog, the message `SeverityLevel` value is translated to a mat
 By default, the LogName used is "Application" and Source is ".NET Runtime". This combination allows for messages to be
 written out of the box, without having to register the event source.
 
-The fact that the use of custom "Source" names [requires their registration in Administrator mode](https://www.jitbit.com/alexblog/266-writing-to-an-event-log-from-net-without-the-description-for-event-id-nonsense/)
-may be a PITA on Windows. Therefore, the `FileSink` represents a valid alternative under Windows (see below).
+The fact that the use of custom "Source" [requires their registration in Administrator mode](https://www.jitbit.com/alexblog/266-writing-to-an-event-log-from-net-without-the-description-for-event-id-nonsense/)
+may prove a PITA on Windows. Therefore, the `FileSink` may be considered as an alternative (see below).
 
 ### Thread Safety ###
 
