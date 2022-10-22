@@ -4,7 +4,7 @@
 
 **Yaal** is *yet another application logger* for .NET. On Linux, it writes to syslog in [RFC 5424](https://www.rfc-editor.org/rfc/rfc5424) format by default and, on Windows, to EventLog. It supports other sinks and formats, including a file logger with rotation and auto-removal.
 
-**[NUGET PACKAGE](https://www.nuget.org/packages/KuiperZone.Utility.Yaal/1.0.0)**
+**[NUGET PACKAGE](https://www.nuget.org/packages/KuiperZone.Utility.Yaal)**
 
 Yaal is licensed under **GPL-3.0-or-later**. It has been tested on Linux and Windows, but not on other platforms.
 
