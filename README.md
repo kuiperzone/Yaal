@@ -141,6 +141,7 @@ logging and may be useful in testing.
 
     Logger.Global.log.Debug("This is logged in DEBUG only");
     bool logged = buffer.Contains("logged in DEBUG only");
+
     Console.WriteLine($"Statement was logged: {logged}");
 
 ## RFC 5424 Structured Data ##
@@ -148,10 +149,12 @@ logging and may be useful in testing.
 The `LogMessage` class can be used to write RFC 5424 structured data.
 
     var msg = new LogMessage(SeverityLevel.Notice, "Contains structured data");
+
     msg.Data.Add("exampleSDID@32473", new SdElement());
     msg.Data["exampleSDID@32473"].Add("iut", "9");
     msg.Data["exampleSDID@32473"].Add("eventSource", "rawr");
     msg.Data["exampleSDID@32473"].Add("eventID", "123");
+
     Logger.Global.Write(msg);
 
 This logs the following:
