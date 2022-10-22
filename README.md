@@ -36,7 +36,9 @@ Or for debug:
 
     Logger.Global.Debug($"Value: {value} = 0x{value:X8}");
 
-You can see that we are calling a global singleton. These two examples, out of the box, will write to syslog on Linux and EventLog on Windows. It is possible to change these "log sinks" or add new ones.
+These two examples, out of the box, will write to syslog on Linux and EventLog on Windows. It is possible to change these "log sinks" or add new ones.
+
+### Linux Syslog ###
 
 The latter example, above, writes to the log only in a DEBUG build (it is omitted in RELEASE).
 Moreover, on Linux, it writes in RFC 5424 format with stack trace as *structured data*:
@@ -45,6 +47,8 @@ Moreover, on Linux, it writes in RFC 5424 format with stack trace as *structured
 
 Here, the calling method is recorded as the SD-PARAM "FUNC" and "LINE". Note that "THREAD" gives: "{pid}-{thread name or id}".
 This allows debug output to filtered on the application PID and calling thread.
+
+### Windows EventLog ###
 
 On Windows, the same code above writes to EventLog:
 
