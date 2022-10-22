@@ -6,7 +6,7 @@
 
 **[NUGET PACKAGE TBD](https://www.nuget.org/packages/KuiperZone.Utility.Yaal/1.0.0)**
 
-Yaal is licensed under It is licensed as **GPL-3.0-or-later**. It has been tested on Linux and Windows, but not on other platforms.
+Yaal is licensed under **GPL-3.0-or-later**. It has been tested on Linux and Windows, but not on other platforms.
 
 ## Features ##
 Features include:
