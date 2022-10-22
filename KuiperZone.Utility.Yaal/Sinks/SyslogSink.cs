@@ -58,14 +58,6 @@ public sealed class SyslogSink : ILogSink
     }
 
     /// <summary>
-    /// Gets whether the instance has failed.
-    /// </summary>
-    public bool IsFailed
-    {
-        get { return v_isFailed; }
-    }
-
-    /// <summary>
     /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
@@ -86,8 +78,9 @@ public sealed class SyslogSink : ILogSink
             }
             catch
             {
+                // This only prevents repeated calls if failing
+                // It is not of critical importance, neither is any race.
                 v_isFailed = true;
-
                 throw;
             }
         }
