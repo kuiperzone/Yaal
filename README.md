@@ -200,3 +200,13 @@ the GNU General Public License as published by the Free Software Foundation, eit
 
 Yaal is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
 warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+## Other Projects ###
+
+Other KuiperZone projects:
+
+**Avant Garde** is cross-platform XAML previewer for the C# Avalonia Framework. It was the first Avalonia preview solution for Linux.
+[github.com/kuiperzone/AvantGarde](https://github.com/kuiperzone/AvantGarde)
+
+**Publish-AppImage for .NET** is a simple bash script deployment utility which calls dotnet publish and packages the output as an AppImage file (or zip) with a single command.
+[github.com/kuiperzone/Publish-AppImage](https://github.com/kuiperzone/Publish-AppImage)
