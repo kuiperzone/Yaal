@@ -28,54 +28,54 @@ class Program
 
     public static int Main(string[] args)
     {
+        // This is useful in tracking calling threads below
+        Thread.CurrentThread.Name = "MAINTHREAD";
+
+
         // SET UP LOGGER (use global instance)
         // By default, Logger has a SyslogSink which will write to syslog
         // on LINUX (RFC 5424), or EventLog on Windows (plain text).
-        var log = Logger.Global;
 
         // Add file output. By default FileSink will
         // write to user's Document folder.
         var fopts = new FileSinkOptions();
         fopts.RemoveLogsOnStart = true;
-        var files = new FileLogSink(fopts);
-        log.AddSink(files);
+        var files = new FileSink(fopts);
+        Logger.Global.AddSink(files);
 
         // We will see output on console
-        log.AddSink(new ConsoleLogSink(new ConsoleSinkOptions(true)));
+        Logger.Global.AddSink(new ConsoleSink(new ConsoleSinkOptions(true)));
 
         // We will use BufferSink later.
         // It's primary use case is in unit testing.
-        var buffer = new BufferLogSink();
-        log.AddSink(buffer);
-
-
-        // This is useful in tracking calling threads
-        Thread.CurrentThread.Name = "MAINTHREAD";
+        var buffer = new BufferSink();
+        Logger.Global.AddSink(buffer);
 
 
         // INTRO
-        log.Write($"YAAL HELLO WORLD: {AppInfo.Pid}");
-        log.Write("NOTE. Log files also written to: " + files.DirectoryName);
-
+        Logger.Global.Write($"YAAL HELLO WORLD: {AppInfo.Pid}");
+        Logger.Global.Write("NOTE. Log files also written to: " + files.DirectoryName);
 
         // SEVERITY LEVELS
         // The following Debug() will not be logged unless you
         // lower the threshold by uncommenting the line below.
         // log.Threshold = SeverityLevel.DebugL3;
-        log.Write(SeverityLevel.DebugL3, $"This message has {SeverityLevel.DebugL3} severity");
+        Logger.Global.Write(SeverityLevel.DebugL3, $"This message has {SeverityLevel.DebugL3} severity");
 
         // Write a message for every severity, but note those
         // with lower priority than log.Threshold will be ignored.
-        log.Write($"The following are severities down to {log.Threshold}");
+        var threshold = Logger.Global.Threshold;
+        Logger.Global.Write($"The following are severities down to {threshold}");
+
         foreach (var item in Enum.GetValues<SeverityLevel>())
         {
             // We generate MsgId as upper-case severity value
-            log.Write(item.ToString().ToUpper(), item, $"Message for {item} severity");
+            Logger.Global.Write(item.ToString().ToUpper(), item, $"Message for {item} severity");
         }
 
 
         // STACK TRACE (CALLING METHOD NAME)
-        log.Debug("This line will only be written in DEBUG and will have the Main() method name and line #");
+        Logger.Global.Debug("This line will only be written in DEBUG and will have the Main() method name and line #");
 
         // Call a method to demonstrate stack trace
         CallingMethod(668);
@@ -92,9 +92,19 @@ class Program
 
         // BUFFER SINK
         // We can use BufferSink to query what was actually logged
-        log.Debug("This is logged in DEBUG only");
+        Logger.Global.Debug("This is logged in DEBUG only");
+
         bool wasLogged = buffer.Contains("logged in DEBUG only");
-        log.Write($"Statement was logged: {wasLogged}");
+        Logger.Global.Write($"Statement was logged: {wasLogged}");
+
+
+        // STRUCTURED DATA
+        var msg = new LogMessage(SeverityLevel.Notice, "Contains structured data");
+        msg.Data.Add("exampleSDID@32473", new SdElement());
+        msg.Data["exampleSDID@32473"].Add("iut", "9");
+        msg.Data["exampleSDID@32473"].Add("eventSource", "rawr");
+        msg.Data["exampleSDID@32473"].Add("eventID", "123");
+        Logger.Global.Write(msg);
 
         return 0;
     }

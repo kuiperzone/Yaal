@@ -25,7 +25,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// <summary>
 /// Implements <see cref="ILogSink"/>. Messages are written directly to <see cref="Console"/>.
 /// </summary>
-public sealed class ConsoleLogSink : ILogSink
+public sealed class ConsoleSink : ILogSink
 {
     private readonly object _syncObj = new();
     private readonly ConsoleSinkOptions _options;
@@ -34,7 +34,7 @@ public sealed class ConsoleLogSink : ILogSink
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public ConsoleLogSink()
+    public ConsoleSink()
     {
         _options = new ConsoleSinkOptions();
         _initColor = GetForegroundColor();
@@ -43,7 +43,7 @@ public sealed class ConsoleLogSink : ILogSink
     /// <summary>
     /// Constructor with options instance.
     /// </summary>
-    public ConsoleLogSink(ConsoleSinkOptions opts)
+    public ConsoleSink(ConsoleSinkOptions opts)
     {
         // Take a copy
         _options = new ConsoleSinkOptions(opts);

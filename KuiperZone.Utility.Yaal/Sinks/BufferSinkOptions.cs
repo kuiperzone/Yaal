@@ -21,7 +21,7 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Options for the <see cref="BufferLogSink"/> class.
+/// Options for the <see cref="BufferSink"/> class.
 /// </summary>
 public sealed class BufferSinkOptions : SinkOptions
 {

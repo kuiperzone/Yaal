@@ -21,7 +21,7 @@
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// options for the <see cref="ConsoleLogSink"/> class.
+/// options for the <see cref="ConsoleSink"/> class.
 /// </summary>
 public sealed class ConsoleSinkOptions : SinkOptions
 {

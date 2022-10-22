@@ -25,7 +25,7 @@ using KuiperZone.Utility.Yaal.Internal;
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Options for the <see cref="FileLogSink"/> class.
+/// Options for the <see cref="FileSink"/> class.
 /// </summary>
 public sealed class FileSinkOptions : SinkOptions
 {

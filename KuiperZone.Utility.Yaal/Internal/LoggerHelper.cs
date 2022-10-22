@@ -42,7 +42,7 @@ public class LoggerHelper
         {
             try
             {
-                temp.Add(new SyslogLogSink());
+                temp.Add(new SyslogSink());
             }
             catch (Exception e)
             {

@@ -26,7 +26,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 // https://stackoverflow.com/questions/9209130/confused-with-syslog-message-format
 
 /// <summary>
-/// Construction options for the <see cref="SyslogLogSink"/> class. Implements
+/// Construction options for the <see cref="SyslogSink"/> class. Implements
 /// <see cref="SyslogSinkOptions"/> and provides setters.
 /// </summary>
 public sealed class SyslogSinkOptions : SinkOptions
@@ -53,7 +53,17 @@ public sealed class SyslogSinkOptions : SinkOptions
     public SyslogSinkOptions(SyslogSinkOptions other)
         : base(other)
     {
+        EventLogSource = other.EventLogSource;
     }
+
+    /// <summary>
+    /// Gets or sets the Windows EventLog.Source parameter (it is ignored on Linux).
+    /// The default is ".NET Runtime" and allows for message to be written out of the box.
+    /// In order to change this value, it is necessary to register the source.
+    /// For information, see:
+    /// https://www.jitbit.com/alexblog/266-writing-to-an-event-log-from-net-without-the-description-for-event-id-nonsense/
+    /// </summary>
+    public string EventLogSource = ".NET Runtime";
 
     private static LogFormat DefaultFormat()
     {

@@ -49,12 +49,12 @@ public class LogMessageTest
     {
         var msg = CreateMessage();
         var opts = new LogOptions();
-        opts.Priority = PriorityKind.Default;
+        opts.Priority = PriorityKind.Keyword;
 
         var msgStr = msg.ToString(LogFormat.Bsd, opts);
 
         string time = "Dec 05 12:54:23";
-        string expect = $"<10>{time} {opts.HostName} {opts.AppName}[{opts.AppPid}]: Text84763 @ Function #668";
+        string expect = $"<crit>{time} {opts.HostName} {opts.AppName}[{opts.AppPid}]: Text84763 @ Function #668";
         Assert.Equal(expect, msgStr);
     }
 

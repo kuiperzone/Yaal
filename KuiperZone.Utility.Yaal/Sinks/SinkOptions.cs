@@ -53,7 +53,7 @@ public class SinkOptions
 
     /// <summary>
     /// Gets or sets the output format. The default value shall depend on the sink kind. For example,
-    /// the default for <see cref="SyslogLogSink"/> shall be <see cref="LogFormat.Rfc5424"/>.
+    /// the default for <see cref="SyslogSink"/> shall be <see cref="LogFormat.Rfc5424"/>.
     /// For others, it may typically be <see cref="LogFormat.General"/>.
     /// </summary>
     public LogFormat Format { get; set; } = LogFormat.General;
@@ -62,7 +62,7 @@ public class SinkOptions
     /// Gets or sets the threshold severity for the sink. Setting this value will prevent the sink from
     /// logging any message with a lower priority, irrespective of the threshold value of the
     /// host logger. For example, it may desirable to set it to <see cref="SeverityLevel.Error"/>
-    /// for the <see cref="SyslogLogSink"/> so that only errors and higher priority messages are
+    /// for the <see cref="SyslogSink"/> so that only errors and higher priority messages are
     /// logged to this specific sink. Moreover, althougth this setting allows control on a per
     /// sink basis, this threshold cannot be changed in-flight. Typically, therefore, the default
     /// value is to be <see cref="SeverityLevel.Lowest"/>.

@@ -25,7 +25,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// <summary>
 /// Implements <see cref="ILogSink"/> for a file logger.
 /// </summary>
-public sealed class FileLogSink : ILogSink
+public sealed class FileSink : ILogSink
 {
     private readonly object _syncObj = new();
     private readonly ThreadLocal<FileSinkWriter>? _local;
@@ -35,7 +35,7 @@ public sealed class FileLogSink : ILogSink
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public FileLogSink()
+    public FileSink()
         : this(new FileSinkOptions())
     {
     }
@@ -43,7 +43,7 @@ public sealed class FileLogSink : ILogSink
     /// <summary>
     /// Constructor with options instance.
     /// </summary>
-    public FileLogSink(FileSinkOptions opts)
+    public FileSink(FileSinkOptions opts)
     {
         // Take a copy
         _options = new FileSinkOptions(opts);

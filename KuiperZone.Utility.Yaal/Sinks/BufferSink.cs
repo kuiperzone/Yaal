@@ -18,7 +18,6 @@
 // If not, see <https://www.gnu.org/licenses/>.
 // -----------------------------------------------------------------------------
 
-using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal.Sinks;
 
@@ -27,7 +26,7 @@ namespace KuiperZone.Utility.Yaal.Sinks;
 /// where the caller holds a reference to the sink instance and can query whether certain code paths
 /// have correctly executed based on their logging output. An instance of this is thread-safe.
 /// </summary>
-public sealed class BufferLogSink : ILogSink
+public sealed class BufferSink : ILogSink
 {
     private readonly object _syncObj = new();
     private readonly BufferSinkOptions _options;
@@ -36,7 +35,7 @@ public sealed class BufferLogSink : ILogSink
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public BufferLogSink()
+    public BufferSink()
     {
         _options = new BufferSinkOptions();
     }
@@ -44,7 +43,7 @@ public sealed class BufferLogSink : ILogSink
     /// <summary>
     /// Constructor with options instance.
     /// </summary>
-    public BufferLogSink(BufferSinkOptions opts)
+    public BufferSink(BufferSinkOptions opts)
     {
         // Take a copy
         _options = new BufferSinkOptions(opts);

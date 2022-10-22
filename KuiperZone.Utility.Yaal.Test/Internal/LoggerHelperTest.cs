@@ -29,7 +29,7 @@ public class LoggerHelperTest
     [Fact]
     public void NewThreshold_SetsAndPreservesOthers()
     {
-        var sinks = new ILogSink[] { new BufferLogSink(), new ConsoleLogSink() };
+        var sinks = new ILogSink[] { new BufferSink(), new ConsoleSink() };
         var help = new LoggerHelper(SeverityLevel.Critical, sinks );
         var opts = help.Options;
         Assert.Equal(SeverityLevel.Critical, help.Threshold);
@@ -45,7 +45,7 @@ public class LoggerHelperTest
     [Fact]
     public void NewOptions_SetsAndPreservesOthers()
     {
-        var sinks = new ILogSink[] { new BufferLogSink(), new ConsoleLogSink() };
+        var sinks = new ILogSink[] { new BufferSink(), new ConsoleSink() };
         var help = new LoggerHelper(SeverityLevel.Critical, sinks );
         var opts = help.Options;
 
@@ -60,11 +60,11 @@ public class LoggerHelperTest
     [Fact]
     public void NewSinks_SetsAndPreservesOthers()
     {
-        var sinks = new ILogSink[] { new BufferLogSink(), new ConsoleLogSink() };
+        var sinks = new ILogSink[] { new BufferSink(), new ConsoleSink() };
         var help = new LoggerHelper(SeverityLevel.Critical, sinks );
         var opts = help.Options;
 
-        sinks = new ILogSink[] { new ConsoleLogSink(), new BufferLogSink() };
+        sinks = new ILogSink[] { new ConsoleSink(), new BufferSink() };
         help = help.NewSinks(sinks);
 
         Assert.Equal(sinks, help.Sinks);

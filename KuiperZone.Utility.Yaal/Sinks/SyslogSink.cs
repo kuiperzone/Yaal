@@ -20,26 +20,30 @@
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal.Sinks;
 
 /// <summary>
-/// Implements <see cref="ILogSink"/> for syslog (logger) on Linux, and EventLog on Windows.
+/// Implements <see cref="ILogSink"/> for syslog (logger) on Linux, and EventLog (Application) on Windows.
 /// </summary>
-public sealed class SyslogLogSink : ILogSink
+public sealed class SyslogSink : ILogSink
 {
-    private static readonly object _syncObj = new();
-    private static readonly bool _isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+    // EVENTLOG REF:
+    // https://www.jitbit.com/alexblog/266-writing-to-an-event-log-from-net-without-the-description-for-event-id-nonsense/
+    private static readonly object s_syncObj = new();
+    private static IntPtr s_identPtr = IntPtr.Zero;
+    private static bool s_isSysOpen;
+
+    private readonly object _syncObj = new();
     private readonly SyslogSinkOptions _options;
+
     private EventLog? _winLog;
     private volatile bool v_isFailed;
 
     /// <summary>
     /// Default constructor.
     /// </summary>
-    public SyslogLogSink()
+    public SyslogSink()
     {
         _options = new SyslogSinkOptions();
     }
@@ -47,7 +51,7 @@ public sealed class SyslogLogSink : ILogSink
     /// <summary>
     /// Constructor with options instance.
     /// </summary>
-    public SyslogLogSink(SyslogSinkOptions opts)
+    public SyslogSink(SyslogSinkOptions opts)
     {
         // Take a copy
         _options = new SyslogSinkOptions(opts);
@@ -62,8 +66,7 @@ public sealed class SyslogLogSink : ILogSink
     }
 
     /// <summary>
-    /// Implements <see cref="ILogSink.Write"/>. It may throw on Linux where the
-    /// "logger" shell command is not available.
+    /// Implements <see cref="ILogSink.Write"/>.
     /// </summary>
     /// <exception cref="PlatformNotSupportedException">Not supported on this platform</exception>
     public void Write(LogMessage msg, IReadOnlyLogOptions opts)
@@ -72,26 +75,135 @@ public sealed class SyslogLogSink : ILogSink
         {
             try
             {
-                if (_isWindows)
+                if (OpenSyslog(opts))
                 {
-                    WriteWindows(msg, opts);
+                    WriteSyslog(msg, opts);
                 }
                 else
                 {
-                    WriteLinux(msg, opts);
+                    WriteEventLog(msg, opts);
                 }
             }
             catch
             {
                 v_isFailed = true;
 
-                if (!_isWindows && !ExecLog("--version", true))
-                {
-                    throw new PlatformNotSupportedException("Linux logger not available");
-                }
-
                 throw;
             }
+        }
+    }
+
+    [DllImport("libc")]
+    private static extern void openlog(IntPtr ident, int option, int facility);
+
+    [DllImport("libc")]
+    private static extern void syslog(int priority, string message);
+
+    [DllImport("libc")]
+    private static extern void closelog();
+
+    private static bool OpenSyslog(IReadOnlyLogOptions opts)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return false;
+        }
+
+        // See if we detect non-locked value
+        if (s_isSysOpen)
+        {
+            return true;
+        }
+
+        lock (s_syncObj)
+        {
+            if (!s_isSysOpen)
+            {
+                s_isSysOpen = true;
+
+                if (!string.IsNullOrEmpty(opts.AppName))
+                {
+                    // Open with AppName in options of first call.
+                    s_identPtr = Marshal.StringToHGlobalAnsi(opts.AppName);
+                }
+
+                // We keep open for lifetime of application.
+                openlog(s_identPtr, 0x01, (int)opts.Facility);
+            }
+
+            return true;
+        }
+    }
+
+    private static EventLogEntryType ToEntryType(SeverityLevel severity)
+    {
+        #pragma warning disable CA1416
+
+        switch (severity)
+        {
+            case SeverityLevel.Emergency:
+            case SeverityLevel.Alert:
+            case SeverityLevel.Critical:
+            case SeverityLevel.Error:
+                return EventLogEntryType.Error;
+
+            case SeverityLevel.Warning:
+                return EventLogEntryType.Warning;
+
+            default:
+                return EventLogEntryType.Information;
+        }
+    }
+
+    public void WriteSyslog(LogMessage msg, IReadOnlyLogOptions opts)
+    {
+        // It seems that we need to provide priority as an option for syslog
+        int priority = msg.Severity.ToPriorityCode(opts.Facility);
+        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
+        syslog(priority, text);
+    }
+
+    public void WriteEventLog(LogMessage msg, IReadOnlyLogOptions opts)
+    {
+        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
+
+        lock (_syncObj)
+        {
+            if (_winLog == null)
+            {
+                _winLog = new("Application");
+                _winLog.Source = _options.EventLogSource;
+            }
+
+            // Leave at local machine
+            // _event.MachineName = opts.HostName;
+            _winLog.WriteEntry(text, ToEntryType(msg.Severity));
+        }
+    }
+
+    /*
+    // Leave this for reference for time being. It is an implementation
+    // for syslog which calls the logger command utility. It is some 10 times
+    // slower than DllImport, but otherwise works well. If there's a portability
+    // issue with lib import, we could use this.
+
+    private void WriteLinux(LogMessage msg, IReadOnlyLogOptions opts)
+    {
+        // It seems that we need to provide priority as an option for syslog
+        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
+
+        // It seems that we need to provide priority as an option
+        var buffer = new StringBuilder("-p ", 1024);
+        buffer.Append(msg.Severity.ToPriorityPair(opts.Facility));
+        buffer.Append(' ');
+
+        buffer.Append('"');
+        buffer.Append(LogUtil.Escape(text, "\\\""));
+        buffer.Append('"');
+
+        if (!ExecLog(buffer.ToString()))
+        {
+            throw new InvalidOperationException("Syslog 'logger' command failed: " + buffer.ToString());
         }
     }
 
@@ -124,62 +236,6 @@ public sealed class SyslogLogSink : ILogSink
 
         return false;
     }
-
-    private static EventLogEntryType ToEntryType(SeverityLevel severity)
-    {
-        #pragma warning disable CA1416
-
-        switch (severity)
-        {
-            case SeverityLevel.Emergency:
-            case SeverityLevel.Alert:
-            case SeverityLevel.Critical:
-            case SeverityLevel.Error:
-                return EventLogEntryType.Error;
-
-            case SeverityLevel.Warning:
-                return EventLogEntryType.Warning;
-
-            default:
-                return EventLogEntryType.Information;
-        }
-    }
-
-    private void WriteLinux(LogMessage msg, IReadOnlyLogOptions opts)
-    {
-        // It seems that we need to provide priority as an option for syslog
-        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
-
-        // It seems that we need to provide priority as an option
-        var buffer = new StringBuilder("-p ", 1024);
-        buffer.Append(msg.Severity.ToPriorityPair(opts.Facility));
-        buffer.Append(' ');
-
-        buffer.Append('"');
-        buffer.Append(LogUtil.Escape(text, "\\\""));
-        buffer.Append('"');
-
-        if (!ExecLog(buffer.ToString()))
-        {
-            throw new InvalidOperationException("Syslog 'logger' command failed: " + buffer.ToString());
-        }
-    }
-
-    private void WriteWindows(LogMessage msg, IReadOnlyLogOptions opts)
-    {
-        var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
-
-        lock (_syncObj)
-        {
-            if (_winLog == null)
-            {
-                _winLog = new("Application");
-                _winLog.Source = "Application";
-            }
-
-            // _event.MachineName = config.HostName;
-            _winLog.WriteEntry(text, ToEntryType(msg.Severity));
-        }
-    }
+    */
 
 }

@@ -40,7 +40,7 @@ public sealed class Logger
     /// <summary>
     /// Default constructor. The <see cref="Threshold"/> property will be initialised to
     /// <see cref="SeverityLevel.Debug"/>, and <see cref="Sinks"/> will contain a single
-    /// instance of <see cref="SyslogLogSink"/>.
+    /// instance of <see cref="SyslogSink"/>.
     /// </summary>
     public Logger()
     {
@@ -49,7 +49,7 @@ public sealed class Logger
 
     /// <summary>
     /// Constructor with initial value for <see cref="Threshold"/>. <see cref="Sinks"/>
-    /// will contain a single instance of <see cref="SyslogLogSink"/>.
+    /// will contain a single instance of <see cref="SyslogSink"/>.
     /// </summary>
     public Logger(SeverityLevel threshold)
     {
@@ -76,7 +76,7 @@ public sealed class Logger
 
     /// <summary>
     /// Gets a global singleton. By default, its <see cref="Sinks"/> property will contain
-    /// a single instance of <see cref="SyslogLogSink"/>.
+    /// a single instance of <see cref="SyslogSink"/>.
     /// </summary>
     public static readonly Logger Global = new();
 
