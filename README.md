@@ -44,7 +44,8 @@ Moreover, on Linux, it writes in RFC 5424 format with stack trace as *structured
     <15>1 2022-10-21T19:54:42.754408+01:00 vendetta DemoApp 17709 - [DGB@00000000 FUNC="KuiperZone.Utility.Yaal.DemoApp.Program.CallingMethod(Int32 value)" LINE="109" SEVERITY="debug" THREAD="17709-MAINTHREAD"] Value: 668 = 0x0000029C
 
 Here, the calling method is recorded as the SD-PARAM "FUNC" and "LINE". Note that "THREAD" gives: "{pid}-{thread name or id}".
-This allows debug output to filtered on the application PID and calling thread.
+This allows debug output to filtered on the application PID and calling thread. Hint: [KSystemLog](https://apps.kde.org/en-gb/ksystemlog/)
+makes a good syslog viewer on Linux, even under Gnome.
 
 On Windows, the same code above writes to EventLog:
 
@@ -182,6 +183,11 @@ Do this at application start up:
     Logger.Global.Sinks = new ILogSink[] { new SyslogSink(new SyslogSinkOptions(LogFormat.Bsd)) }
 
 This replaces the default sink(s) with a new syslog one, only this one is configured to write in the BSD format.
+
+### Approach to Internal Errors ###
+
+As a rule, the `Logger` class does not throw exceptions. However, in the event of a failure to log output,
+the `Logger.Error` property may prove useful in diagnosing the problem.
 
 ## Copyright & License ##
 

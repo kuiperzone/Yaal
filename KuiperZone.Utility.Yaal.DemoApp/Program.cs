@@ -81,6 +81,21 @@ class Program
         CallingMethod(668);
 
 
+        // LOG AN EXCEPTION
+        try
+        {
+            throw new ArgumentException("Test exception");
+        }
+        catch(Exception e)
+        {
+            // Log Message only
+            Logger.Global.Write(e);
+
+            // Logs ToString
+            Logger.Global.Debug(e);
+        }
+
+
         // MULTIPLE THREADS
         // The logger is thread-safe and on linux thread information is recorded
         // in structured data. Moreover, the FileSink has a special feature -- it
@@ -106,6 +121,8 @@ class Program
         msg.Data["exampleSDID@32473"].Add("eventID", "123");
         Logger.Global.Write(msg);
 
+        Console.WriteLine("ERROR: " + Logger.Global.Error);
+
         return 0;
     }
 
@@ -128,5 +145,6 @@ class Program
         Logger.Global.Write("THREAD NAME: " + Thread.CurrentThread.Name);
         Logger.Global.Debug("This is a debug only statement in thread: " + Thread.CurrentThread.Name);
     }
+
 }
 
