@@ -20,6 +20,7 @@
 
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text;
 using KuiperZone.Utility.Yaal.Internal;
 
 namespace KuiperZone.Utility.Yaal.Sinks;
@@ -85,7 +86,6 @@ public sealed class FileSinkOptions : SinkOptions
     /// Extension for old log files.
     /// </summary>
     public const string OldExt = ".old";
-
 
     /// <summary>
     /// Default constructor.
@@ -252,6 +252,8 @@ public sealed class FileSinkOptions : SinkOptions
 
     private static string SubstituteCommon(string pattern)
     {
+        var sb = new StringBuilder(pattern.Length);
+
         pattern = pattern.Trim();
         pattern = pattern.Replace(FileSinkOptions.AppTag, AppInfo.AppName, StringComparison.OrdinalIgnoreCase);
         pattern = pattern.Replace(FileSinkOptions.AsmTag, AppInfo.AssemblyName, StringComparison.OrdinalIgnoreCase);

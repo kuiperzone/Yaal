@@ -43,23 +43,15 @@ public static class LogUtil
     {
         get
         {
-            const int MaxThreadLength = 60;
-
             var name = Thread.CurrentThread.Name;
 
             if (string.IsNullOrEmpty(name))
             {
                 // Use integer ID instead
-                name = "Thread" + ThreadId;
-            }
-            else
-            if (name.Length > MaxThreadLength)
-            {
-                // Not too long
-                name = name.Substring(0, MaxThreadLength).Trim();
+                return "Thread" + ThreadId;
             }
 
-            return name;
+            return MakeFileSafe(name);
         }
     }
 
@@ -215,6 +207,31 @@ public static class LogUtil
             buffer.Append("\\u");
             buffer.Append(c.ToString("X4"));
         }
+    }
+
+    private static string MakeFileSafe(string s, int maxLen = 64)
+    {
+        // NB. Note "." at end
+        // Some .NET threads have ".NET in name".
+        const string Illegals = "/\\\"$*<>:|?&%.";
+
+        var sb = new StringBuilder(s.Length);
+
+        foreach (var c in s)
+        {
+            if (c < 0x20)
+            {
+                break;
+            }
+
+            // No spaces?
+            if (c > 0x20 && !Illegals.Contains(c))
+            {
+                sb.Append(c);
+            }
+        }
+
+        return sb.ToString(0, Math.Clamp(maxLen, 0, sb.Length));
     }
 
 }

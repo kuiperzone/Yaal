@@ -1,0 +1,8 @@
+Version 1.1.0
+
+    o Nuget package now includes XML documentation
+    o Ensure "{THD}" variable in FileSinkOptions does not generate illegal filenames.
+
+Version 1.0.0
+
+    o Initial release
