@@ -148,7 +148,7 @@ public sealed class SyslogSink : ILogSink
         }
     }
 
-    public void WriteSyslog(LogMessage msg, IReadOnlyLogOptions opts)
+    private void WriteSyslog(LogMessage msg, IReadOnlyLogOptions opts)
     {
         // It seems that we need to provide priority as an option for syslog
         int priority = msg.Severity.ToPriorityCode(opts.Facility);
@@ -156,7 +156,7 @@ public sealed class SyslogSink : ILogSink
         syslog(priority, text);
     }
 
-    public void WriteEventLog(LogMessage msg, IReadOnlyLogOptions opts)
+    private void WriteEventLog(LogMessage msg, IReadOnlyLogOptions opts)
     {
         var text = msg.ToString(_options.Format, opts, _options.MaxTextLength);
 

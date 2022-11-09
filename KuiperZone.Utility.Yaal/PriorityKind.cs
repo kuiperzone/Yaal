@@ -30,12 +30,12 @@ namespace KuiperZone.Utility.Yaal;
 public enum PriorityKind
 {
     /// <summary>
-    /// According RFC. I.e, "<165>...".
+    /// According RFC. I.e, "&lt;165&gt;...".
     /// </summary>
     Default = 0,
 
     /// <summary>
-    /// Severity keyword instead of numeric code. I.e.  "<notice>...".
+    /// Severity keyword instead of numeric code. I.e.  "&lt;notice&gt;...".
     /// </summary>
     Keyword,
 

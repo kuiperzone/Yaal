@@ -31,6 +31,9 @@ public class LoggerHelper
 {
     private volatile Exception? v_error;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
     public LoggerHelper(SeverityLevel threshold, IEnumerable<ILogSink>? sinks = null)
     {
         Options = new LogOptions();
@@ -67,42 +70,72 @@ public class LoggerHelper
         v_error = lastError;
     }
 
+    /// <summary>
+    /// Property.
+    /// </summary>
     public readonly IReadOnlyLogOptions Options;
 
+    /// <summary>
+    /// Property.
+    /// </summary>
     public readonly SeverityLevel Threshold;
 
+    /// <summary>
+    /// Property.
+    /// </summary>
     public readonly IReadOnlyCollection<ILogSink> Sinks;
 
+    /// <summary>
+    /// Property.
+    /// </summary>
     public Exception? Error
     {
         get { return v_error; }
     }
 
+    /// <summary>
+    /// Utility method.
+    /// </summary>
     public void ResetError()
     {
         v_error = null;
     }
 
+    /// <summary>
+    /// Utility method.
+    /// </summary>
     public bool Allow(SeverityLevel severity)
     {
         return severity.IsHigherOrEqualPriority(Threshold);
     }
 
+    /// <summary>
+    /// Utility method.
+    /// </summary>
     public LoggerHelper NewOptions(IReadOnlyLogOptions opts)
     {
         return new LoggerHelper(opts, Threshold, Sinks, Error);
     }
 
+    /// <summary>
+    /// Utility method.
+    /// </summary>
     public LoggerHelper NewThreshold(SeverityLevel severity)
     {
         return new LoggerHelper(Options, severity, Sinks, Error);
     }
 
+    /// <summary>
+    /// Utility method.
+    /// </summary>
     public LoggerHelper NewSinks(IReadOnlyCollection<ILogSink> sinks)
     {
         return new LoggerHelper(Options, Threshold, sinks, Error);
     }
 
+    /// <summary>
+    /// Utility method.
+    /// </summary>
     public void Write(LogMessage msg)
     {
         foreach (var item in Sinks)

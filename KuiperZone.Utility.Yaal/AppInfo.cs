@@ -108,6 +108,9 @@ public static class AppInfo
     /// </summary>
     public static bool IsOptimized { get; }
 
+    /// <summary>
+    /// Static ToString() method.
+    /// </summary>
     public static string ToString(bool verbose)
     {
         var buffer = new StringBuilder(512);

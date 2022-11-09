@@ -176,7 +176,7 @@ public sealed class FileSinkOptions : SinkOptions
 
     /// <summary>
     /// Gets the number of pad characters for use with the <see cref="LogFormat.General"/> format in
-    /// conjunction with <see cref="Logger.Debug"/> statements, i.e. messages with <see cref="DebugInfo"/>
+    /// conjunction with <see cref="Logger.Debug(string?)"/> statements, i.e. messages with <see cref="DebugInfo"/>
     /// assigned (it does nothing in other formats). In this scenario, it serves as padding between leading
     /// stack trace information (method name and line) and the message content. This ensures the logs with debug
     /// statements are easier to read as the start of message contents are aligned. Typically, it should be set

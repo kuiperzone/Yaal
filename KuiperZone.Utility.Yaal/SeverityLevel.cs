@@ -19,6 +19,7 @@
 // -----------------------------------------------------------------------------
 
 using System.Globalization;
+using KuiperZone.Utility.Yaal.Sinks;
 
 namespace KuiperZone.Utility.Yaal;
 
@@ -88,7 +89,8 @@ public enum SeverityLevel
 
 	/// <summary>
 	/// Lowest priority level for setting <see cref="Logger.Threshold"/> and <see cref="SinkOptions.Threshold"/>.
-    /// This level allows all message priorities except <see cref="Disabled"/>. Do not use with <see cref="LogMessage.Severity"/>.
+    /// This level allows all message priorities except <see cref="Disabled"/>. Do not use with
+    /// <see cref="LogMessage.Severity"/>.
     /// </summary>
     Lowest,
 
