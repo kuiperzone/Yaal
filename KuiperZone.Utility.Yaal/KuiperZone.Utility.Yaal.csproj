@@ -8,7 +8,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <PackageId>KuiperZone.Utility.Yaal</PackageId>
     <Product>Yaal</Product>
     <Authors>Andy Thomas</Authors>

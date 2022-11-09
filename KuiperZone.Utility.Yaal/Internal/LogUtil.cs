@@ -41,18 +41,7 @@ public static class LogUtil
     /// </summary>
     public static string ThreadName
     {
-        get
-        {
-            var name = Thread.CurrentThread.Name;
-
-            if (string.IsNullOrEmpty(name))
-            {
-                // Use integer ID instead
-                return "Thread" + ThreadId;
-            }
-
-            return MakeFileSafe(name);
-        }
+        get { return MakeFileSafe(Thread.CurrentThread.Name) + ThreadId; }
     }
 
     /// <summary>
@@ -209,11 +198,16 @@ public static class LogUtil
         }
     }
 
-    private static string MakeFileSafe(string s, int maxLen = 64)
+    private static string MakeFileSafe(string? s, int maxLen = 64)
     {
         // NB. Note "." at end
         // Some .NET threads have ".NET in name".
         const string Illegals = "/\\\"$*<>:|?&%.";
+
+        if (string.IsNullOrWhiteSpace(s))
+        {
+            return "Thread";
+        }
 
         var sb = new StringBuilder(s.Length);
 

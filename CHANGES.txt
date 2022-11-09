@@ -1,3 +1,8 @@
+Version 1.1.1
+
+    o Change to always append ThreadId to thread name for "{THD}" variable in
+    order to ensure unique.
+
 Version 1.1.0
 
     o Nuget package now includes XML documentation
